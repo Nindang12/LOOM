@@ -1,8 +1,12 @@
-import Profile from "@/components/Profile";
+import Siderbar from "@/components/Sidebar";
 
 export default function ProfilePage() {
+  
     return (
-      <Profile/>
+      <div className="flex flex-row ">
+        <Siderbar/>
+        <h1>profile</h1>
+      </div>
     );
   }
   
