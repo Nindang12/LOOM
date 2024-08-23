@@ -1,10 +1,8 @@
 import Siderbar from "@/components/Sidebar";
 import Header from "@/components/Header";
 import UploadThread from "@/components/UploadThread";
-import Article from "@/components/ArticleHeader";
-import ArticleHeader from "@/components/ArticleHeader";
-import ArticleBody from "@/components/ArticleBody";
-import ArticleFooter from "@/components/ArticleFooter";
+import Article from "@/components/Article";
+
 
 export default function Home() {
   return (
@@ -19,26 +17,9 @@ export default function Home() {
               </div>
               <div className="w-full h-full">
                 <div >
-                  <ArticleHeader/>
-                  <ArticleBody/>
-                  <ArticleFooter/>
-                </div>
-                <div>
-                  <ArticleHeader/>
-                  <ArticleBody/>
-                  <ArticleFooter/>
+                  <Article/>
                 </div>
               </div>
-              <div>
-                  <ArticleHeader/>
-                  <ArticleBody/>
-                  <ArticleFooter/>
-                </div>
-                <div>
-                  <ArticleHeader/>
-                  <ArticleBody/>
-                  <ArticleFooter/>
-                </div>
           </div>
         </div>
       </div>
