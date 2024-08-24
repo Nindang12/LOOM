@@ -6,7 +6,7 @@ import Article from "@/components/Article";
 
 export default function Home() {
   return (
-    <div className="flex flex-row overflow-hidden h-screen">
+    <div className="bg-zinc-50 flex flex-row overflow-hidden h-screen">
       <Siderbar/>
       <div className="flex flex-row justify-center mt-2 w-full">
         <div className="max-w-screen-sm w-full h-screen">
