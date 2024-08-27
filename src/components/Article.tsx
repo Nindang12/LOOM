@@ -3,9 +3,9 @@ import Link from "next/link"
 import { useState } from "react"
 export default function Article(){
     const [isShow, setIsShow] = useState<boolean>(false);
-    const toggleModal = () => {
-        setIsShow((prevState) => !prevState);
-    }
+        const toggleModal = () => {
+            setIsShow((prevState) => !prevState);
+        }
     return(
         <div>
             
@@ -22,7 +22,7 @@ export default function Article(){
                         </div>
                         <div>
                             <div className="flex flex-row gap-2">
-                                <Link href={`/chien_ha`} className="font-bold text-sm hover:decoration-solid ">
+                                <Link href={`/chien_ha`} className="font-bold text-sm">
                                     <span className="">chien_ha</span>
                                 </Link>
                                 <span className="text-sm text-gray-400">20 giờ</span>

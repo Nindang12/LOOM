@@ -1,3 +1,4 @@
+import Active from "@/components/Active";
 import HeaderActivity from "@/components/HeaderActivity";
 import Siderbar from "@/components/Sidebar"
 
@@ -10,7 +11,7 @@ export default function Home() {
             <HeaderActivity/>
             <div className="flex flex-col border border-gray-300 w-full rounded-xl mt-10 h-screen overflow-y-scroll f">
                 <div className="w-full h-[80px]">
-                    {/* <UploadThread/> */}
+                    <Active/>
                 </div>
                 <div className="w-full h-full">
                   <div >
