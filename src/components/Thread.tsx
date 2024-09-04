@@ -61,7 +61,7 @@ export default function Thread(){
                 {/* tạo thread */}
                 <div className="w-[260px] h-full flex flex-col justify-center rounded-xl items-center bg-gray-100">
                     <div className="mt-1 mb-3 flex items-center justify-center rounded-full bg-white w-[50px] h-[50px]">
-                        <img width={25} src="/assets/write`.svg" alt="" />
+                        <img width={25} src="/assets/write.svg" alt="" />
                     </div>
                     <span className="text-sm mb-2 font-semibold whitespace-pre-line">Tạo thread</span>
                     <p className="px-2 mb-4 text-center text-xs text-gray-400">
