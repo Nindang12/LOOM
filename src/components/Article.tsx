@@ -14,8 +14,8 @@ export default function Article(){
                 <div className="flex flex-row items-center justify-between">
                     <div className="flex flex-row gap-2 mt-2 ml-5 ">
                         <div>
-                            <img className=" rounded-full z-0 w-8 h-8 bg-cover" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQgFPzdgOy4CJfBOVER-gmHRQJjVfNd3LMf-Q&s" alt="" />
-                            <div className="translate-x-4 translate-y-[-15px]  ">
+                                <img className=" rounded-full    w-8 h-8 bg-cover" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQgFPzdgOy4CJfBOVER-gmHRQJjVfNd3LMf-Q&s" alt="" />
+                            <div className="translate-x-4 translate-y-[-15px] translate-z-0  ">
                                 <img width={20} src="/assets/addfriend.svg" alt="" />
                             </div>
 

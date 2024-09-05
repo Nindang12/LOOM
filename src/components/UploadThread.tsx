@@ -19,7 +19,7 @@ export default function UploadThread(){
                 
                 </div>
 
-                <button onClick={()=>setIsShow((prv)=>!prv)} className="w-20 h-8 flex justify-center items-center p-2 border border-gray-300 rounded-lg">
+                <button      className="w-20 h-8 flex justify-center items-center p-2 border border-gray-300 rounded-lg">
                     <span className="font-semibold">Đăng</span>
                 </button>
             </div>
