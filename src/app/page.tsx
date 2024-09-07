@@ -10,8 +10,7 @@ export default function Home() {
   return (
     <div className=" flex md:flex-row flex-col-reverse w-full overflow-hidden h-screen">
       <div className="">
-      <Siderbar/>
-
+        <Siderbar/>
       </div>
       <div className="flex flex-row justify-center mt-2 w-full ">
         <div className="max-w-screen-sm w-full h-screen">

@@ -1,6 +1,6 @@
-import Active from "@/components/Active";
+import ActiveMentions from "@/components/ActiveMentions";
 import HeaderActivity from "@/components/HeaderActivity";
-import Option_active from "@/components/OptionActive";
+import Option_active_mentions from "@/components/OptionActiveMentions";
 import Siderbar from "@/components/Sidebar"
 
 export default function Home() {
@@ -12,11 +12,11 @@ export default function Home() {
             <HeaderActivity/>
             <div className="flex flex-col border border-gray-300 w-full rounded-xl mt-10 h-screen overflow-y-scroll f">
                 <div className="w-full h-auto">
-                  <Option_active/> 
+                  <Option_active_mentions/> 
                 </div>
-                <div className="w-full h-full">
+                <div className="w-full h-full flex flex-col justify-center items-center">
                   <div >
-                    <Active/>
+                    <ActiveMentions/>
                   </div>
                 </div>
             </div>

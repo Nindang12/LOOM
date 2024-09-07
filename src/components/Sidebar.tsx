@@ -30,11 +30,11 @@ export default function Siderbar(){
         </div>
         {
                     isShow && (
-                        <div className=" flex flex-col items-center fixed top-0 left-0 w-full h-full bg-white " >
+                        <div className=" flex flex-col z-20 items-center fixed top-0 left-0 w-full h-full bg-white " >
                             
                             <div className="py-5 flex flex-row ">
                                 <div onClick={toggleModal}  className="w-[120px] md:hidden pl-[20px]">Huỷ</div>
-                                <span className=" w-[120px]text-black md:text-white font-bold">Thread trả lời</span>
+                                <span className=" w-[120px]text-black md:text-white font-bold">Thread </span>
                                 <div className="w-[120px] md:hidden"></div>
                             </div>
                                 <div className="flex flex-col  w-screen ml-10">
@@ -72,13 +72,13 @@ export default function Siderbar(){
                                         </div>
                                     </div>
                                     </div>
-                                    <div className="pt-10 flex flex-row  items-center justify-between">
+                                    <div className="pt-10 flex flex-row  items-center justify-between translate-y-[500px] gap-5 md:translate-y-0">
                                         <div className="text-slate-400 text-sm font-light">
                                             <button>Bất kỳ ai cũng có thể trả lời và trích dẫn</button>
                                         </div>
                                         <div>
-                                            <button className="w-20 h-8 flex justify-center items-center p-2 border border-gray-4 00 rounded-lg">
-                                                <span className="font-semibold">Đăng</span>
+                                            <button className="w-20 h-10 flex justify-center items-center bg-gray-400  md:mr-[40px] border border-gray-4 00 rounded-full">
+                                                <span className="font-semibold text-white md:text-black">Đăng</span>
                                             </button>
                                         </div>
                                     </div>

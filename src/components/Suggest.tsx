@@ -2,18 +2,19 @@
 import { useState } from "react"
 import Link from "next/link"
 export default function Suggest(){
-    const[isShow,setIsShow]=useState<boolean>(false);
-    const toggleModal = () => {
-        setIsShow((prevState) => !prevState);
-    }
+    const [isFollowing, setIsFollowing] = useState(false);
+
+    const toggleFollow = () => {
+        setIsFollowing(!isFollowing);
+    };
     return(
         <div className="ml-5 cursor-pointer">
-            <div className="mb-5" >
+            <div className="mb-5 hidden md:bolck" >
                 <span className="text-sm font-bold text-gray-400">Gợi ý theo dõi</span>
             </div>
             <div className="">
                 {/* header */}
-                <div className="flex flex-row justify-between z-0">
+                <div className="flex flex-row justify-between items-center ">
                     <div className="flex flex-row gap-2 items-center ">
                         <div>
                             <img className=" rounded-full z-0 w-8 h-8 bg-cover" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQgFPzdgOy4CJfBOVER-gmHRQJjVfNd3LMf-Q&s" alt=""></img>           
@@ -27,30 +28,19 @@ export default function Suggest(){
                             </div>
                         </div>
                     </div>
-                    <button onClick={()=>setIsShow((prv)=>!prv)} className="flex mr-5 items-center justify-center w-[100px] h-[35px] border border-gray-400 rounded-xl">
-                        <span className="text-base font-medium">Theo dõi</span>
+                    <button onClick={toggleFollow} className="flex mr-5 items-center justify-center w-auto h-[35px] border border-gray-400 rounded-xl">
+                        <span className={`text-base p-5 font-medium ${isFollowing ? 'text-gray-400' : 'text-black'}`}>{isFollowing ? 'Đang theo dõi' : 'Theo dõi'}</span>
                     </button>
-                    
-                    
                 </div>
-                {
-                        isShow &&(
-                            <button onClick={toggleModal} className="bg-white absolute top-[205px] px-3 right-[575px] z-1 flex items-center justify-center w-[130px] h-[35px] border border-gray-400 rounded-xl">
-                        <span className="text-gray-400 text-base font-medium">Đã theo dõi</span>
-                    </button>
-                        )
-                    }
+                
                 {/* body */}
                 <div>
                     <p className="text-sm font-normal px-[40px] py-2">100K người theo dõi</p>
                 </div>
                 <div className="w-[568px] h-[1px] bg-gray-300 ml-[40px] mb-5"></div>
             </div>
-            {/* blockihfui */}
-            
-            
-            
+            {/* blockihfui */}  
+                      
         </div>
     )
-    
 }

@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 * {
-  scrollbar-width:thin;
+scrollbar-width:thin;
   scrollbar-color: #dbdbdb;
 }
 

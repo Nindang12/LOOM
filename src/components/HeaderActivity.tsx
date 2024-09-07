@@ -4,9 +4,7 @@ import { useState } from "react"
 export default function HeaderActivity(){
     const [currentIndex, setCurrentIndex] = useState<number>(0)
     const [isShow, setIsShow] = useState<boolean>(false);
-
     const listButton = ["Tất cả","Lượt theo dõi","Thread trả lời","Lượt nhắc","Lượt trích dẫn","Bài đăng lại","Đã xác minh"]
-
     return(
         <div className="flex flex-row justify-between w-full h-8 items-center gap-2 relative">
             <div className="flex flex-row gap-2 items-center justify-center w-full">
@@ -19,7 +17,7 @@ export default function HeaderActivity(){
                         <div className="absolute flex flex-col gap-1 shadow-md top-10 left-40 p-4 px-2 w-64 h-[385px] rounded-lg bg-white border border-gray-200">
                             {
                                 listButton.map((item:string,index:number) => (
-                                    <button onClick={()=>setCurrentIndex(index)} key={index} className="flex flex-row justify-between hover:bg-slate-200 px-2 py-3 rounded-lg">
+                                    <button onClick={()=>setCurrentIndex(index)} key={index} className="flex flex-row justify-between text-sm font-bold hover:bg-slate-200 px-2 py-3 rounded-lg">
                                         <span>{item}</span>
                                         {
                                             currentIndex === index &&
