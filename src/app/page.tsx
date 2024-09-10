@@ -1,12 +1,22 @@
+"use client"
+
 import Siderbar from "@/components/Sidebar";
 import Header from "@/components/Header";
 import UploadThread from "@/components/UploadThread";
 import Article from "@/components/Article";
-import React from "react";
+import React, { useEffect } from "react";
 import Foryou from "@/components/Foryou";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  
+  const router = useRouter()
+  
+  useEffect(()=>{
+    if(!localStorage.getItem("isLogin")){
+      router.push("/login")
+    }
+  },[])
   return (
     <div className=" flex md:flex-row flex-col-reverse w-full overflow-hidden h-screen">
       <div className="">

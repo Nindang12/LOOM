@@ -3,7 +3,7 @@ import { useState } from "react"
 
 export default function Header(){
     const [currentIndex, setCurrentIndex] = useState<number>(0)
-    const [iShow, setIShow] = useState<boolean>(false);
+    const [isShow, setIsShow] = useState<boolean>(false);
 
     const listButton = ["Dành cho bạn","Đã thích","Đã theo dõi","Đang theo dõi"]
 
@@ -11,11 +11,11 @@ export default function Header(){
         <div className="flex flex-row justify-between w-full h-8 items-center gap-2 relative">
             <div className="flex flex-row gap-2 items-center justify-center w-full">
                 <span className="font-semibold">Dành cho bạn</span>
-                <button onClick={()=>setIShow((prv)=>!prv)} className="rounded-full h-5 bg-white border border-gray-300 shadow-sm p-1">
+                <button onClick={()=>setIsShow((prv)=>!prv)} className="rounded-full h-5 bg-white border border-gray-300 shadow-sm p-1">
                     <img width={10} src="/assets/arrow-down.svg" alt="icon" />
                 </button>
                 {
-                    iShow&&(
+                    isShow&&(
                         <div className="absolute flex flex-col gap-1 shadow-md top-10 left-40 p-4 px-2 w-64 h-60 rounded-lg bg-white border border-gray-200">
                             {
                                 listButton.map((item:string,index:number) => (

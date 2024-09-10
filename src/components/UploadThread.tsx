@@ -5,7 +5,6 @@ export default function UploadThread(){
     const toggleModal = () => {
         setIsShow((prevState) => !prevState);
     }
-    
     return(
         // threadupload
         <div className="border-b border-gray-200">
@@ -15,10 +14,8 @@ export default function UploadThread(){
                     <button onClick={()=>setIsShow((prv)=>!prv)} className="w-[400px] text-gray-500  text-start p-2 cursor-text ">
                         <span  className="font-light text-sm">Bắt đầu thread...</span>
                     </button>
-                
                 </div>
-
-                <button      className="w-20 h-8 flex justify-center items-center p-2 border border-gray-300 rounded-lg">
+                <button className="w-20 h-8 flex justify-center items-center p-2 border border-gray-300 rounded-lg">
                     <span className="font-semibold">Đăng</span>
                 </button>
             </div>

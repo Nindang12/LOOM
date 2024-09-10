@@ -1,12 +1,22 @@
 import EditProfile from "@/components/EditProfile";
 import Follower from "@/components/FollowerInProfile";
 import HeaderProfile from "@/components/HeaderProfile";
+"use client"
+
 import NameProfile from "@/components/NameProfile";
 import Siderbar from "@/components/Sidebar"
 import RowThreadssreplied from "@/components/RowThreadsreplied";
 import Threadsreplied from "@/components/threadreplied";
-
+import { useRouter } from "next/navigation";
+import React, { useEffect } from "react";
 export default function Home() {
+  const router = useRouter()
+  
+      useEffect(()=>{
+        if(!localStorage.getItem("isLogin")){
+          router.push("/login")
+        }
+      },[])
     return (
       <div className="flex md:flex-row flex-col-reverse w-full overflow-hidden h-screen">
         <Siderbar/>

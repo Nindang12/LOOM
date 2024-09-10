@@ -1,17 +1,25 @@
+"use client"
+
 import Siderbar from "@/components/Sidebar";
 import Header from "@/components/Header";
 import UploadThread from "@/components/UploadThread";
-import React from "react";
 import Following from "@/components/Following";
 import ArticleFollowing from "@/components/ArticleFollowing";
-
+import { useRouter } from "next/navigation";
+import React, { useEffect } from "react";
 export default function Home() {
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  const router = useRouter()
+  
+  useEffect(()=>{
+    if(!localStorage.getItem("isLogin")){
+      router.push("/login")
+    }
+  },[])
   return (
+    
     <div className=" flex md:flex-row flex-col-reverse overflow-hidden h-screen">
       <div className="">
       <Siderbar/>
-
       </div>
       <div className="flex flex-row justify-center mt-2 w-full">
         <div className="max-w-screen-sm w-full h-screen">

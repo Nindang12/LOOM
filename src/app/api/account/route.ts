@@ -6,7 +6,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
     try{
         const results = await new Promise((resolve, reject) => {
-            db.query(`INSERT INTO user(user_id,password, fullname, email,point) VALUES ('${body.username}','${body.password}','${body.username}','${body.email}',0)`,(err:any, result:[]) => {
+            db.query(`SELECT fullname,phone_number,location FROM user WHERE user_id="${body.username}"`,(err:any, result:[]) => {
                 if (err) {
                     reject(err);
                 } 

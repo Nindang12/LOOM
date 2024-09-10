@@ -1,8 +1,19 @@
+"use client"
+
 import HeaderSearch from "@/components/HeaderSearch";
 import Siderbar from "@/components/Sidebar"
 import Search from "@/components/Search";
+import { useRouter } from "next/navigation";
+import React, { useEffect } from "react";
 import Suggest from "@/components/Suggest";
 export default function Home() {
+  const router = useRouter()
+  
+  useEffect(()=>{
+    if(!localStorage.getItem("isLogin")){
+      router.push("/login")
+    }
+  },[])
     return (
       <div className="flex md:flex-row flex-col-reverse w-full overflow-hidden h-screen">
         <Siderbar/>
