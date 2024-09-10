@@ -1,12 +1,10 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import db from "@/config/db"
 
-
-export async function POST(req: NextRequest) {
-    const body = await req.json()
-    try{
+export async function GET() {
+    try {
         const results = await new Promise((resolve, reject) => {
-            db.query(`SELECT * FROM user WHERE user_id="${body.username}" AND password="${body.password}"`,(err:any, result:[]) => {
+            db.query("SELECT * FROM user",(err:any, result:[]) => {
                 if (err) {
                     reject(err);
                 } 
@@ -15,22 +13,12 @@ export async function POST(req: NextRequest) {
                 }
             });
         });
-        return NextResponse.json(results)
-    }catch(error){
+        console.log(results);
+        return NextResponse.json(results);
+    }catch (error) {
         return NextResponse.json(
             {message: error},   
             {status: 500} // Internal Server Error
         );
     }
 }
-
-// const results = await new Promise((resolve, reject) => {
-//     db.query("SELECT * FROM user",(err:any, result:[]) => {
-//         if (err) {
-//             reject(err);
-//         } 
-//         else {
-//             resolve(result);
-//         }
-//     });
-// });

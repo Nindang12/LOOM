@@ -1,15 +1,15 @@
 "use client"
 import Link from "next/link"
 import { useState } from "react"
-export default function Article(){
+export default function ArticleViewPost(){
     const [isShow, setIsShow] = useState<boolean>(false);
     const toggleModal = () => {
         setIsShow((prevState) => !prevState);
     }
     const [issShow, setIssShow] = useState<boolean>(false);
     return(
-        <Link href="/@nindang/post/hhhh">
-            <div className="border-b border-gray-200">
+        <div>
+            <div className="">
                 {/* <header> */}
                 <div className="flex flex-row items-center justify-between">
                     <div className="flex flex-row gap-2 mt-2 ml-5 ">
@@ -33,7 +33,7 @@ export default function Article(){
                     </div>
                     <div>
                         <button onClick={()=>setIssShow((prv)=>!prv)} className="z-0 mr-5 hover:bg-slate-100 p-3 rounded-full">
-                            <img width={10} src="/assets/optiononarticle.svg" alt="" />
+                            <img width={15} src="/assets/optiononarticle.svg" alt="" />
                         </button>
                         {
                             issShow&&(
@@ -102,10 +102,13 @@ export default function Article(){
                         <span>100</span>
                     </button>
                 </div>
+                <div className="flex justify-center">
+                    <div className="w-[580px] h-[0.5px] bg-slate-200"></div>
+                </div>
             </div>
             {
                 isShow && (
-                    <div className="z-20 fixed top-0 left-0 w-full h-full bg-white md:bg-black md:bg-opacity-10" onClick={toggleModal}>
+                    <div className="z-20 fixed top-0 left-0 w-full h-full bg-white md:bg-black md:bg-opacity-60" onClick={toggleModal}>
                         <div className="absolute md:left-16 md:right-0 h-full flex flex-col items-center md:justify-center">
                             <div className="py-5 flex flex-row ">
                                 <div onClick={(e) => {e.stopPropagation();toggleModal();}}  className="w-[120px] md:hidden pl-[20px]">Huỷ</div>
@@ -190,6 +193,6 @@ export default function Article(){
                     </div>                               
                 )
             }      
-        </Link>  
+        </div>  
     )
 }

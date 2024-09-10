@@ -25,7 +25,7 @@ export default function Home() {
       <div className="flex flex-row justify-center mt-2 w-full ">
         <div className="max-w-screen-sm w-full h-screen">
           <Header/>
-          <div className="flex flex-col border border-gray-300 w-full rounded-xl mt-10 gap-10 h-screen overflow-y-scroll f">
+          <div className="flex flex-col border border-gray-300 w-full rounded-xl mt-10 md:gap-5 gap-10 h-screen overflow-y-scroll f">
               <div className="w-full hidden md:block  h-[80px]">
                   <UploadThread/>
               </div>
@@ -33,9 +33,7 @@ export default function Home() {
                 <Foryou/>
               </div>
               <div className="w-full  ">
-                <div >
-                  <Article/>
-                </div>
+              <Article/>
               </div>
           </div>
         </div>

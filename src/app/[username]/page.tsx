@@ -7,7 +7,7 @@ import NameProfile from "@/components/NameProfile";
 import Siderbar from "@/components/Sidebar"
 import RowThreadss from "@/components/RowThreads";
 import Thread from "@/components/Thread";
-import React, { useEffect } from "react";
+import React, {  useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import axios from "axios";
 
@@ -16,7 +16,7 @@ export default function Home() {
     const router = useRouter()
     const pathName = usePathname();
     const username = pathName.replace("/@","")
-    
+    const [dataAccounts,setDataAccounts] = useState<any>([])
 
     useEffect(()=>{
         if(!localStorage.getItem("isLogin")){
@@ -37,12 +37,13 @@ export default function Home() {
                 }
             })
             const data = await res.data
-            console.log(data)
+            //console.log(data)
+            setDataAccounts(data[0])
         } catch (error) {
             console.error(error)
         }
     }
-
+    //console.log(dataAccounts)
     return (
       <div className="flex md:flex-row flex-col-reverse w-full overflow-hidden h-screen">
         <Siderbar/>
@@ -51,7 +52,11 @@ export default function Home() {
             <HeaderProfile />
             <div className="flex flex-col border border-gray-300 w-full  rounded-xl mt-10 h-screen overflow-y-scroll ">
                 <div className="w-max-[630px] h-[80px] ml-[15px] mr-[15px]">
-                    <NameProfile/>
+                    {
+                        Object.values(dataAccounts).length > 0&&(
+                            <NameProfile username={dataAccounts.user_id} fullname={dataAccounts.fullname}/>
+                        )
+                    }
                 </div>
                 <div className="w-max-[630px] h-[80px] ml-[15px] mr-[20px]  ">
                     <Follower/>
