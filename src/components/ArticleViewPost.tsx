@@ -27,7 +27,7 @@ export default function ArticleViewPost(){
                                 <span className="text-sm text-gray-400">20 giờ</span>
                             </div>
                             <div className="text-sm">
-                                <p>stt</p>
+                                <p>doing comedy in LA is weird because I’ll watch the Emmys and see someone I did a shitty open mic with 2 years ago walking the read carpet while I’m looking at my calendar realizing I’m going back to that same shitty open mic in 2 days</p>
                             </div>
                         </div>
                     </div>
