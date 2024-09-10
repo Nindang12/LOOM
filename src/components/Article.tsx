@@ -3,9 +3,10 @@ import Link from "next/link"
 import { useState } from "react"
 export default function Article(){
     const [isShow, setIsShow] = useState<boolean>(false);
-        const toggleModal = () => {
-            setIsShow((prevState) => !prevState);
-        }
+    const toggleModal = () => {
+        setIsShow((prevState) => !prevState);
+    }
+    const [issShow, setIssShow] = useState<boolean>(false);
     return(
         <div>
             <div className="border-b border-gray-200">
@@ -31,9 +32,46 @@ export default function Article(){
                         </div>
                     </div>
                     <div>
-                        <button className="mr-5 hover:bg-slate-100 p-3 rounded-full">
+                        <button onClick={()=>setIssShow((prv)=>!prv)} className="z-0 mr-5 hover:bg-slate-100 p-3 rounded-full">
                             <img width={10} src="/assets/optiononarticle.svg" alt="" />
                         </button>
+                        {
+                            issShow&&(
+                                <div className="fixed translate-x-[-230px] flex flex-col gap-1 shadow-md p-4 px-2 w-64 h-auto rounded-lg bg-white border border-gray-200">
+                                    <div className="flex flex-col border-solid border-b-2 ">
+                                        <button className=" flex justify-between hover:bg-slate-200 px-2 py-3 rounded-lg">
+                                            <span className="text-sm font-bold">Lưu</span>
+                                            <img width={30} src="/assets/save.svg" alt="" />
+                                        </button>
+                                        <button className="flex justify-between hover:bg-slate-200 px-2 py-3 rounded-lg">
+                                            <span className="text-sm font-bold">Không quan tâm</span>
+                                            <img width={25} src="/assets/eye.svg" alt="" />
+                                        </button>
+                                    </div>
+                                    <div className="flex flex-col border-solid border-b-2 ">
+                                        <button className=" flex justify-between hover:bg-slate-200 px-2 py-3 rounded-lg">
+                                            <span className="text-sm font-bold">Tắt thông báo</span>
+                                            <img width={30} src="/assets/bell.svg" alt="" />
+                                        </button>
+                                        <button className="flex justify-between hover:bg-slate-200 px-2 py-3 rounded-lg">
+                                            <span className="text-sm text-red-600 font-bold">Chặn</span>
+                                            <img width={25} src="/assets/block.svg" alt="" />
+                                        </button>
+                                        <button className="flex justify-between hover:bg-slate-200 px-2 py-3 rounded-lg">
+                                            <span className="text-sm font-bold text-red-600">Báo cáo</span>
+                                            <img width={25} src="/assets/warning.svg" alt="" />
+                                        </button>
+                                    </div>
+                                    <div className="flex flex-col ">
+                                        <button className=" flex justify-between hover:bg-slate-200 px-2 py-3 rounded-lg">
+                                            <span className="text-sm font-bold">Sao chép liên kết</span>
+                                            <img width={20} src="/assets/link.svg" alt="" />
+                                        </button>
+                                    </div>
+                                </div>
+                            )
+                        }
+            
                     </div>
                 </div>
                 {/* body  */}
@@ -151,8 +189,7 @@ export default function Article(){
                         </div>
                     </div>                               
                 )
-            }
-            {/* end */}
+            }      
         </div>  
     )
 }

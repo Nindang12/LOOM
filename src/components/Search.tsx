@@ -11,8 +11,8 @@ export default function Search(){
                 <div className="h-full flex items-center justify-center px-3 pl-5 pr-2 ">
                     <img width={15} src="/assets/searchse.svg" alt="" />
                 </div>
-                <div >
-                    <input type="search" className="text-sm focus outline-none flex-1 bg-zinc-50" placeholder="Tìm Kiếm" />
+                <div className="flex-1">
+                    <input type="search" className="text-sm focus outline-none w-full bg-zinc-50" placeholder="Tìm Kiếm" />
                 </div>
             </div>
         </div>
