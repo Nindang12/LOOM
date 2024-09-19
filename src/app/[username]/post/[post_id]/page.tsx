@@ -16,26 +16,15 @@ export default function ViewPost(){
       }
     },[])
 
-    const {post_id} = useParams()
-    
-    const [post, setPost] = useState<Post>();
-    const [userId, setUserId] = useState<string|null>(null);
+    const {post_id,username} = useParams()
 
-    useEffect(() => {
-        const fetchUserId = () => {
-            const storedUserId = sessionStorage.getItem("user_id");
-            if (storedUserId) {
-                setUserId(storedUserId);
-            }
-        };
-        fetchUserId();
-    }, []);
+    const [post, setPost] = useState<Post>();
 
     useEffect(() => {
         const fetchPost = async () => {
-            if (post_id && userId) {
+            if (post_id && username) {
                 try {
-                    const response = await fetch(`/api/post?postId=${post_id}&userId=${userId}`);
+                    const response = await fetch(`/api/post?postId=${post_id}&userId=${username.toString().replace("%40","")}`);
                     if (response.ok) {
                         const data = await response.json();
                         if (data.posts && data.posts.length > 0) {
@@ -51,7 +40,7 @@ export default function ViewPost(){
         };
 
         fetchPost();
-    }, [post_id, userId]);
+    }, [post_id, username]);
 
     
     const [comments, setComments] = useState<Comment[]>([]);
@@ -76,7 +65,7 @@ export default function ViewPost(){
         fetchComments();
     }, [post_id]);
 
-    console.log(comments)
+    //console.log(comments)
     return (
       <div className=" flex md:flex-row flex-col-reverse w-full overflow-hidden h-screen">
         <div className="">
