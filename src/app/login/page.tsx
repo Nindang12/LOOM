@@ -4,7 +4,6 @@ import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { ToastContainer, toast } from 'react-toastify';
 import Link from "next/link";
-import md5 from "md5"
 
 export default function Login(){
     const [username, setUsername] = useState<string|null>(null)
@@ -14,24 +13,29 @@ export default function Login(){
 
     const onLogin = async() =>{
         try{
-            const response = await axios.post("/api/login",{
-                user_id:username,
-                password,
-            },{
+            const response = await axios.post("/api/login", {
+                user_id: username,
+                password: password,
+            }, {
                 headers: {
                     'Content-Type': 'application/json'
                 }              
             })
-            const results = await response.data
-            if(results.length ==0){
-                toast.error("Login Failed!");
-            }else{
-                localStorage.setItem("isLogin","true");
-                localStorage.setItem("username", username as string);
+
+            const result = response.data;
+
+            if (result.message === "Login successful") {
+                // Save login state in session storage instead of local storage
+                sessionStorage.setItem("isLogin", "true");
+                sessionStorage.setItem("username", username as string);
+                toast.success("Login successful!");
                 router.push('/')
+            } else {
+                toast.error("Login Failed: " + result.message);
             }
-        }catch(err){
-            console.log(err)
+        } catch(err) {
+            console.error(err)
+            toast.error("An error occurred during login");
         }
     }
 
@@ -54,7 +58,6 @@ export default function Login(){
             <Link href={'/register'} className="w-full px-3 flex justify-center">
                 <button className="md:w-[370px] w-full px-6 py-4  rounded-2xl border border-solid border-black font-bold text-sm">Tạo tài khoản</button>
             </Link>
-
         </div>
     )
 }

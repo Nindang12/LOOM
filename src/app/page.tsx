@@ -9,14 +9,18 @@ import Foryou from "@/components/Foryou";
 import { useRouter } from "next/navigation";
 
 export default function Home() {
-  
   const router = useRouter()
   
-  useEffect(()=>{
-    if(!localStorage.getItem("isLogin")){
-      router.push("/login")
+  useEffect(() => {
+    const checkLogin = () => {
+      if (!sessionStorage.getItem("isLogin")) {
+        router.push("/login")
+      }
     }
-  },[])
+
+    checkLogin()
+  }, [router])
+
   return (
     <div className=" flex md:flex-row flex-col-reverse w-full overflow-hidden h-screen">
       <div className="">

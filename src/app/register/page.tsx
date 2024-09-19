@@ -8,7 +8,6 @@ import md5 from 'md5';
 export default function Register(){
     const [username, setUsername] = useState<string|null>(null)
     const [password, setPassword] = useState<string|null>(null)
-    const [fullname, setFullname] = useState<string|null>(null)
     const [email, setEmail] = useState<string|null>(null)
     const [isEmail, setIsEmail] = useState<boolean>(true)
     const router = useRouter()

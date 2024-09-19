@@ -31,7 +31,6 @@ export default function UploadThread(){
                                         <span className="text-sm">nindang84 </span>
                                         <input className="focus outline-none text-sm font-light w-[500px]" type="text" placeholder="Bắt đầu threads..." />
                                     </div>
-
                                 </div>
                                 <div className="flex flex-row">
                                     <div className="h-[25px] w-[2px] bg-slate-500 mx-4"></div>
