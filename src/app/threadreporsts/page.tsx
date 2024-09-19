@@ -39,7 +39,7 @@ export default function Home() {
                 <div className="w-max-[630px] h-[80px] t-0">
                   <RowThreadsreporsts/>
                 </div>
-                <div className="w-max-[630px] flex items-center justify-center h-full t-0 ml-[20px] mr-[20px]">
+                <div className="w-max-[630px] flex justify-center h-full t-0 ml-[20px] mr-[20px]">
                   <Threadsreporsts/>
                 </div>
 
