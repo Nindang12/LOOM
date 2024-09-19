@@ -27,7 +27,7 @@ export default function Login(){
             if (result.message === "Login successful") {
                 // Save login state in session storage instead of local storage
                 sessionStorage.setItem("isLogin", "true");
-                sessionStorage.setItem("username", username as string);
+                sessionStorage.setItem("user_id", username as string);
                 toast.success("Login successful!");
                 router.push('/')
             } else {
