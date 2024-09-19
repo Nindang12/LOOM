@@ -12,6 +12,7 @@ export default function Article({ user_id, content,postId }: ArticleProps) {
     const [likeCount, setLikeCount] = useState(0);
     const [userId, setUserId] = useState<string | null>(null);
     const [commentContent, setCommentContent] = useState<string|null>(null);
+    const [commentCount, setCommentCount] = useState<number>(0);
 
     useEffect(() => {
         const storedUserId = sessionStorage.getItem('user_id');
@@ -19,8 +20,6 @@ export default function Article({ user_id, content,postId }: ArticleProps) {
             setUserId(storedUserId);
         }
     }, []);
-
-
 
     const handleLike = async () => {
         if (!userId) return; // Ensure user is logged in
@@ -107,6 +106,33 @@ export default function Article({ user_id, content,postId }: ArticleProps) {
         }
     };
 
+    const getTotalComments = async () => {
+        if (!postId) return;
+
+        try {
+            const response = await fetch(`/api/comment?postId=${postId}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                setCommentCount(result.comments.length);
+            } else {
+                console.error('Failed to fetch total comments');
+            }
+        } catch (error) {
+            console.error('Error fetching total comments:', error);
+        }
+    };
+
+    useEffect(() => {
+        getTotalComments();
+    }, [postId]);
+
+
     return(
         <div>
             <div className="border-b border-gray-200 w-full px-2">
@@ -180,7 +206,7 @@ export default function Article({ user_id, content,postId }: ArticleProps) {
                     </button>
                     <button onClick={()=>setIsShow((prv)=>!prv)} className="flex gap-1 hover:bg-slate-100 p-2 rounded-3xl">
                         <img width={20} src="/assets/comment.svg" alt="" />
-                        <small>100</small>
+                        <small>{commentCount}</small>
                     </button>
                     <button className="flex gap-1 hover:bg-slate-100 p-2 rounded-3xl">
                         <img width={20} src="/assets/replay.svg" alt="" />

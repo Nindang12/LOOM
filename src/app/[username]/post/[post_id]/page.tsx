@@ -89,7 +89,7 @@ export default function ViewPost(){
                     <div className="flex flex-col gap-2">
                         {
                             comments.map((comment)=>(
-                                <ContentComment key={comment.comment_id} {...comment}/>
+                                <ContentComment  key={comment.comment_id} {...comment} postId={post_id as string}/>
                             ))
                         }
                     </div>

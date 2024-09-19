@@ -29,4 +29,5 @@ interface Comment {
     created_at: string;
     like_count: number;
     user_id: string;
+    postId: string;
 }
