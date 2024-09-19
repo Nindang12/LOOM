@@ -1,25 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
-import db from "@/config/db"
-
+import db from "@/config/db";
 
 export async function POST(req: NextRequest) {
-    const body = await req.json()
-    try{
-        const results = await new Promise((resolve, reject) => {
-            db.query(`SELECT user_id,fullname,phone_number,location FROM user WHERE user_id="${body.username}"`,(err:any, result:[]) => {
-                if (err) {
-                    reject(err);
-                } 
-                else {
-                    resolve(result);
-                }
-            });
-        });
-        return NextResponse.json(results)
-    }catch(error){
+    const body = await req.json();
+    try {
+        const connection = await db;
+        const [results] = await connection.execute(
+            'SELECT user_id, fullname, phone_number, location FROM user WHERE user_id = ?',
+            [body.username]
+        );
+        return NextResponse.json(results);
+    } catch (error) {
+        console.error("Error fetching account:", error);
         return NextResponse.json(
-            {message: error},   
-            {status: 500} // Internal Server Error
+            { message: "An error occurred while fetching the account" },
+            { status: 500 } // Internal Server Error
         );
     }
 }

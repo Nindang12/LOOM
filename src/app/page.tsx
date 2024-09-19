@@ -58,7 +58,7 @@ export default function Home() {
               <div className="w-full  ">
                 {
                   posts.map((post,idx)=>(
-                    <Article key={idx} user_id={post.user_id} content={post.post_content}/>
+                    <Article key={idx} user_id={post.user_id} postId={post.post_id} content={post.post_content}/>
                   ))
                 }
               </div>

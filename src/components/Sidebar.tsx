@@ -7,8 +7,8 @@ export default function Siderbar(){
     const [username,setUsername] = useState<string|null>(null);
 
     useEffect(()=>{
-        if(localStorage.getItem("isLogin")){
-            setUsername(localStorage.getItem("username"))
+        if(sessionStorage.getItem("isLogin")){
+            setUsername(sessionStorage.getItem("username"))
         }
     },[])
 

@@ -33,3 +33,34 @@ export async function POST(req: NextRequest) {
         );
     }
 }
+
+
+export async function GET(req: NextRequest) {
+    const { searchParams } = new URL(req.url);
+    const user_id = searchParams.get('userId');
+    const post_id = searchParams.get('postId');
+
+    if (!user_id && !post_id) {
+        return NextResponse.json(
+            { message: "Missing user_id or post_id parameter" },
+            { status: 400 }
+        );
+    }
+
+    try {
+        const connection = await db;
+
+        let query = 'SELECT * FROM post WHERE user_id = ? AND post_id = ?';
+        let params = [user_id, post_id];
+
+        const [posts] = await connection.execute(query, params);
+
+        return NextResponse.json({ posts }, { status: 200 });
+    } catch (error) {
+        console.error("Error fetching posts:", error);
+        return NextResponse.json(
+            { message: "An error occurred while fetching posts" },
+            { status: 500 }
+        );
+    }
+}

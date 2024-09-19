@@ -18,14 +18,14 @@ export default function Home() {
     const username = pathName.replace("/@","")
     const [dataAccounts,setDataAccounts] = useState<any>([])
 
-    useEffect(()=>{
-        if(!localStorage.getItem("isLogin")){
+    useEffect(() => {
+        if (!sessionStorage.getItem("isLogin")) {
             router.push("/login")
         }
-        if(username){
+        if (username) {
             loadProfile()
         }
-    },[])
+    }, [])
 
     const loadProfile = async()=>{
         try {
@@ -53,7 +53,7 @@ export default function Home() {
             <div className="flex flex-col border border-gray-300 w-full  rounded-xl mt-10 h-screen overflow-y-scroll ">
                 <div className="w-max-[630px] h-[80px] ml-[15px] mr-[15px]">
                     {
-                        Object.values(dataAccounts).length > 0&&(
+                      dataAccounts&&(
                             <NameProfile username={dataAccounts.user_id} fullname={dataAccounts.fullname}/>
                         )
                     }
