@@ -15,8 +15,8 @@ export default function Login(){
     const onLogin = async() =>{
         try{
             const response = await axios.post("/api/login",{
-                username,
-                password: md5(password as string),
+                user_id:username,
+                password,
             },{
                 headers: {
                     'Content-Type': 'application/json'

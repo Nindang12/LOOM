@@ -20,23 +20,37 @@ export default function Register(){
             const isEmail =CheckisEmail(email as string);
             setIsEmail(isEmail)
             if(isEmail){
-                const response = await axios.post("/api/register",{
-                    username,
-                    password: md5(password as string),
-                    email,
-                    fullname
-                },{
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }              
-                })
-                const results = await response.data
-                if(results.length ==0){
-                    alert("Reigster failed!")
-                }else{
-                    localStorage.setItem("isLogin","true")
-                    localStorage.setItem("username", username as string);
-                    router.push("/")
+                try {
+                    const response = await axios.post("/api/register", {
+                        user_id: username,
+                        password,
+                        email,
+                        fullname: username
+                    }, {
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    if (response.status === 200) {
+                        localStorage.setItem("isLogin", "true");
+                        localStorage.setItem("username", username as string);
+                        toast.success("Registration successful!");
+                        router.push("/");
+                    } else {
+                        toast.error("Registration failed. Please try again.");
+                    }
+                } catch (error) {
+                    if (axios.isAxiosError(error) && error.response) {
+                        if (error.response.status === 409) {
+                            toast.error("User ID or email already exists.");
+                        } else {
+                            toast.error("An error occurred during registration.");
+                        }
+                    } else {
+                        toast.error("An unexpected error occurred.");
+                    }
+                    console.error("Registration error:", error);
                 }
             }
         }catch(err){
@@ -57,9 +71,6 @@ export default function Register(){
             </span>
             <div className="w-full px-3 flex justify-center">
                 <input onChange={(event)=>setEmail(event.target.value)} className={`md:w-[370px] w-full px-6 py-4 focus outline-none border ${!isEmail?"border-red-500":"border-gray-300"} border-solid  rounded-2xl bg-gray-100 text-sm`} type="text" id=""placeholder="Email" />
-            </div>
-            <div className="w-full px-3 flex justify-center">
-                <input onChange={(event)=>setFullname(event.target.value)} className="md:w-[370px] w-full px-6 py-4 focus outline-none border border-gray-300 border-solid  rounded-2xl bg-gray-100 text-sm" type="text" id=""placeholder="Họ và tên" />
             </div>
             <div className="w-full px-3 flex justify-center">
                 <input onChange={(event)=>setUsername(event.target.value)} className="md:w-[370px] w-full px-6 py-4 focus outline-none border border-gray-300 border-solid  rounded-2xl bg-gray-100 text-sm" type="text" id=""placeholder="Tên người dùng, số điện thoại hoặc email" />
