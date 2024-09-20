@@ -67,12 +67,12 @@ export default function ViewPost(){
 
     //console.log(comments)
     return (
-      <div className=" flex md:flex-row flex-col-reverse w-full overflow-hidden h-screen">
+        <div className=" flex md:flex-row flex-col-reverse w-full overflow-hidden h-screen">
         <div className="">
-          <Siderbar/>
+            <Siderbar/>
         </div>
-        <div className="flex flex-row justify-center mt-2 w-full ">
-          <div className="max-w-screen-sm w-full h-screen">
+          <div className="flex flex-row justify-center mt-2 w-full ">
+            <div className="max-w-screen-sm w-full h-screen">
             <Header/>
             <div className="flex flex-col border border-gray-300 w-full rounded-xl mt-10 gap-10 h-screen overflow-y-scroll f">
                 <div className="w-full  ">

@@ -26,7 +26,7 @@ interface Post {
 interface Comment {
     comment_content: string;
     comment_id: string;
-    created_at: string;
+    create_at: string;
     like_count: number;
     user_id: string;
     postId: string;

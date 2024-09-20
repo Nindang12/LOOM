@@ -40,6 +40,8 @@ export default function Home() {
 
   //console.log(posts)
 
+  
+
   return (
     <div className=" flex md:flex-row flex-col-reverse w-full overflow-hidden h-screen">
       <div className="">

@@ -7,8 +7,7 @@ import { useEffect, useState } from "react"
 export default function ContentComment({
     comment_content,
     comment_id,
-    created_at,
-    like_count,
+    create_at,
     user_id,
     postId
 }: Comment) {
@@ -27,32 +26,32 @@ export default function ContentComment({
     }
     const [issShow, setIssShow] = useState<boolean>(false);
 
-    const formatTimeAgo = (createdAt: string) => {
-        const now = new Date();
-        const createdAtDate = new Date(createdAt);
+    const [timeAgo, setTimeAgo] = useState<string>('');
 
-        const diffInSeconds = Math.floor((now.getTime() - createdAtDate.getTime()) / 1000);
+    useEffect(() => {
+        const calculateTimeAgo = () => {
+            const now = new Date().getTime();
+            const diffInSeconds = Math.floor((now - Number(create_at)) / 1000);
 
-        if (diffInSeconds < 60) {
-            return `${diffInSeconds} giây trước`;
-        } else if (diffInSeconds < 3600) {
-            const minutes = Math.floor(diffInSeconds / 60);
-            return `${minutes} phút trước`;
-        } else if (diffInSeconds < 86400) {
-            const hours = Math.floor(diffInSeconds / 3600);
-            return `${hours} giờ trước`;
-        } else if (diffInSeconds < 2592000) { // Less than 30 days
-            const days = Math.floor(diffInSeconds / 86400);
-            return `${days} ngày trước`;
-        } else {
-            // For older dates, return the formatted date
-            return createdAtDate.toLocaleDateString('vi-VN', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            });
-        }
-    };
+            if (diffInSeconds < 60) {
+                setTimeAgo(`${diffInSeconds} giây`);
+            } else if (diffInSeconds < 3600) {
+                const minutes = Math.floor(diffInSeconds / 60);
+                setTimeAgo(`${minutes} phút`);
+            } else if (diffInSeconds < 86400) {
+                const hours = Math.floor(diffInSeconds / 3600);
+                setTimeAgo(`${hours} giờ`);
+            } else {
+                const days = Math.floor(diffInSeconds / 86400);
+                setTimeAgo(`${days} ngày`);
+            }
+        };
+
+        calculateTimeAgo();
+        const timer = setInterval(calculateTimeAgo, 60000); // Update every minute
+
+        return () => clearInterval(timer);
+    }, [create_at]);
 
     const [isLiked, setIsLiked] = useState<boolean>(false);
     const [localLikeCount, setLocalLikeCount] = useState<number>(0);
@@ -133,9 +132,7 @@ export default function ContentComment({
             if (response.ok) {
                 const result = await response.json();
                 console.log('Reply posted successfully:', result);
-                // Here you might want to update the UI to show the new reply
-                // For example, you could fetch the updated comments or add the new reply to a local state
-                setReplyContent(''); // Clear the reply input field
+                setReplyContent(''); 
             } else {
                 console.error('Failed to post reply');
             }
@@ -157,7 +154,7 @@ export default function ContentComment({
                                 <Link href={`/@${user_id}`} className="font-bold text-sm">
                                     <span className="">{user_id}</span>
                                 </Link>
-                                <span className="text-sm text-gray-400">{formatTimeAgo(created_at)}</span>
+                                <span className="text-sm text-gray-400">{timeAgo}</span>
                             </div>
                             <div className="text-sm">
                                 <p>{comment_content}</p>

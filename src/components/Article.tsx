@@ -97,6 +97,7 @@ export default function Article({ user_id, content,postId }: ArticleProps) {
                 console.log('Comment created successfully:', result);
                 setCommentContent('');
                 toggleModal()
+                window.location.reload();
                 // You might want to update the UI here, e.g., add the new comment to a list of comments
             } else {
                 console.error('Failed to create comment');

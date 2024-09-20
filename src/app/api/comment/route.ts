@@ -3,7 +3,7 @@ import db from "@/config/db";
 
 export async function POST(req: NextRequest) {
     const { post_id, user_id, comment_content } = await req.json();
-    const create_at = new Date().toISOString().slice(0, 19).replace('T', ' '); // Convert current timestamp to MySQL DATETIME format
+    const create_at = new Date().getTime(); // Get current timestamp in milliseconds
 
     try {
         if (!post_id || !user_id || !comment_content) {
