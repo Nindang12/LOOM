@@ -44,6 +44,8 @@ export default function ContentComment({
         }
     };
 
+    console.log(created_at)
+
     return(
         <div>
             <div className="border-b border-gray-200">
@@ -56,7 +58,7 @@ export default function ContentComment({
                                 <Link href={`/@${user_id}`} className="font-bold text-sm">
                                     <span className="">{user_id}</span>
                                 </Link>
-                                <span className="text-sm text-gray-400">{formatTimeAgo(created_at)}</span>
+                                <span className="text-sm text-gray-400">{formatTimeAgo('2024-09-18T17:00:00.000Z')}</span>
                             </div>
                             <div className="text-sm">
                                 <p>{comment_content}</p>

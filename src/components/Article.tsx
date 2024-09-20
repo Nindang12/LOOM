@@ -23,6 +23,7 @@ export default function Article({ user_id, content,postId }: ArticleProps) {
 
 
     const handleLike = async () => {
+        setIsLike(prev => !prev);
         if (!userId) return; // Ensure user is logged in
 
         try {
@@ -106,6 +107,7 @@ export default function Article({ user_id, content,postId }: ArticleProps) {
             console.error('Error creating comment:', error);
         }
     };
+    const [isLike, setIsLike] = useState(false);
 
     return(
         <div>
@@ -174,10 +176,16 @@ export default function Article({ user_id, content,postId }: ArticleProps) {
                 </div>
                 {/* footer */}
                 <div className="flex mt-5 md:ml-[60px] justify-center md:justify-start items-center text-sm font-thin gap-5 mb-3 ">
-                    <button onClick={handleLike} className="flex gap-1 hover:bg-slate-100 p-2 rounded-3xl">
-                        <img width={20} src="/assets/heartonarticle.svg" alt="" />
-                        <small>{likeCount}</small>
+                    <div className="flex gap-1 p-2">
+                    <button onClick={handleLike} className="hover:bg-slate-100 rounded-3xl">
+                        <img
+                            width={20}
+                            src={isLike ? "/assets/redheart.svg" : "/assets/heartonarticle.svg"}
+                            alt={isLike ? "redheart" : "heart"}
+                        />
                     </button>
+                        <small>{likeCount}</small>
+                    </div>
                     <button onClick={()=>setIsShow((prv)=>!prv)} className="flex gap-1 hover:bg-slate-100 p-2 rounded-3xl">
                         <img width={20} src="/assets/comment.svg" alt="" />
                         <small>100</small>
