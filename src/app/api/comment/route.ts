@@ -53,7 +53,7 @@ export async function GET(req: NextRequest) {
             `SELECT c.comment_id, c.user_id, c.comment_content, c.create_at, 
                     (SELECT COUNT(*) FROM action_like_comment WHERE comment_id = c.comment_id) as like_count
                 FROM comment c
-                WHERE c.post_id = ?
+                WHERE c.post_id = ? AND c.reply_id IS NULL
                 ORDER BY c.create_at DESC`,
             [post_id]
         );

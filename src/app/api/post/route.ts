@@ -5,7 +5,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     try {
         const { content, user_id } = body;
-        const create_at = Math.floor(Date.now() / 1000); // Convert current timestamp to UNIX timestamp (seconds since epoch)
+        const create_at = new Date().getTime(); // Convert current timestamp to UNIX timestamp (seconds since epoch)
 
         if (!content || !user_id) {
             return NextResponse.json(

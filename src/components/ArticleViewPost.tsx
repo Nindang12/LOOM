@@ -14,6 +14,7 @@ export default function ArticleViewPost({ post }: { post: Post }) {
     const [userId, setUserId] = useState<string | null>(null);
     const [commentContent, setCommentContent] = useState<string|null>(null);
     const [commentCount, setCommentCount] = useState<number>(0);
+    const [timeAgo, setTimeAgo] = useState<string>("");
 
     useEffect(() => {
         const storedUserId = sessionStorage.getItem('user_id');
@@ -135,6 +136,57 @@ export default function ArticleViewPost({ post }: { post: Post }) {
         getTotalComments();
     }, [post.post_id]);
 
+    useEffect(() => {
+        const calculateTimeAgo = () => {
+            const now = new Date().getTime();
+            const diffInSeconds = Math.floor((now - Number(post.create_at)) / 1000);
+
+            if (diffInSeconds < 60) {
+                setTimeAgo(`${diffInSeconds} giây`);
+            } else if (diffInSeconds < 3600) {
+                const minutes = Math.floor(diffInSeconds / 60);
+                setTimeAgo(`${minutes} phút`);
+            } else if (diffInSeconds < 86400) {
+                const hours = Math.floor(diffInSeconds / 3600);
+                setTimeAgo(`${hours} giờ`);
+            } else {
+                const days = Math.floor(diffInSeconds / 86400);
+                setTimeAgo(`${days} ngày`);
+            }
+        };
+
+        calculateTimeAgo();
+        const timer = setInterval(calculateTimeAgo, 60000); // Update every minute
+
+        return () => clearInterval(timer);
+    }, [post.create_at]);
+
+    const checkIsLiked = async () => {
+        if (!userId || !post.post_id) return;
+    
+        try {
+            const response = await fetch(`/api/like/post/isLiked?postId=${post.post_id}&userId=${userId}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+    
+            if (response.ok) {
+                const result = await response.json();
+                setIsLiked(result.isLiked);
+            } else {
+                console.error('Failed to check if post is liked');
+            }
+        } catch (error) {
+            console.error('Error checking if post is liked:', error);
+        }
+    };
+    
+    useEffect(() => {
+        checkIsLiked();
+    }, [post.post_id, userId]);
+
     return(
         <div>
             <div className="">
@@ -152,7 +204,7 @@ export default function ArticleViewPost({ post }: { post: Post }) {
                             <Link href={`/${post.user_id}`} className="font-bold text-sm">
                                 <span className="">{post.user_id}</span>
                             </Link>
-                            <span className="text-sm text-gray-400">20 giờ</span>
+                            <span className="text-sm text-gray-400">{timeAgo}</span>
                         </div>
                         
                     </div>
@@ -216,7 +268,11 @@ export default function ArticleViewPost({ post }: { post: Post }) {
                 {/* footer */}
                 <div className="flex mt-5 md:ml-[60px] justify-center md:justify-start items-center text-sm font-thin gap-5 mb-3 ">
                     <button onClick={handleLike} className="flex hover:bg-slate-100 p-2 rounded-3xl">
-                        <img className="" width={20} src="/assets/heartonarticle.svg" alt="" />
+                        <img
+                            width={20}
+                            src={isLiked ? "/assets/redheart.svg" : "/assets/heartonarticle.svg"}
+                            alt={isLiked ? "redheart" : "heart"}
+                        />
                         <span>{likeCount}</span>
                     </button>
                     <button onClick={()=>setIsShow((prv)=>!prv)} className="flex hover:bg-slate-100 p-2 rounded-3xl">

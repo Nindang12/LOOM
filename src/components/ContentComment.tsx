@@ -2,8 +2,6 @@
 import Link from "next/link"
 import { useEffect, useState } from "react"
 
-
-
 export default function ContentComment({
     comment_content,
     comment_id,
@@ -14,6 +12,11 @@ export default function ContentComment({
     const [isShow, setIsShow] = useState<boolean>(false);
     const [userId, setUserId] = useState<string | null>(null);
     const [replyContent, setReplyContent] = useState<string|null>(null);
+    const [issShow, setIssShow] = useState<boolean>(false);
+    const [isLiked, setIsLiked] = useState<boolean>(false);
+    const [localLikeCount, setLocalLikeCount] = useState<number>(0);
+    const [totalReplies, setTotalReplies] = useState(0);
+    const [timeAgo, setTimeAgo] = useState<string>('');
 
     useEffect(() => {
         const storedUserId = sessionStorage.getItem('user_id');
@@ -24,9 +27,6 @@ export default function ContentComment({
     const toggleModal = () => {
         setIsShow((prevState) => !prevState);
     }
-    const [issShow, setIssShow] = useState<boolean>(false);
-
-    const [timeAgo, setTimeAgo] = useState<string>('');
 
     useEffect(() => {
         const calculateTimeAgo = () => {
@@ -52,9 +52,6 @@ export default function ContentComment({
 
         return () => clearInterval(timer);
     }, [create_at]);
-
-    const [isLiked, setIsLiked] = useState<boolean>(false);
-    const [localLikeCount, setLocalLikeCount] = useState<number>(0);
 
     const handleLikeComment = async () => {
         if (!comment_id) return; // Ensure user is logged in
@@ -133,6 +130,8 @@ export default function ContentComment({
                 const result = await response.json();
                 console.log('Reply posted successfully:', result);
                 setReplyContent(''); 
+                getTotalCommentReplies();
+                setIsShow(false)
             } else {
                 console.error('Failed to post reply');
             }
@@ -141,6 +140,58 @@ export default function ContentComment({
         }
     };
 
+    const getTotalCommentReplies = async () => {
+        if (!comment_id) return;
+
+        try {
+            const response = await fetch(`/api/comment/reply?commentId=${comment_id}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                setTotalReplies(result.total_replies);
+            } else {
+                console.error('Failed to fetch total replies for comment');
+            }
+        } catch (error) {
+            console.error('Error fetching total replies for comment:', error);
+        }
+    };
+
+    useEffect(() => {
+        getTotalCommentReplies();
+    }, [comment_id]);
+
+
+    const checkIsLiked = async () => {
+        if (!userId || !comment_id) return;
+    
+        try {
+            const response = await fetch(`/api/like/comment/isLiked?commentId=${comment_id}&userId=${userId}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+    
+            if (response.ok) {
+                const result = await response.json();
+                setIsLiked(result.isLiked);
+            } else {
+                console.error('Failed to check if post is liked');
+            }
+        } catch (error) {
+            console.error('Error checking if post is liked:', error);
+        }
+    };
+    
+    useEffect(() => {
+        checkIsLiked();
+    }, [comment_id, userId]);
 
     return(
         <div>
@@ -207,12 +258,16 @@ export default function ContentComment({
                 {/* footer */}
                 <div className="flex md:ml-[50px] justify-center md:justify-start items-center text-sm font-thin gap-3 mb-3 ">
                     <button onClick={handleLikeComment} className="flex hover:bg-slate-100 p-2 rounded-3xl">
-                        <img className="" width={20} src="/assets/heartonarticle.svg" alt="" />
+                        <img
+                            width={20}
+                            src={isLiked ? "/assets/redheart.svg" : "/assets/heartonarticle.svg"}
+                            alt={isLiked ? "redheart" : "heart"}
+                        />
                         <span>{localLikeCount}</span>
                     </button>
                     <button onClick={()=>setIsShow((prv)=>!prv)} className="flex hover:bg-slate-100 p-2 rounded-3xl">
                         <img className="" width={20} src="/assets/comment.svg" alt="" />
-                        <span>100</span>
+                        <span>{totalReplies}</span>
                     </button>
                     <button className="flex hover:bg-slate-100 p-2 rounded-3xl">
                         <img className="" width={20} src="/assets/replay.svg" alt="" />

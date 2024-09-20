@@ -6,7 +6,7 @@ export async function POST(req: NextRequest) {
 
     try {
         const connection = await db;
-        const create_at = new Date().toISOString().slice(0, 19).replace('T', ' ');
+        const create_at = new Date().getTime()
 
         // Insert the reply into the comment table
         const reply_id = Math.random().toString(36).substring(2, 7) + Math.random().toString(36).substring(2, 7);
@@ -44,11 +44,11 @@ export async function GET(req: NextRequest) {
         const connection = await db;
 
         const [replies]: any = await connection.execute(
-            'SELECT * FROM comment WHERE reply_id = ? ORDER BY created_at DESC',
+            'SELECT COUNT(*) AS total_replies FROM comment WHERE reply_id = ?',
             [comment_id]
         );
 
-        return NextResponse.json({ replies }, { status: 200 });
+        return NextResponse.json({ total_replies: replies[0].total_replies }, { status: 200 });
 
     } catch (error) {
         console.error("Error fetching replies:", error);

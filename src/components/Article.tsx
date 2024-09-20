@@ -22,7 +22,6 @@ export default function Article({ user_id, content,postId }: ArticleProps) {
     }, []);
 
     const handleLike = async () => {
-        setIsLike(prev => !prev);
         if (!userId) return; // Ensure user is logged in
 
         try {
@@ -107,7 +106,6 @@ export default function Article({ user_id, content,postId }: ArticleProps) {
             console.error('Error creating comment:', error);
         }
     };
-    const [isLike, setIsLike] = useState(false);
 
     const getTotalComments = async () => {
         if (!postId) return;
@@ -135,6 +133,32 @@ export default function Article({ user_id, content,postId }: ArticleProps) {
         getTotalComments();
     }, [postId]);
 
+
+    const checkIsLiked = async () => {
+        if (!userId || !postId) return;
+    
+        try {
+            const response = await fetch(`/api/like/post/isLiked?postId=${postId}&userId=${userId}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+    
+            if (response.ok) {
+                const result = await response.json();
+                setIsLiked(result.isLiked);
+            } else {
+                console.error('Failed to check if post is liked');
+            }
+        } catch (error) {
+            console.error('Error checking if post is liked:', error);
+        }
+    };
+    
+    useEffect(() => {
+        checkIsLiked();
+    }, [postId, userId]);
 
     return(
         <div>
@@ -207,8 +231,8 @@ export default function Article({ user_id, content,postId }: ArticleProps) {
                     <button onClick={handleLike} className="hover:bg-slate-100 rounded-3xl">
                         <img
                             width={20}
-                            src={isLike ? "/assets/redheart.svg" : "/assets/heartonarticle.svg"}
-                            alt={isLike ? "redheart" : "heart"}
+                            src={isLiked ? "/assets/redheart.svg" : "/assets/heartonarticle.svg"}
+                            alt={isLiked ? "redheart" : "heart"}
                         />
                     </button>
                         <small>{likeCount}</small>
