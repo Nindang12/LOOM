@@ -8,7 +8,7 @@ export default function Siderbar(){
 
     useEffect(()=>{
         if(sessionStorage.getItem("isLogin")){
-            setUsername(sessionStorage.getItem("username"))
+            setUsername(sessionStorage.getItem("user_id"))
         }
     },[])
 

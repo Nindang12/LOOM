@@ -36,3 +36,34 @@ export async function POST(req: NextRequest) {
         );
     }
 }
+
+export async function GET(req: NextRequest) {
+    const { searchParams } = new URL(req.url);
+    const comment_id = searchParams.get('commentId');
+
+    if (!comment_id) {
+        return NextResponse.json(
+            { message: "Missing commentId parameter" },
+            { status: 400 }
+        );
+    }
+
+    try {
+        const connection = await db;
+
+        const [result]:any = await connection.execute(
+            'SELECT COUNT(*) as total_likes FROM action_like_comment WHERE comment_id = ?',
+            [comment_id]
+        );
+
+        const totalLikes = result[0].total_likes;
+
+        return NextResponse.json({ total_likes: totalLikes }, { status: 200 });
+    } catch (error) {
+        console.error("Error fetching total likes for comment:", error);
+        return NextResponse.json(
+            { message: "An error occurred while fetching total likes for the comment" },
+            { status: 500 }
+        );
+    }
+}

@@ -3,7 +3,6 @@ import axios from "axios"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { ToastContainer, toast } from 'react-toastify';
-import md5 from 'md5';
 
 export default function Register(){
     const [username, setUsername] = useState<string|null>(null)

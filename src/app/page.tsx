@@ -38,7 +38,9 @@ export default function Home() {
       getAllPosts();
   }, []);
 
-  console.log(posts)
+  //console.log(posts)
+
+  
 
   return (
     <div className=" flex md:flex-row flex-col-reverse w-full overflow-hidden h-screen">
