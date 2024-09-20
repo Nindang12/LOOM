@@ -18,3 +18,29 @@ export async function POST(req: NextRequest) {
         );
     }
 }
+
+export async function GET(req: NextRequest) {
+    const { searchParams } = new URL(req.url);
+    const userId = searchParams.get('userId');
+    if (!userId) {
+        return NextResponse.json(
+            { message: "userId query parameter is required" },
+            { status: 400 } // Bad Request
+        );
+    }
+
+    try {
+        const connection = await db;
+        const [results] = await connection.execute(
+            'SELECT user_id,fullname,image FROM user WHERE user_id LIKE ?',
+            [`%${userId}%`] // Use LIKE with wildcards
+        );
+        return NextResponse.json(results);
+    } catch (error) {
+        console.error("Error searching user_id:", error);
+        return NextResponse.json(
+            { message: "An error occurred while searching for the user" },
+            { status: 500 } // Internal Server Error
+        );
+    }
+}

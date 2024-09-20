@@ -31,3 +31,15 @@ interface Comment {
     user_id: string;
     postId: string;
 }
+
+interface AccountData {
+    user_id: string;
+    username: string;
+    fullname: string;
+    image: string;
+    gender: string;
+    email: string; 
+    phone_number: string;
+    location: string;
+    point: number;
+}
