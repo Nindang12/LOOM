@@ -7,73 +7,73 @@ import NameProfile from "@/components/NameProfile";
 import Siderbar from "@/components/Sidebar"
 import RowThreadss from "@/components/RowThreads";
 import Thread from "@/components/Thread";
-import React, {  useCallback, useEffect, useState } from "react";
+import React, {  useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import axios from "axios";
-import { getSession } from "@/utils/utils";
 
 
 export default function Home() {
-  const router = useRouter()
-  const pathName = usePathname();
-  const username = pathName.replace("/@","")
-  const [dataAccounts,setDataAccounts] = useState<any>([])
+    const router = useRouter()
+    const pathName = usePathname();
+    const username = pathName.replace("/@","")
+    const [dataAccounts,setDataAccounts] = useState<any>([])
 
-  const loadProfile = useCallback(async()=>{
-      try {
-          const res = await axios.post("/api/account/",{
-              username
-          },{
-              headers: {
-                  'Content-Type': 'application/json'
-              }
-          })
-          const data = await res.data
-          //console.log(data)
-          setDataAccounts(data[0])
-      } catch (error) {
-          console.error(error)
-      }
-  },[username])
+    useEffect(() => {
+        if (!sessionStorage.getItem("isLogin")) {
+            router.push("/login")
+        }
+        if (username) {
+            loadProfile()
+        }
+    }, [])
 
-  useEffect(()=>{
-    loadProfile()
-  },[loadProfile])
-
-  if(!dataAccounts){
-    return <div>Loading...</div>
-  }
-
-  return (
-    <div className="flex md:flex-row flex-col-reverse w-full overflow-hidden h-screen">
-      <Siderbar/>
-      <div className="flex flex-row justify-center mt-2 w-full">
-        <div className="max-w-screen-sm w-full h-screen">
-          <HeaderProfile />
-          <div className="flex flex-col border border-gray-300 w-full  rounded-xl mt-10 h-screen overflow-y-scroll ">
-              <div className="w-max-[630px] h-[80px] ml-[15px] mr-[15px]">
-                  {
+    const loadProfile = async()=>{
+        try {
+            const res = await axios.post("/api/account/",{
+                username
+            },{
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            const data = await res.data
+            //console.log(data)
+            setDataAccounts(data[0])
+        } catch (error) {
+            console.error(error)
+        }
+    }
+    //console.log(dataAccounts)
+    return (
+      <div className="flex md:flex-row flex-col-reverse w-full overflow-hidden h-screen">
+        <Siderbar/>
+        <div className="flex flex-row justify-center mt-2 w-full">
+          <div className="max-w-screen-sm w-full h-screen">
+            <HeaderProfile />
+            <div className="flex flex-col border border-gray-300 w-full  rounded-xl mt-10 h-screen overflow-y-scroll ">
+                <div className="w-max-[630px] h-[80px] ml-[15px] mr-[15px]">
+                    {
                       dataAccounts&&(
-                          <NameProfile username={dataAccounts.user_id} fullname={dataAccounts.fullname}/>
-                      )
-                  }
-              </div>
-              <div className="w-max-[630px] h-[80px] ml-[15px] mr-[20px]  ">
-                  <Follower/>
-              </div>
-              <div className="w-max-[630px] h-[90px] t-0">
-                <EditProfile/>
-              </div>
-              <div className="w-max-[630px] h-[80px] t-0">
-                <RowThreadss/>
-              </div>
-              <div className="w-max-[630px] h-full t-0 ml-[20px] mr-[20px]">
-                <Thread/>
-              </div>
+                            <NameProfile username={dataAccounts.user_id} fullname={dataAccounts.fullname}/>
+                        )
+                    }
+                </div>
+                <div className="w-max-[630px] h-[80px] ml-[15px] mr-[20px]  ">
+                    <Follower/>
+                </div>
+                <div className="w-max-[630px] h-[90px] t-0">
+                  <EditProfile/>
+                </div>
+                <div className="w-max-[630px] h-[80px] t-0">
+                  <RowThreadss/>
+                </div>
+                <div className="w-max-[630px] h-full t-0 ml-[20px] mr-[20px]">
+                  <Thread/>
+                </div>
 
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  );
-}
+    );
+  }

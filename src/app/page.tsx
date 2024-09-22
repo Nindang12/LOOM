@@ -4,14 +4,43 @@ import Siderbar from "@/components/Sidebar";
 import Header from "@/components/Header";
 import UploadThread from "@/components/UploadThread";
 import Article from "@/components/Article";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Foryou from "@/components/Foryou";
 import { useRouter } from "next/navigation";
-import { getSession } from "@/utils/utils";
+import axios from "axios";
 
 export default function Home() {
-  const [session,setSession] = useState<any>()
   const router = useRouter()
+  const [posts, setPosts] = useState<Post[]>([]);
+  
+  useEffect(() => {
+    const checkLogin = () => {
+      if (!sessionStorage.getItem("isLogin")) {
+        router.push("/login")
+      }
+    }
+
+    checkLogin()
+  }, [router])
+
+  const getAllPosts = async () => {
+      try {
+          const response = await axios.get("/api/postListAll");
+          if (response.status === 200) {
+              setPosts(response.data.posts);
+          }
+      } catch (error) {
+          console.error("Error fetching posts:", error);
+      }
+  };
+
+  useEffect(() => {
+      getAllPosts();
+  }, []);
+
+  //console.log(posts)
+
+
 
   return (
     <div className=" flex md:flex-row flex-col-reverse w-full overflow-hidden h-screen">
@@ -29,7 +58,11 @@ export default function Home() {
                 <Foryou/>
               </div>
               <div className="w-full  ">
-              <Article/>
+                {
+                  posts.map((post,idx)=>(
+                    <Article key={idx} user_id={post.user_id} postId={post.post_id} content={post.post_content}/>
+                  ))
+                }
               </div>
           </div>
         </div>

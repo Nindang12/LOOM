@@ -1,8 +1,7 @@
+"use client"
 import EditProfile from "@/components/EditProfile";
 import Follower from "@/components/FollowerInProfile";
 import HeaderProfile from "@/components/HeaderProfile";
-"use client"
-
 import NameProfile from "@/components/NameProfile";
 import Siderbar from "@/components/Sidebar"
 import RowThreadssreplied from "@/components/RowThreadsreplied";

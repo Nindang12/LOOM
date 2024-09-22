@@ -1,18 +1,22 @@
-const mysql = require('mysql');
+import mysql from 'mysql2/promise';
 
-const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: '',
-    database: 'nexusocial'
-});
+const createDbConnection = async () => {
+  try {
+    const connection = await mysql.createConnection({
+      host: 'localhost',
+      user: 'root',
+      password: '',
+      database: 'nexusocial'
+    });
 
-db.connect((err:any) => {
-    if (err) {
-        console.error('Error connecting to database: ', err);
-    } else {
-        console.log('Connected to the database');
-    }
-});
+    console.log('Connected to the database');
+    return connection;
+  } catch (err) {
+    console.error('Error connecting to database: ', err);
+    throw err;
+  }
+};
 
-module.exports = db;
+const db = createDbConnection();
+
+export default db;

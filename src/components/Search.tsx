@@ -1,5 +1,6 @@
 import Link from "next/link"
-export default function Search(){
+export default function Search({searchAccount}: {searchAccount: (user_id: string) => void}){
+
     return(
         <div className="flex flex-col items-center m-4">
             <Link href={'/'} className=" md:hidden">
@@ -12,7 +13,7 @@ export default function Search(){
                     <img width={15} src="/assets/searchse.svg" alt="" />
                 </div>
                 <div className="flex-1">
-                    <input type="search" className="text-sm focus outline-none w-full bg-zinc-50" placeholder="Tìm Kiếm" />
+                    <input onChange={(e) => searchAccount(e.target.value)} type="search" className="text-sm focus outline-none w-full bg-zinc-50" placeholder="Tìm Kiếm" />
                 </div>
             </div>
         </div>

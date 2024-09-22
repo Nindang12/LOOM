@@ -3,8 +3,6 @@ import axios from "axios"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { ToastContainer, toast } from 'react-toastify';
-import md5 from 'md5';
-import { login } from "@/utils/utils";
 
 export default function Register(){
     const [username, setUsername] = useState<string|null>(null)
@@ -20,22 +18,37 @@ export default function Register(){
             const isEmail =CheckisEmail(email as string);
             setIsEmail(isEmail)
             if(isEmail){
-                const response = await axios.post("/api/register",{
-                    username,
-                    password: md5(password as string),
-                    email
-                },{
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }              
-                })
-                const results = await response.data
-                if(results.length ==0){
-                    toast.error("Register failed!")
-                }else{
-                    await login(username as string)
-                    localStorage.setItem("username", username as string);
-                    router.push("/")
+                try {
+                    const response = await axios.post("/api/register", {
+                        user_id: username,
+                        password,
+                        email,
+                        fullname: username
+                    }, {
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    if (response.status === 200) {
+                        sessionStorage.setItem("isLogin", "true");
+                        sessionStorage.setItem("user_id", username as string);
+                        toast.success("Registration successful!");
+                        router.push("/");
+                    } else {
+                        toast.error("Registration failed. Please try again.");
+                    }
+                } catch (error) {
+                    if (axios.isAxiosError(error) && error.response) {
+                        if (error.response.status === 409) {
+                            toast.error("User ID or email already exists.");
+                        } else {
+                            toast.error("An error occurred during registration.");
+                        }
+                    } else {
+                        toast.error("An unexpected error occurred.");
+                    }
+                    console.error("Registration error:", error);
                 }
             }
         }catch(err){
