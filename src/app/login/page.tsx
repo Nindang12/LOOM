@@ -5,6 +5,7 @@ import { useState } from "react"
 import { ToastContainer, toast } from 'react-toastify';
 import Link from "next/link";
 import md5 from "md5"
+import { login } from "@/utils/utils";
 
 export default function Login(){
     const [username, setUsername] = useState<string|null>(null)
@@ -26,7 +27,7 @@ export default function Login(){
             if(results.length ==0){
                 toast.error("Login Failed!");
             }else{
-                localStorage.setItem("isLogin","true");
+                await login(username as string)
                 localStorage.setItem("username", username as string);
                 router.push('/')
             }

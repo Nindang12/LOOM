@@ -12,11 +12,6 @@ export default function ViewPost(){
   
     const router = useRouter()
   
-    useEffect(()=>{
-      if(!localStorage.getItem("isLogin")){
-        router.push("/login")
-      }
-    },[])
     return (
       <div className=" flex md:flex-row flex-col-reverse w-full overflow-hidden h-screen">
         <div className="">

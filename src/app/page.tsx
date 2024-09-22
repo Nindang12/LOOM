@@ -4,19 +4,15 @@ import Siderbar from "@/components/Sidebar";
 import Header from "@/components/Header";
 import UploadThread from "@/components/UploadThread";
 import Article from "@/components/Article";
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Foryou from "@/components/Foryou";
 import { useRouter } from "next/navigation";
+import { getSession } from "@/utils/utils";
 
 export default function Home() {
-  
+  const [session,setSession] = useState<any>()
   const router = useRouter()
-  
-  useEffect(()=>{
-    if(!localStorage.getItem("isLogin")){
-      router.push("/login")
-    }
-  },[])
+
   return (
     <div className=" flex md:flex-row flex-col-reverse w-full overflow-hidden h-screen">
       <div className="">

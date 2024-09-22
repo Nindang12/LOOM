@@ -1,16 +1,13 @@
 "use client"
 import { useEffect, useState } from "react"
 import Link from "next/link"
+import { getSession } from "@/utils/utils";
+import { useRouter } from "next/navigation";
 
 export default function Siderbar(){
+    const router = useRouter()
     const [isShow, setIsShow] = useState<boolean>(false);
     const [username,setUsername] = useState<string|null>(null);
-
-    useEffect(()=>{
-        if(localStorage.getItem("isLogin")){
-            setUsername(localStorage.getItem("username"))
-        }
-    },[])
 
     const toggleModal = () => {
         setIsShow((prevState) => !prevState);

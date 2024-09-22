@@ -8,15 +8,7 @@ import ArticleFollowing from "@/components/ArticleFollowing";
 import { useRouter } from "next/navigation";
 import React, { useEffect } from "react";
 export default function Home() {
-  const router = useRouter()
-  
-  useEffect(()=>{
-    if(!localStorage.getItem("isLogin")){
-      router.push("/login")
-    }
-  },[])
-  return (
-    
+  return ( 
     <div className=" flex md:flex-row flex-col-reverse overflow-hidden h-screen">
       <div className="">
       <Siderbar/>

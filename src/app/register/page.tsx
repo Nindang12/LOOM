@@ -4,11 +4,11 @@ import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { ToastContainer, toast } from 'react-toastify';
 import md5 from 'md5';
+import { login } from "@/utils/utils";
 
 export default function Register(){
     const [username, setUsername] = useState<string|null>(null)
     const [password, setPassword] = useState<string|null>(null)
-    const [fullname, setFullname] = useState<string|null>(null)
     const [email, setEmail] = useState<string|null>(null)
     const [isEmail, setIsEmail] = useState<boolean>(true)
     const router = useRouter()
@@ -23,8 +23,7 @@ export default function Register(){
                 const response = await axios.post("/api/register",{
                     username,
                     password: md5(password as string),
-                    email,
-                    fullname
+                    email
                 },{
                     headers: {
                         'Content-Type': 'application/json'
@@ -32,9 +31,9 @@ export default function Register(){
                 })
                 const results = await response.data
                 if(results.length ==0){
-                    alert("Reigster failed!")
+                    toast.error("Register failed!")
                 }else{
-                    localStorage.setItem("isLogin","true")
+                    await login(username as string)
                     localStorage.setItem("username", username as string);
                     router.push("/")
                 }
@@ -57,9 +56,6 @@ export default function Register(){
             </span>
             <div className="w-full px-3 flex justify-center">
                 <input onChange={(event)=>setEmail(event.target.value)} className={`md:w-[370px] w-full px-6 py-4 focus outline-none border ${!isEmail?"border-red-500":"border-gray-300"} border-solid  rounded-2xl bg-gray-100 text-sm`} type="text" id=""placeholder="Email" />
-            </div>
-            <div className="w-full px-3 flex justify-center">
-                <input onChange={(event)=>setFullname(event.target.value)} className="md:w-[370px] w-full px-6 py-4 focus outline-none border border-gray-300 border-solid  rounded-2xl bg-gray-100 text-sm" type="text" id=""placeholder="Họ và tên" />
             </div>
             <div className="w-full px-3 flex justify-center">
                 <input onChange={(event)=>setUsername(event.target.value)} className="md:w-[370px] w-full px-6 py-4 focus outline-none border border-gray-300 border-solid  rounded-2xl bg-gray-100 text-sm" type="text" id=""placeholder="Tên người dùng, số điện thoại hoặc email" />

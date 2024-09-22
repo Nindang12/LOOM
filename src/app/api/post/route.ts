@@ -6,7 +6,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
     try{
         const results = await new Promise((resolve, reject) => {
-            db.query(`SELECT * FROM post WHERE user_id="${body.username}" AND password="${body.password}"`,(err:any, result:[]) => {
+            db.query(`SELECT * FROM post WHERE user_id="${body.username}"`,(err:any, result:[]) => {
                 if (err) {
                     reject(err);
                 } 
