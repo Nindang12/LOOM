@@ -4,10 +4,11 @@ import db from "@/config/db";
 export async function GET(req: NextRequest) {
     try {
         const connection = await db;
-        const [results] = await connection.execute('SELECT * FROM post ORDER BY create_at DESC');
+        const [results]: any = await connection.execute('SELECT * FROM post where repost is null ORDER BY create_at DESC');
+        
 
         return NextResponse.json(
-            { posts: results },
+            { posts: results},
             { status: 200 } // OK
         );
     } catch (error) {

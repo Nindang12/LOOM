@@ -4,7 +4,7 @@ import db from "@/config/db";
 export async function POST(req: NextRequest) {
     const body = await req.json();
     try {
-        const { content, user_id } = body;
+        const { content, user_id,image_content } = body;
         const create_at = new Date().getTime(); // Convert current timestamp to UNIX timestamp (seconds since epoch)
 
         if (!content || !user_id) {
@@ -13,9 +13,16 @@ export async function POST(req: NextRequest) {
                 { status: 400 } // Bad Request
             );
         }
-
         const connection = await db;
         const post_id = Math.random().toString(36).substring(2, 7) + Math.random().toString(36).substring(2, 7);
+        if (image_content) {
+            const photo_id = Math.random().toString(36).substring(2, 7) + Math.random().toString(36).substring(2, 7);
+            await connection.execute(
+                'INSERT INTO photo (photo_id, post_id, photo_content, user_id, created_at) VALUES (?, ?, ?, ?, ?)',
+                [photo_id, post_id, image_content, user_id, create_at]
+            );
+        }
+        
         const [results] = await connection.execute(
             'INSERT INTO post (post_id, post_content, user_id, create_at) VALUES (?, ?, ?, ?)',
             [post_id, content, user_id, create_at]
@@ -54,6 +61,11 @@ export async function GET(req: NextRequest) {
         let params = [user_id, post_id];
 
         const [posts] = await connection.execute(query, params);
+        const [photos] = await connection.execute(
+            'SELECT * FROM photo WHERE post_id = ?',
+            [post_id]
+        );
+
 
         return NextResponse.json({ posts }, { status: 200 });
     } catch (error) {

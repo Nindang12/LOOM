@@ -7,6 +7,7 @@ import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 import { EditorState, $getRoot, $getSelection } from 'lexical';
 import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
 
+
 // Define the editor configuration interface
 const editorConfig = {
     namespace: 'LexicalEditor',
@@ -18,6 +19,7 @@ const editorConfig = {
         throw error;
     },
 };
+
 
 // Define the Lexical Editor functional component
 const LexicalEditor = ({setOnchange}: {setOnchange: Dispatch<SetStateAction<string>>}) => {
@@ -32,6 +34,7 @@ const LexicalEditor = ({setOnchange}: {setOnchange: Dispatch<SetStateAction<stri
 
         });
     };
+
 
     return (
         <LexicalComposer initialConfig={editorConfig}>

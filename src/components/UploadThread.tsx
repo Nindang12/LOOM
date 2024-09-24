@@ -9,6 +9,7 @@ export default function UploadThread(){
     const [content, setContent] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [userId, setUserId] = useState<string | null>(null);
+    const [image, setImage] = useState<any>(null);
 
     const getUserId = () => {
         if (typeof window !== 'undefined') {
@@ -36,7 +37,8 @@ export default function UploadThread(){
                 },
                 body: JSON.stringify({
                     user_id: userId,
-                    content: JSON.stringify(content)
+                    content: JSON.stringify(content),
+                    image_content: image
                 }),
             });
 
@@ -82,13 +84,36 @@ export default function UploadThread(){
                                     <div className="ml-4 w-full">
                                     <div className="font-semibold">_nhanz04</div>
                                         <LexicalEditor setOnchange={setContent}/>
+                                        {
+                                            image && (
+                                                <img src={image} className="w-56 h-56 mt-4 object-cover" alt="image" />
+                                            )
+                                        }
                                     </div>
                                 </div>
                                 <div className="flex items-center mb-4">
                                     <div className="flex items-center">
-                                        <button className="px-2">
+                                        <button className="px-2" onClick={() => document.getElementById('upload-image-input')?.click()}>
                                             <img width={20} src="/assets/album.svg" className="" alt="icon" />
-                                        </button >   
+                                        </button>
+                                        <input
+                                            type="file"
+                                            id="upload-image-input"
+                                            style={{ display: 'none' }}
+                                            accept="image/*"
+                                            onChange={(e) => {
+                                                const file = e.target.files?.[0];
+                                                if (file) { 
+                                                    const reader = new FileReader();
+                                                    reader.readAsDataURL(file);
+                                                    reader.onload = () => {
+                                                        setImage(reader.result);
+                                                    };
+                                                    
+                                                }
+                                                //console.log(file)
+                                            }}
+                                        />
                                         <button className="px-2">
                                             <img width={15} src="/assets/gif.svg" alt="" />
                                         </button>

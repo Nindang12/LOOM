@@ -3,11 +3,11 @@ import mysql from 'mysql2/promise';
 const createDbConnection = async () => {
   try {
     const connection = await mysql.createConnection({
-      host: '0.tcp.ap.ngrok.io',
-      port: 13401,
-      user: 'louisdevzz',
-      password: 'Vohuunhan1310@',
-      database: 'nexusocial'
+      host: process.env.HOST,
+      port: parseInt(process.env.PORT_SQL as string),
+      user: process.env.USER,
+      password: process.env.PASSWORD,
+      database: process.env.DATABASE
     });
 
     console.log('Connected to the database');

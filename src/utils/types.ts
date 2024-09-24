@@ -43,3 +43,8 @@ interface AccountData {
     location: string;
     point: number;
 }
+
+interface Image {
+    photo_id: string;
+    photo_content: string;
+}
