@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+scrollbar-width:thin;
+  scrollbar-color: #dbdbdb;
+}
+
+/* Chrome, Edge, and Safari */
+*::-webkit-scrollbar {
+  width: 5px;
+}
+
+*::-webkit-scrollbar-track {
+  background: #dbdbdb;
+  border-radius: 20px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: #dbdbdb;
+  border-radius: 20px;
+  border: 3px solid #dbdbdb;
+}
+
+.editor-container {
+  padding: 0px;
+}
+
+.editor-input {
+  outline: none;
+  font-size: 14px;
+}
