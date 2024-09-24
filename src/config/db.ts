@@ -3,9 +3,10 @@ import mysql from 'mysql2/promise';
 const createDbConnection = async () => {
   try {
     const connection = await mysql.createConnection({
-      host: 'localhost',
-      user: 'root',
-      password: '',
+      host: '0.tcp.ap.ngrok.io',
+      port: 13401,
+      user: 'louisdevzz',
+      password: 'Vohuunhan1310@',
       database: 'nexusocial'
     });
 
