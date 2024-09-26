@@ -81,16 +81,16 @@ export default function UploadThread(){
                             <div onClick={(e) => e.stopPropagation()} className=" bg-white p-3 rounded-lg shadow-lg w-[600px]">
                                 <div className="flex items-start mb-4">
                                     <img src="/assets/avt.png" className="w-10 h-10 rounded-full flex items-start justify-center" alt="" />
-                                    <div className="ml-4 w-full">
-                                    <div className="font-semibold">{userId}</div>
-                                        <LexicalEditor setOnchange={setContent}/>
-                                        {
-                                            image && (
-                                                <img src={image} className="w-56 h-56 mt-4 object-cover" alt="image" />
-                                            )
-                                        }
+                                        <div className="ml-4 w-full">
+                                            <div className="font-semibold">{userId}</div>
+                                                <LexicalEditor setOnchange={setContent}/>
+                                                {
+                                                    image && (
+                                                        <img src={image} className="w-56 h-56 mt-4 object-cover" alt="image" />
+                                                    )
+                                                }
+                                        </div>
                                     </div>
-                                </div>
                                 <div className="flex items-center mb-4">
                                     <div className="flex items-center">
                                         <button className="px-2" onClick={() => document.getElementById('upload-image-input')?.click()}>

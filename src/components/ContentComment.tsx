@@ -273,9 +273,9 @@ export default function ContentComment({
                 {/* <header> */}
                 <div className="flex flex-row items-start justify-between">
                     <div className="h-auto flex flex-row gap-2 mt-2 ml-5 min-h-[97px]">
-                        <div className="flex flex-col h-100% justify-center items-center gap-2">
+                        <div className="flex flex-col h-100% justify-staet items-start gap-2">
                             <img className="rounded-full w-8 h-8 bg-cover" src="/assets/avt.png" alt="avt" />              
-                            <div className="flex-grow bg-slate-400 w-[1px]"></div>          
+                            {/* <div className="flex-grow bg-slate-400 w-[1px]"></div>           */}
                         </div>
                         <div className="h-full">
                             <div className="flex gap-2">
@@ -289,7 +289,7 @@ export default function ContentComment({
                             </div>
                             <div className="flex justify-center md:justify-start items-center text-sm font-thin gap-3 mb-3 ">
                                 <div className="flex gap-1 p-2">
-                                    <button className="hover:bg-slate-100 rounded-3xl">
+                                    <button onClick={handleLikeComment} className="hover:bg-slate-100 rounded-3xl">
                                         <img
                                             width={20}
                                             src={isLiked ? "/assets/redheart.svg" : "/assets/heartonarticle.svg"}
@@ -358,7 +358,7 @@ export default function ContentComment({
                     </div>
                 </div>
                 {/* reply comment */}
-                <div className="flex flex-row items-start justify-between">
+                {/* <div className="flex flex-row items-start justify-between">
                     <div className="h-auto flex flex-row gap-2 mt-2 ml-5 min-h-[97px]">
                         <div className="flex flex-col h-100% justify-start items-start gap-2">
                             <img className="rounded-full w-8 h-8 bg-cover" src="/assets/avt.png" alt="avt" />                       
@@ -442,7 +442,7 @@ export default function ContentComment({
                         }
             
                     </div>
-                </div>
+                </div> */}
                 {/* footer */}
             </div>
             {
