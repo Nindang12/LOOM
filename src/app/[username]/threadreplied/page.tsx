@@ -62,8 +62,8 @@ export default function ThreadReplied() {
               <div className="w-max-[630px] h-[80px] t-0">
                 <RowThreadssreplied/>
               </div>
-              <div className="w-max-[630px] h-full flex items-center justify-center t-0 ml-[20px] mr-[20px]">
-                <Threadsreplied/>
+              <div className="w-max-[630px] h-full flex t-0 ml-[20px] mr-[20px]">
+                <Threadsreplied userId={username}/>
               </div>
 
           </div>

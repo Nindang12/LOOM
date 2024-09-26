@@ -7,7 +7,7 @@ export default function ContentComment({
     comment_id,
     create_at,
     user_id,
-    postId
+    post_id
 }: Comment) {
     const [isShow, setIsShow] = useState<boolean>(false);
     const [userId, setUserId] = useState<string | null>(null);
@@ -124,7 +124,7 @@ export default function ContentComment({
                     comment_id: comment_id,
                     user_id: user_id,
                     reply_content: replyContent,
-                    post_id: postId
+                    post_id: post_id
                 }),
             });
 
@@ -215,7 +215,7 @@ export default function ContentComment({
     };
     
     const checkIsReposted = async () => {
-        if (!userId || !postId) return;
+        if (!userId || !post_id) return;
     
         try {
             const response = await fetch(`/api/comment/recomment/isReComment?commentId=${comment_id}&userId=${userId}`, {
@@ -237,7 +237,7 @@ export default function ContentComment({
     };
     
     const getTotalReposts = async () => {
-        if (!postId) return;
+        if (!post_id) return;
 
         try {
             const response = await fetch(`/api/comment/recomment?commentId=${comment_id}`, {
