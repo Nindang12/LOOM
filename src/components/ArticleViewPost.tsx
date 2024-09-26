@@ -192,21 +192,20 @@ export default function ArticleViewPost({ post }: { post: Post }) {
             <div className="">
                 {/* <header> */}
                 <div className="flex flex-row items-center justify-between">
-                    <div className="flex flex-row justify-center items-center gap-2 mt-2 ml-5 ">
+                    <div className="flex flex-row justify-center gap-2 mt-2 ml-5 ">
                         <div>
                             <img className=" rounded-full w-8 h-8 bg-cover" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQgFPzdgOy4CJfBOVER-gmHRQJjVfNd3LMf-Q&s" alt="" />
-                            <div className="fixed translate-x-4 translate-y-[-15px]  ">
+                            <div className=" translate-x-4 translate-y-[-15px]  ">
                                 <img width={20} src="/assets/addfriend.svg" alt="" />
                             </div>
                         </div>
                         
-                        <div className="flex gap-2  ">
+                        <div className="flex gap-2 mt-2 ">
                             <Link href={`/${post.user_id}`} className="font-bold text-sm">
                                 <span className="">{post.user_id}</span>
                             </Link>
                             <span className="text-sm text-gray-400">{timeAgo}</span>
-                        </div>
-                        
+                        </div>        
                     </div>
                     <div>
                         <button onClick={()=>setIssShow((prv)=>!prv)} className="z-0 mr-5 hover:bg-slate-100 p-3 rounded-full">
