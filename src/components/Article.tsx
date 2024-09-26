@@ -20,6 +20,7 @@ export default function Article({ user_id, content,postId }: ArticleProps) {
     const [images, setImages] = useState([]);
     const [image, setImage] = useState<string|null>(null);
     const [contentComment, setContentComment] = useState<string>('');
+    const [shareCount, setShareCount] = useState<number>(0);
 
     useEffect(() => {
         const storedUserId = sessionStorage.getItem('user_id');
@@ -105,10 +106,6 @@ export default function Article({ user_id, content,postId }: ArticleProps) {
         }
     };
 
-    useEffect(() => {
-        getTotalLikes();
-    }, [postId]);
-
     const createComment = async () => {
         if (!postId || !userId) return;
 
@@ -162,8 +159,32 @@ export default function Article({ user_id, content,postId }: ArticleProps) {
         }
     };
 
+    const getTotalShares = async () => {
+        if (!postId) return;
+
+        try {
+            const response = await fetch(`/api/post/sharePost?postId=${postId}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                setShareCount(result.total_shares);
+            } else {
+                console.error('Failed to fetch total shares');
+            }
+        } catch (error) {
+            console.error('Error fetching total shares:', error);
+        }
+    };
+
     useEffect(() => {
         getTotalComments();
+        getTotalLikes();
+        getTotalShares();
     }, [postId]);
 
 
@@ -189,9 +210,6 @@ export default function Article({ user_id, content,postId }: ArticleProps) {
         }
     };
     
-    useEffect(() => {
-        checkIsLiked();
-    }, [postId, userId]);
 
     const handleRepost = async () => {
         if (!userId || !postId || !content) return;
@@ -260,9 +278,40 @@ export default function Article({ user_id, content,postId }: ArticleProps) {
         }
     };
 
+    const handleShare = async () => {
+        if (!userId || !postId) return;
+
+        try {
+            const response = await fetch('/api/post/sharePost', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ post_id: postId, user_id: userId }),
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                if (result.message === "Post shared successfully") {
+                    const textToCopy = `${window.location.href}@${userId}/post/${postId}`;
+                    navigator.clipboard.writeText(textToCopy);
+                    setIsReposted(true);
+                    setShareCount((prevCount) => prevCount + 1);
+                } else {
+                    console.error(result.message);
+                }
+            } else {
+                console.error('Failed to share post');
+            }
+        } catch (error) {
+            console.error('Error sharing post:', error);
+        }
+    };
+
     useEffect(() => {
         checkIsReposted();
         getTotalReposts()
+        checkIsLiked();
     }, [postId, userId]);
 
     
@@ -354,9 +403,9 @@ export default function Article({ user_id, content,postId }: ArticleProps) {
                         <img width={20} src={isReposted ? "/assets/replay-green.svg" : "/assets/replay.svg"} alt="" />
                         <small className={`${isReposted ? "text-green-600" : ""}`}>{repostCount}</small>
                     </button>
-                    <button className="flex gap-1 hover:bg-slate-100 p-1 rounded-3xl">
+                    <button onClick={handleShare} className="flex gap-1 hover:bg-slate-100 p-1 rounded-3xl">
                         <img width={30} src="/assets/share.svg" alt="" />
-                        <small>100</small>
+                        <small>{shareCount}</small>
                     </button>
                 </div>
             </div>

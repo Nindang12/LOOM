@@ -5,7 +5,8 @@ const nextConfig = {
         PORT_SQL: process.env.PORT_SQL,
         USER: process.env.USER,
         PASSWORD: process.env.PASSWORD,
-        DATABASE: process.env.DATABASE
+        DATABASE: process.env.DATABASE,
+        JWT_SECRET: process.env.JWT_SECRET
     }
 };
 

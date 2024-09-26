@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { ToastContainer, toast } from 'react-toastify';
 import Link from "next/link";
+import jwt from 'jsonwebtoken';
 
 export default function Login(){
     const [username, setUsername] = useState<string|null>(null)
@@ -25,9 +26,9 @@ export default function Login(){
             const result = response.data;
 
             if (result.message === "Login successful") {
-                // Save login state in session storage instead of local storage
-                sessionStorage.setItem("isLogin", "true");
-                sessionStorage.setItem("user_id", username as string);
+                // Replace sessionStorage with JWT creation
+                const token = jwt.sign({ user_id: username }, process.env.JWT_SECRET!, { expiresIn: '1h' });
+                document.cookie = `auth_token=${token}; path=/; max-age=3600; HttpOnly; Secure`;
                 toast.success("Login successful!");
                 router.push('/')
             } else {
