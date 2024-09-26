@@ -334,13 +334,13 @@ export default function Article({ user_id, content,postId }: ArticleProps) {
                 {/* footer */}
                 <div className="flex mt-5 md:ml-[60px] justify-center md:justify-start items-center text-sm font-thin gap-5 mb-3 ">
                     <div className="flex gap-1 p-2">
-                    <button onClick={handleLike} className="hover:bg-slate-100 rounded-3xl">
-                        <img
-                            width={20}
-                            src={isLiked ? "/assets/redheart.svg" : "/assets/heartonarticle.svg"}
-                            alt={isLiked ? "redheart" : "heart"}
-                        />
-                    </button>
+                        <button onClick={handleLike} className="hover:bg-slate-100 rounded-3xl">
+                            <img
+                                width={20}
+                                src={isLiked ? "/assets/redheart.svg" : "/assets/heartonarticle.svg"}
+                                alt={isLiked ? "redheart" : "heart"}
+                            />
+                        </button>
                         <small className={`${isLiked ? "text-red-600" : ""}`}>{likeCount}</small>
                     </div>
                     <button onClick={()=>setIsShow((prv)=>!prv)} className="flex gap-1 hover:bg-slate-100 p-2 rounded-3xl">

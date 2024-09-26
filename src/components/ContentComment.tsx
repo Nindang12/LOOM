@@ -17,6 +17,8 @@ export default function ContentComment({
     const [localLikeCount, setLocalLikeCount] = useState<number>(0);
     const [totalReplies, setTotalReplies] = useState(0);
     const [timeAgo, setTimeAgo] = useState<string>('');
+    const [isReposted, setIsReposted] = useState<boolean>(false);
+    const [repostCount, setRepostCount] = useState<number>(0);
 
     useEffect(() => {
         const storedUserId = sessionStorage.getItem('user_id');
@@ -189,9 +191,81 @@ export default function ContentComment({
         }
     };
     
+    const handleRepost = async () => {
+        if (!userId || !postId || !comment_content) return;
+
+        try {
+            const response = await fetch(`/api/post/repost`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ user_id: userId, post_id: postId,post_content:comment_content }),
+            });
+
+            if (response.ok) {
+                console.log('Post successfully reposted');
+                window.location.reload();
+            } else {
+                console.error('Failed to repost');
+            }
+        } catch (error) {
+            console.error('Error reposting:', error);
+        }
+    };
+    
+    const checkIsReposted = async () => {
+        if (!userId || !postId) return;
+    
+        try {
+            const response = await fetch(`/api/post/repost/isReposted?postId=${postId}&userId=${userId}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+    
+            if (response.ok) {
+                const result = await response.json();
+                setIsReposted(result.isReposted);
+            } else {
+                console.error('Failed to check if post is reposted');
+            }
+        } catch (error) {
+            console.error('Error checking if post is reposted:', error);
+        }
+    };
+    
+    const getTotalReposts = async () => {
+        if (!postId) return;
+
+        try {
+            const response = await fetch(`/api/post/repost?postId=${postId}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                setRepostCount(result.repostCount);
+            } else {
+                console.error('Failed to get total reposts');
+            }
+        } catch (error) {
+            console.error('Error getting total reposts:', error);
+        }
+    };
+
+
     useEffect(() => {
         checkIsLiked();
+        checkIsReposted();
+        getTotalReposts()
     }, [comment_id, userId]);
+
+    
 
     return(
         <div>
@@ -298,25 +372,27 @@ export default function ContentComment({
                                 <p>{comment_content}</p>
                             </div>
                             <div className="flex justify-center md:justify-start items-center text-sm font-thin gap-3 mb-3 ">
-                                <button onClick={handleLikeComment} className="flex hover:bg-slate-100 p-2 rounded-3xl">
-                                    <img
-                                        width={20}
-                                        src={isLiked ? "/assets/redheart.svg" : "/assets/heartonarticle.svg"}
-                                        alt={isLiked ? "redheart" : "heart"}
-                                    />
-                                    <span>{localLikeCount}</span>
+                                <div className="flex gap-1 p-2">
+                                    <button className="hover:bg-slate-100 rounded-3xl">
+                                        <img
+                                            width={20}
+                                            src={isLiked ? "/assets/redheart.svg" : "/assets/heartonarticle.svg"}
+                                            alt={isLiked ? "redheart" : "heart"}
+                                        />
+                                    </button>
+                                    <small className={`${isLiked ? "text-red-600" : ""}`}>{localLikeCount}</small>
+                                </div>
+                                <button onClick={()=>setIsShow((prv)=>!prv)} className="flex gap-1 hover:bg-slate-100 p-2 rounded-3xl">
+                                    <img width={20} src="/assets/comment.svg" alt="" />
+                                    <small>{totalReplies}</small>
                                 </button>
-                                <button onClick={()=>setIsShow((prv)=>!prv)} className="flex hover:bg-slate-100 p-2 rounded-3xl">
-                                    <img className="" width={20} src="/assets/comment.svg" alt="" />
-                                    <span>{totalReplies}</span>
+                                <button onClick={handleRepost} className={`flex gap-1 hover:bg-slate-100 p-2 rounded-3xl ${isReposted ? "bg-opacity-50 hover:bg-green-100" : ""}`}>
+                                    <img width={20} src={isReposted ? "/assets/replay-green.svg" : "/assets/replay.svg"} alt="" />
+                                    <small className={`${isReposted ? "text-green-600" : ""}`}>{repostCount}</small>
                                 </button>
-                                <button className="flex hover:bg-slate-100 p-2 rounded-3xl">
-                                    <img className="" width={20} src="/assets/replay.svg" alt="" />
-                                    <span>100</span>
-                                </button>
-                                <button className="flex hover:bg-slate-100 p-1 rounded-3xl">
-                                    <img className="" width={30} src="/assets/share.svg" alt="" />
-                                    <span>100</span>
+                                <button className="flex gap-1 hover:bg-slate-100 p-1 rounded-3xl">
+                                    <img width={30} src="/assets/share.svg" alt="" />
+                                    <small>100</small>
                                 </button>
                             </div>
                         </div>
