@@ -4,8 +4,8 @@ const createDbConnection = async () => {
   try {
     const connection = await mysql.createConnection({
       host: 'localhost',
-      user: 'root',
-      password: '',
+      user: 'nindang',
+      password: 'nindang123',
       database: 'nexusocial'
     });
 
