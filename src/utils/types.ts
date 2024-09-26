@@ -29,7 +29,7 @@ interface Comment {
     create_at: string;
     like_count: number;
     user_id: string;
-    postId: string;
+    post_id?: string;
 }
 
 interface AccountData {

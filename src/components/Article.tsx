@@ -266,7 +266,7 @@ export default function Article({ user_id, content,postId }: ArticleProps) {
 
     return(
         <div>
-            <div className="border-b border-gray-200 w-full px-2">
+            <div className="border-b border-gray-200 w-full px-2 mt-2">
                 {/* <header> */}
                 <div className="flex flex-row gap-3 w-full">
                     <img className="rounded-full w-8 h-8 bg-cover" src="/assets/avt.png" alt="avatar" />
