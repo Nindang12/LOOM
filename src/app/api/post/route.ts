@@ -61,11 +61,6 @@ export async function GET(req: NextRequest) {
         let params = [user_id, post_id];
 
         const [posts] = await connection.execute(query, params);
-        const [photos] = await connection.execute(
-            'SELECT * FROM photo WHERE post_id = ?',
-            [post_id]
-        );
-
 
         return NextResponse.json({ posts }, { status: 200 });
     } catch (error) {

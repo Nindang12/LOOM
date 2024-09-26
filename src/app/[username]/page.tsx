@@ -43,7 +43,7 @@ export default function Home() {
             console.error(error)
         }
     }
-    //console.log(dataAccounts)
+    
     return (
       <div className="flex md:flex-row flex-col-reverse w-full overflow-hidden h-screen">
         <Siderbar/>
@@ -68,7 +68,7 @@ export default function Home() {
                   <RowThreadss/>
                 </div>
                 <div className="w-max-[630px] h-full t-0 ml-[20px] mr-[20px]">
-                  <Thread/>
+                  <Thread userId={username}/>
                 </div>
 
             </div>

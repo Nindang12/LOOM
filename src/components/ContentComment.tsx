@@ -191,20 +191,20 @@ export default function ContentComment({
         }
     };
     
-    const handleRepost = async () => {
-        if (!userId || !postId || !comment_content) return;
+    const handleRecomment = async () => {
+        if (!userId || !comment_id || !replyContent) return;
 
         try {
-            const response = await fetch(`/api/post/repost`, {
+            const response = await fetch(`/api/comment/recomment`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ user_id: userId, post_id: postId,post_content:comment_content }),
+                body: JSON.stringify({ user_id: userId, comment_id: comment_id, reply_content: replyContent }),
             });
 
             if (response.ok) {
-                console.log('Post successfully reposted');
+                console.log('Comment successfully recommented');
                 window.location.reload();
             } else {
                 console.error('Failed to repost');
@@ -218,7 +218,7 @@ export default function ContentComment({
         if (!userId || !postId) return;
     
         try {
-            const response = await fetch(`/api/post/repost/isReposted?postId=${postId}&userId=${userId}`, {
+            const response = await fetch(`/api/comment/recomment/isReComment?commentId=${comment_id}&userId=${userId}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -229,10 +229,10 @@ export default function ContentComment({
                 const result = await response.json();
                 setIsReposted(result.isReposted);
             } else {
-                console.error('Failed to check if post is reposted');
+                console.error('Failed to check if comment is recommented');
             }
         } catch (error) {
-            console.error('Error checking if post is reposted:', error);
+            console.error('Error checking if comment is recommented:', error);
         }
     };
     
@@ -240,7 +240,7 @@ export default function ContentComment({
         if (!postId) return;
 
         try {
-            const response = await fetch(`/api/post/repost?postId=${postId}`, {
+            const response = await fetch(`/api/comment/recomment?commentId=${comment_id}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -251,10 +251,10 @@ export default function ContentComment({
                 const result = await response.json();
                 setRepostCount(result.repostCount);
             } else {
-                console.error('Failed to get total reposts');
+                console.error('Failed to get total recomment');
             }
         } catch (error) {
-            console.error('Error getting total reposts:', error);
+            console.error('Error getting total recomment:', error);
         }
     };
 
@@ -288,25 +288,27 @@ export default function ContentComment({
                                 <p>{comment_content}</p>
                             </div>
                             <div className="flex justify-center md:justify-start items-center text-sm font-thin gap-3 mb-3 ">
-                                <button onClick={handleLikeComment} className="flex hover:bg-slate-100 p-2 rounded-3xl">
-                                    <img
-                                        width={20}
-                                        src={isLiked ? "/assets/redheart.svg" : "/assets/heartonarticle.svg"}
-                                        alt={isLiked ? "redheart" : "heart"}
-                                    />
-                                    <span>{localLikeCount}</span>
+                                <div className="flex gap-1 p-2">
+                                    <button className="hover:bg-slate-100 rounded-3xl">
+                                        <img
+                                            width={20}
+                                            src={isLiked ? "/assets/redheart.svg" : "/assets/heartonarticle.svg"}
+                                            alt={isLiked ? "redheart" : "heart"}
+                                        />
+                                    </button>
+                                    <small className={`${isLiked ? "text-red-600" : ""}`}>{localLikeCount}</small>
+                                </div>
+                                <button onClick={()=>setIsShow((prv)=>!prv)} className="flex gap-1 hover:bg-slate-100 p-2 rounded-3xl">
+                                    <img width={20} src="/assets/comment.svg" alt="" />
+                                    <small>{totalReplies}</small>
                                 </button>
-                                <button onClick={()=>setIsShow((prv)=>!prv)} className="flex hover:bg-slate-100 p-2 rounded-3xl">
-                                    <img className="" width={20} src="/assets/comment.svg" alt="" />
-                                    <span>{totalReplies}</span>
+                                <button onClick={handleRecomment} className={`flex gap-1 hover:bg-slate-100 p-2 rounded-3xl ${isReposted ? "bg-opacity-50 hover:bg-green-100" : ""}`}>
+                                    <img width={20} src={isReposted ? "/assets/replay-green.svg" : "/assets/replay.svg"} alt="" />
+                                    <small className={`${isReposted ? "text-green-600" : ""}`}>{repostCount}</small>
                                 </button>
-                                <button className="flex hover:bg-slate-100 p-2 rounded-3xl">
-                                    <img className="" width={20} src="/assets/replay.svg" alt="" />
-                                    <span>100</span>
-                                </button>
-                                <button className="flex hover:bg-slate-100 p-1 rounded-3xl">
-                                    <img className="" width={30} src="/assets/share.svg" alt="" />
-                                    <span>100</span>
+                                <button className="flex gap-1 hover:bg-slate-100 p-1 rounded-3xl">
+                                    <img width={30} src="/assets/share.svg" alt="" />
+                                    <small>100</small>
                                 </button>
                             </div>
                         </div>
@@ -386,7 +388,7 @@ export default function ContentComment({
                                     <img width={20} src="/assets/comment.svg" alt="" />
                                     <small>{totalReplies}</small>
                                 </button>
-                                <button onClick={handleRepost} className={`flex gap-1 hover:bg-slate-100 p-2 rounded-3xl ${isReposted ? "bg-opacity-50 hover:bg-green-100" : ""}`}>
+                                <button onClick={handleRecomment} className={`flex gap-1 hover:bg-slate-100 p-2 rounded-3xl ${isReposted ? "bg-opacity-50 hover:bg-green-100" : ""}`}>
                                     <img width={20} src={isReposted ? "/assets/replay-green.svg" : "/assets/replay.svg"} alt="" />
                                     <small className={`${isReposted ? "text-green-600" : ""}`}>{repostCount}</small>
                                 </button>

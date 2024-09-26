@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import db from "@/config/db";
 
 export async function POST(req: NextRequest) {
-    const { user_id, comment_id,comment_content } = await req.json();
+    const { user_id, comment_id,reply_content } = await req.json();
 
     try {
         const connection = await db;
@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
             const reply_comment_id = Math.random().toString(36).substring(2, 7) + Math.random().toString(36).substring(2, 7);
             await connection.execute(
                 'INSERT INTO comment (user_id, comment_id, reply, create_at, comment_content) VALUES (?, ?, ?, ?, ?)',
-                [user_id, reply_comment_id, comment_id, create_at, comment_content]
+                [user_id, reply_comment_id, comment_id, create_at, reply_content]
             );
             return NextResponse.json({ message: "Recommenting successfully" });
         }
