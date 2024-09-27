@@ -6,7 +6,6 @@ export default function HeaderProfile(){
         <div className="flex flex-row justify-between w-full h-8 items-center gap-2 relative">
             <div className="flex flex-row gap-2 items-center justify-center w-full">
                 <span className="font-semibold">Tìm kiếm</span>
-               
                 
             </div>
             <div className="mr-5">

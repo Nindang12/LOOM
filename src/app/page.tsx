@@ -40,12 +40,8 @@ export default function Home() {
       getAllPosts();
   }, []);
 
-  //console.log(posts)
-
-
-
   return (
-    <div className=" flex md:flex-row flex-col-reverse w-full overflow-hidden h-screen">
+    <div className="flex md:flex-row flex-col-reverse w-full overflow-hidden h-screen">
       <div className="">
         <Siderbar/>
       </div>

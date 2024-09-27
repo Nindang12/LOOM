@@ -9,9 +9,13 @@ export default function NameProfile({fullname,username}:Profile){
                     </div>
                     <span className="text-sm">{username?username:""}</span>
                 </div>
-                <button>
+                <div className="relative">
                     <img className="mt-[20px] rounded-full w-[85px] h-[85px] bg-cover" src="/assets/avt.png" alt="" />
-                </button>
+                    <input type="file" id="avatarUpload" className="hidden" accept="image/*" />
+                    {/* <label htmlFor="avatarUpload" className="absolute bottom-0 right-0 bg-white border border-gray-300 rounded-full p-1 cursor-pointer">
+                        <img width={16} src="/assets/upload-icon.svg" alt="upload icon" />
+                    </label> */}
+                </div>
             </div>
             
         </div>
