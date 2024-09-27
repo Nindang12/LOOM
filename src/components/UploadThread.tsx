@@ -1,6 +1,9 @@
 "use client"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import LexicalEditor from "./LexicalEditor";
+import { getUserId } from "@/utils/auth";
+
+
 export default function UploadThread(){
     const [iesShow, setIsShow] = useState<boolean>(false);
     const toggleModal = () => {
@@ -8,24 +11,11 @@ export default function UploadThread(){
     }
     const [content, setContent] = useState("");
     const [isLoading, setIsLoading] = useState(false);
-    const [userId, setUserId] = useState<string | null>(null);
     const [image, setImage] = useState<any>(null);
-
-    const getUserId = () => {
-        if (typeof window !== 'undefined') {
-            return sessionStorage.getItem('user_id');
-        }
-        return null;
-    };
-
-    useEffect(() => {
-        const id = getUserId();
-        setUserId(id);
-    }, []);
+    const userId = getUserId();
 
     const handleUploadThread = async () => {
         try {
-            const userId = sessionStorage.getItem('user_id');
             if (!userId) {
                 throw new Error('User ID not found in SessionStorage');
             }

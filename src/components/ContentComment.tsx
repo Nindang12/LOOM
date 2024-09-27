@@ -1,6 +1,7 @@
 "use client"
 import Link from "next/link"
 import { useEffect, useState } from "react"
+import { getUserId } from "@/utils/auth";
 
 export default function ContentComment({
     comment_content,
@@ -9,8 +10,8 @@ export default function ContentComment({
     user_id,
     post_id
 }: Comment) {
+    const userId = getUserId();
     const [isShow, setIsShow] = useState<boolean>(false);
-    const [userId, setUserId] = useState<string | null>(null);
     const [replyContent, setReplyContent] = useState<string|null>(null);
     const [issShow, setIssShow] = useState<boolean>(false);
     const [isLiked, setIsLiked] = useState<boolean>(false);
@@ -20,12 +21,6 @@ export default function ContentComment({
     const [isReposted, setIsReposted] = useState<boolean>(false);
     const [repostCount, setRepostCount] = useState<number>(0);
 
-    useEffect(() => {
-        const storedUserId = sessionStorage.getItem('user_id');
-        if (storedUserId) {
-            setUserId(storedUserId);
-        }
-    }, []);
     const toggleModal = () => {
         setIsShow((prevState) => !prevState);
     }

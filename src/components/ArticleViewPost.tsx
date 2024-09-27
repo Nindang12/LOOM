@@ -2,16 +2,16 @@
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import LexicalEditor from "./LexicalEditor";
-
+import { getUserId } from "@/utils/auth";
 
 export default function ArticleViewPost({ post }: { post: Post }) {
+    const userId = getUserId();
     const [isShow, setIsShow] = useState<boolean>(false);
     const [image, setImage] = useState<string | null>(null);
     const [content, setContent] = useState<string>('');
     const [issShow, setIssShow] = useState<boolean>(false);
     const [isLiked, setIsLiked] = useState(false);
     const [likeCount, setLikeCount] = useState(0);
-    const [userId, setUserId] = useState<string | null>(null);
     const [commentContent, setCommentContent] = useState<string|null>(null);
     const [commentCount, setCommentCount] = useState<number>(0);
     const [timeAgo, setTimeAgo] = useState<string>("");
@@ -19,12 +19,6 @@ export default function ArticleViewPost({ post }: { post: Post }) {
     const [isReposted, setIsReposted] = useState(false);
     const [repostCount, setRepostCount] = useState(0);
 
-    useEffect(() => {
-        const storedUserId = sessionStorage.getItem('user_id');
-        if (storedUserId) {
-            setUserId(storedUserId);
-        }
-    }, []);
 
     const toggleModal = () => {
         setIsShow((prevState) => !prevState);

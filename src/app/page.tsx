@@ -8,28 +8,22 @@ import React, { useEffect, useState } from "react";
 import Foryou from "@/components/Foryou";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import { checkLogin } from '../utils/auth';
+import { checkLogin } from "@/utils/auth";
 
 export default function Home() {
-  const userId = checkLogin();
-
-  if (!userId) {
-    // Redirect to login page or show login required message
-    return <div>Please log in to access this page</div>;
-  }
-
   const router = useRouter()
   const [posts, setPosts] = useState<Post[]>([]);
-  
+
   useEffect(() => {
-    const checkLogin = () => {
-      if (!sessionStorage.getItem("isLogin")) {
+    const checkAuthStatus = async () => {
+      const loggedInUserId = await checkLogin();
+      if(!loggedInUserId){
         router.push("/login")
       }
-    }
+    };
 
-    checkLogin()
-  }, [router])
+    checkAuthStatus();
+  }, [router]);
 
   const getAllPosts = async () => {
       try {

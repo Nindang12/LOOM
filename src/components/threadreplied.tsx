@@ -18,7 +18,7 @@ export default function Threadsreplied({userId}:{userId:string}){
             if (response.ok) {
                 const result = await response.json();
                 setComments(result.comments);
-                console.log(result.comments);
+                //console.log(result.comments);
             } else {
                 console.error('Failed to fetch comments for user');
             }

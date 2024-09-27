@@ -9,7 +9,7 @@ import Threadsreplied from "@/components/threadreplied";
 import React, { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import axios from "axios";
-
+import { checkLogin } from "@/utils/auth";
 
 export default function ThreadReplied() {
   const router = useRouter();
@@ -18,13 +18,15 @@ export default function ThreadReplied() {
   const [dataAccounts, setDataAccounts] = useState<any>([]);
   
   useEffect(() => {
-      if (!sessionStorage.getItem("isLogin")) {
-          router.push("/login");
+    const checkAuthStatus = async () => {
+      const loggedInUserId = await checkLogin();
+      if(!loggedInUserId){
+        router.push("/login")
       }
-      if (username) {
-          loadProfile();
-      }
-  }, []);
+    };
+
+    checkAuthStatus();
+  }, [router]);
 
   const loadProfile = async () => {
       try {
@@ -41,6 +43,11 @@ export default function ThreadReplied() {
           console.error(error);
       }
   };
+
+  useEffect(()=>{
+    loadProfile()
+  },[])
+
   return (
     <div className="flex md:flex-row flex-col-reverse w-full overflow-hidden h-screen">
       <Siderbar/>

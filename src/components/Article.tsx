@@ -3,8 +3,10 @@ import Link from "next/link"
 import { use, useEffect, useState } from "react";
 import {Buffer} from "buffer" 
 import LexicalEditor from "./LexicalEditor";
+import { getUserId } from "@/utils/auth";
 
 export default function Article({ user_id, content,postId }: ArticleProps) {
+    const userId = getUserId();
     const [isShow, setIsShow] = useState<boolean>(false);
     const toggleModal = () => {
         setIsShow((prevState) => !prevState);
@@ -12,7 +14,6 @@ export default function Article({ user_id, content,postId }: ArticleProps) {
     const [issShow, setIssShow] = useState<boolean>(false);
     const [isLiked, setIsLiked] = useState(false);
     const [likeCount, setLikeCount] = useState(0);
-    const [userId, setUserId] = useState<string | null>(null);
     const [commentContent, setCommentContent] = useState<string>('');
     const [commentCount, setCommentCount] = useState<number>(0);
     const [isReposted, setIsReposted] = useState<boolean>(false);
@@ -22,12 +23,6 @@ export default function Article({ user_id, content,postId }: ArticleProps) {
     const [contentComment, setContentComment] = useState<string>('');
     const [shareCount, setShareCount] = useState<number>(0);
 
-    useEffect(() => {
-        const storedUserId = sessionStorage.getItem('user_id');
-        if (storedUserId) {
-            setUserId(storedUserId);
-        }
-    }, []);
 
     const getImagesForPost = async () => {
         if (!postId) return;

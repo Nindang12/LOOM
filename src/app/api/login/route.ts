@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import db from "@/config/db";
 import bcrypt from "bcrypt";
+import { generateToken } from "@/utils/auth";
 
 export async function POST(req: NextRequest) {
     const { user_id, password } = await req.json();
@@ -22,12 +23,14 @@ export async function POST(req: NextRequest) {
         if (Array.isArray(rows) && rows.length > 0) {
             const user = rows[0] as any;
             const passwordMatch = await bcrypt.compare(password, user.password);
-
-            if (passwordMatch) {
-                return NextResponse.json(
-                    { message: "Login successful", user: { user_id: user.user_id, fullname: user.fullname, email: user.email } },
-                    { status: 200 }
-                );
+            if(passwordMatch){
+                const token = await generateToken(user_id);
+                const response = NextResponse.json({ message: "Login successful" });
+                response.cookies.set({
+                    name: 'token',
+                    value: token,
+                });
+                return response;
             }
         }
 

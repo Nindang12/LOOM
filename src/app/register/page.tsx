@@ -31,8 +31,6 @@ export default function Register(){
                     });
 
                     if (response.status === 200) {
-                        sessionStorage.setItem("isLogin", "true");
-                        sessionStorage.setItem("user_id", username as string);
                         toast.success("Registration successful!");
                         router.push("/");
                     } else {
