@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@instantdb/react": "^0.14.5",
     "@lexical/react": "^0.17.1",
     "@lexical/rich-text": "^0.17.1",
     "axios": "^1.7.7",

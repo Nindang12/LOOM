@@ -4,12 +4,27 @@ import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { ToastContainer, toast } from 'react-toastify';
 import Link from "next/link";
+import { init,tx,id } from "@instantdb/react"
+
+type Schema = {
+    users: {
+        id: string
+        userId: string
+        createdAt: number
+    }
+}
 
 export default function Login(){
     const [username, setUsername] = useState<string|null>(null)
     const [password, setPassword] = useState<string|null>(null)
 
     const router = useRouter()
+    const APP_ID = '5e07a141-e7d9-4273-9cba-877a820f73dd'
+    const db = init<Schema>({ appId: APP_ID })
+
+    // Move the useQuery hook to the top level
+    const query = { users: { userId: username } };
+    const { isLoading, error, data } = db.useQuery(query);
 
     const onLogin = async() =>{
         try{
@@ -26,6 +41,28 @@ export default function Login(){
 
             if (result.message === "Login successful") {
                 toast.success("Login successful!");
+
+                if(!isLoading){
+                    const userExists = data && data.users && data.users.length > 0;
+
+                    if (!userExists) {
+                        const writeUserDataToInstantDB = async (userId: string) => {
+                            try {
+                                await db.transact(
+                                    tx.users[id()].update({
+                                        userId: userId,
+                                        createdAt: Date.now()
+                                    })
+                                )
+                            } catch (error) {
+                                console.error("Error writing user data to InstantDB:", error)
+                            }
+                        }
+
+                        await writeUserDataToInstantDB(username as string)
+                    }
+                }
+
                 router.push('/')
             } else {
                 toast.error("Login Failed: " + result.message);

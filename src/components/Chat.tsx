@@ -1,57 +1,78 @@
 "use client"
 import { useState, useEffect, useRef } from 'react'
+import { init,tx,id } from '@instantdb/react'
 
 interface Message {
-    id: number
-    senderId: number
+    id: string
+    senderId: string
+    receiverId: string
     content: string
-    timestamp: string
+    createdAt: number
 }
 
-const Chat = ({ user_id, userId }: { user_id: string, userId?: string }) => {
-    const [messages, setMessages] = useState<Message[]>([])
+const APP_ID = '5e07a141-e7d9-4273-9cba-877a820f73dd'
+
+type Schema = {
+    messages: {
+        id: string
+        senderId: string
+        receiverId: string
+        content: string
+        createdAt: number
+    }
+}
+
+const db = init<Schema>({ appId: APP_ID })
+
+const Chat = ({ friendId, userId }: { friendId: string, userId?: string }) => {
     const [newMessage, setNewMessage] = useState('')
     const chatEndRef = useRef<HTMLDivElement>(null)
 
-    useEffect(() => {
-        const fetchMessages = async () => {
-            const response = await fetch(`/api/messages?userId1=a&userId2=nhanvo`)
-            const data = await response.json()
-            setMessages(data)
+    //console.log(userId)
+
+    const query = {
+        messages: {
+            $: {
+                where: {
+                    or: [
+                        { and: [{ senderId: userId }, { receiverId: friendId }] },
+                        { and: [{ senderId: friendId }, { receiverId: userId }] }
+                    ]
+                },
+            },
         }
-        fetchMessages()
+    }
 
-        // Set up real-time updates (e.g., using WebSocket or Server-Sent Events)
-        // This is a placeholder for real-time functionality
-        const interval = setInterval(fetchMessages, 5000)
+    const { isLoading, error, data } = db.useQuery(query)
 
-        return () => clearInterval(interval)
-    }, [user_id])
+    //console.log(data)
 
     useEffect(() => {
         chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-    }, [messages])
+    }, [data])
 
-    const handleSendMessage = async (e: React.FormEvent) => {
+    const handleSendMessage = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         if (!newMessage.trim()) return
 
-        const response = await fetch('/api/messages', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ recipientId: user_id, content: newMessage }),
-        })
+        db.transact([
+            tx.messages[id()].update({
+                senderId: userId,
+                receiverId: friendId,
+                content: newMessage,
+                createdAt: Date.now(),
+            }),
+        ]);
 
-        if (response.ok) {
-            setNewMessage('')
-            // Optionally, you can update the messages state here
-        }
+        setNewMessage('')
     }
+
+    if (isLoading) return <div>Loading...</div>
 
     return (
         <div className="w-full max-w-2xl flex flex-col h-full">
             <div className="flex-1 overflow-y-auto p-4">
-                {messages.map((message) => (
+                {Array.isArray(data?.messages) && data?.messages.map((message:any) => (
                     <div
                         key={message.id}
                         className={`mb-4 ${
@@ -68,7 +89,7 @@ const Chat = ({ user_id, userId }: { user_id: string, userId?: string }) => {
                             {message.content}
                         </div>
                         <div className="text-xs text-gray-500 mt-1">
-                            {new Date(message.timestamp).toLocaleString()}
+                            {new Date(message.createdAt).toLocaleString('us')}
                         </div>
                     </div>
                 ))}
