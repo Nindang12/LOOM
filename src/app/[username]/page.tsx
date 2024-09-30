@@ -45,7 +45,7 @@ export default function Home() {
     }
     
     return (
-      <div className="flex md:flex-row flex-col-reverse w-full overflow-hidden h-screen">
+      <div className="flex md:flex-row flex-col-reverse w-full overflow-hidden h-[90vh]">
         <Siderbar/>
         <div className="flex flex-row justify-center mt-2 w-full">
           <div className="max-w-screen-sm w-full h-screen">

@@ -272,92 +272,7 @@ export default function ContentComment({
             <div className="border-b border-gray-200">
                 {/* <header> */}
                 <div className="flex flex-row items-start justify-between">
-                    <div className="h-auto flex flex-row gap-2 mt-2 ml-5 min-h-[97px]">
-                        <div className="flex flex-col h-full min-h-3 justify-center items-center gap-2">
-                            <img className="rounded-full w-8 h-8 bg-cover" src="/assets/avt.png" alt="avt" />              
-                            <div className="flex-grow bg-slate-400 w-[1px]"></div>          
-                        </div>
-                        <div className="h-full">
-                            <div className="flex gap-2">
-                                <Link href={`/@${user_id}`} className="font-bold text-sm">
-                                    <span className="">{user_id}</span>
-                                </Link>
-                                <span className="text-sm text-gray-400">{timeAgo}</span>
-                            </div>
-                            <div className="text-sm">
-                                <p>{comment_content}</p>
-                            </div>
-                            <div className="flex justify-center md:justify-start items-center text-sm font-thin gap-3 mb-3 ">
-                                <button onClick={handleLikeComment} className="flex hover:bg-slate-100 p-2 rounded-3xl">
-                                    <img
-                                        width={20}
-                                        src={isLiked ? "/assets/redheart.svg" : "/assets/heartonarticle.svg"}
-                                        alt={isLiked ? "redheart" : "heart"}
-                                    />
-                                    <span>{localLikeCount}</span>
-                                </button>
-                                <button onClick={()=>setIsShow((prv)=>!prv)} className="flex hover:bg-slate-100 p-2 rounded-3xl">
-                                    <img className="" width={20} src="/assets/comment.svg" alt="" />
-                                    <span>{totalReplies}</span>
-                                </button>
-                                <button className="flex hover:bg-slate-100 p-2 rounded-3xl">
-                                    <img className="" width={20} src="/assets/replay.svg" alt="" />
-                                    <span>100</span>
-                                </button>
-                                <button className="flex hover:bg-slate-100 p-1 rounded-3xl">
-                                    <img className="" width={30} src="/assets/share.svg" alt="" />
-                                    <span>100</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <div>
-                        <button onClick={()=>setIssShow((prv)=>!prv)} className="z-0 mr-5 hover:bg-slate-100  p-3 rounded-full">
-                            <img width={15} src="/assets/optiononarticle.svg" alt="" />
-                        </button>
-                    
-                        {
-                            issShow&&(
-                                <div className="fixed translate-x-[-230px] flex flex-col gap-1 shadow-md p-4 px-2 w-64 h-auto rounded-lg bg-white border border-gray-200">
-                                    <div className="flex flex-col border-solid border-b-2 ">
-                                        <button className=" flex justify-between hover:bg-slate-200 px-2 py-3 rounded-lg">
-                                            <span className="text-sm font-bold">Lưu</span>
-                                            <img width={30} src="/assets/save.svg" alt="" />
-                                        </button>
-                                        <button className="flex justify-between hover:bg-slate-200 px-2 py-3 rounded-lg">
-                                            <span className="text-sm font-bold">Không quan tâm</span>
-                                            <img width={25} src="/assets/eye.svg" alt="" />
-                                        </button>
-                                    </div>
-                                    <div className="flex flex-col border-solid border-b-2 ">
-                                        <button className=" flex justify-between hover:bg-slate-200 px-2 py-3 rounded-lg">
-                                            <span className="text-sm font-bold">Tắt thông báo</span>
-                                            <img width={30} src="/assets/bell.svg" alt="" />
-                                        </button>
-                                        <button className="flex justify-between hover:bg-slate-200 px-2 py-3 rounded-lg">
-                                            <span className="text-sm text-red-600 font-bold">Chặn</span>
-                                            <img width={25} src="/assets/block.svg" alt="" />
-                                        </button>
-                                        <button className="flex justify-between hover:bg-slate-200 px-2 py-3 rounded-lg">
-                                            <span className="text-sm font-bold text-red-600">Báo cáo</span>
-                                            <img width={25} src="/assets/warning.svg" alt="" />
-                                        </button>
-                                    </div>
-                                    <div className="flex flex-col ">
-                                        <button className=" flex justify-between hover:bg-slate-200 px-2 py-3 rounded-lg">
-                                            <span className="text-sm font-bold">Sao chép liên kết</span>
-                                            <img width={20} src="/assets/link.svg" alt="" />
-                                        </button>
-                                    </div>
-                                </div>
-                            )
-                        }
-            
-                    </div>
-                </div>
-                {/* reply comment */}
-                <div className="flex flex-row items-start justify-between">
-                    <div className="h-auto flex flex-row gap-2 mt-2 ml-5 min-h-[97px]">
+                    <div className="h-auto flex flex-row gap-2 mt-2 min-h-[97px]">
                         <div className="flex flex-col h-100% justify-start items-start gap-2">
                             <img className="rounded-full w-8 h-8 bg-cover" src="/assets/avt.png" alt="avt" />                       
                         </div>
@@ -526,5 +441,6 @@ export default function ContentComment({
                 )
             }      
         </div>  
+        
     )
 }
