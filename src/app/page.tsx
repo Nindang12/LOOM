@@ -8,20 +8,22 @@ import React, { useEffect, useState } from "react";
 import Foryou from "@/components/Foryou";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import { checkLogin } from "@/utils/auth";
 
 export default function Home() {
   const router = useRouter()
   const [posts, setPosts] = useState<Post[]>([]);
-  
+
   useEffect(() => {
-    const checkLogin = () => {
-      if (!sessionStorage.getItem("isLogin")) {
+    const checkAuthStatus = async () => {
+      const loggedInUserId = await checkLogin();
+      if(!loggedInUserId){
         router.push("/login")
       }
-    }
+    };
 
-    checkLogin()
-  }, [router])
+    checkAuthStatus();
+  }, [router]);
 
   const getAllPosts = async () => {
       try {
@@ -38,12 +40,8 @@ export default function Home() {
       getAllPosts();
   }, []);
 
-  //console.log(posts)
-
-
-
   return (
-    <div className=" flex md:flex-row flex-col-reverse w-full overflow-hidden h-screen">
+    <div className="flex md:flex-row flex-col-reverse w-full overflow-hidden h-screen">
       <div className="">
         <Siderbar/>
       </div>

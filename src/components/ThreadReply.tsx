@@ -16,7 +16,7 @@ const ThreadReply = ({post_id, comment}: {post_id: string, comment: Comment}) =>
             if (response.ok) {
                 const result = await response.json();
                 setPost(result.posts);
-                console.log(result.posts);
+                //console.log(result.posts);
             } else {
                 console.error('Failed to fetch post for post ID');
             }

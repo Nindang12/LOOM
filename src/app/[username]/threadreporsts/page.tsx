@@ -10,6 +10,7 @@ import React, { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import axios from "axios";
 import RowThreadsreposts from "@/components/RowThreadsreporst";
+import { checkLogin } from "@/utils/auth";
 
 export default function ThreadReporsts() {
     const router = useRouter();
@@ -19,13 +20,15 @@ export default function ThreadReporsts() {
     const [reposts,setReposts] = useState<any>([])
 
     useEffect(() => {
-        if (!sessionStorage.getItem("isLogin")) {
-            router.push("/login");
-        }
-        if (username) {
-            loadProfile();
-        }
-    }, []);
+        const checkAuthStatus = async () => {
+            const loggedInUserId = await checkLogin();
+            if(!loggedInUserId){
+                router.push("/login")
+            }
+        };
+    
+        checkAuthStatus();
+    }, [router]);
 
     const loadProfile = async () => {
         try {
@@ -74,6 +77,10 @@ export default function ThreadReporsts() {
             getRepostForUser();
         }
     }, [username]);
+
+    useEffect(()=>{
+        loadProfile()
+    },[])
 
     return (
         <div className="flex md:flex-row flex-col-reverse w-full overflow-hidden h-screen">

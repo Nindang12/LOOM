@@ -25,9 +25,6 @@ export default function Login(){
             const result = response.data;
 
             if (result.message === "Login successful") {
-                // Save login state in session storage instead of local storage
-                sessionStorage.setItem("isLogin", "true");
-                sessionStorage.setItem("user_id", username as string);
                 toast.success("Login successful!");
                 router.push('/')
             } else {

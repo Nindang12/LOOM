@@ -7,16 +7,21 @@ import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import Suggest from "@/components/Suggest";
 import axios from "axios";
-
+import { checkLogin } from "@/utils/auth";
 export default function SearchPage() {
   const router = useRouter()
   const [accountData, setAccountData] = useState<AccountData[]>([]);
   
-  useEffect(()=>{
-    if(!sessionStorage.getItem("isLogin")){
-      router.push("/login")
-    }
-  },[])
+  useEffect(() => {
+    const checkAuthStatus = async () => {
+        const loggedInUserId = await checkLogin();
+        if(!loggedInUserId){
+            router.push("/login")
+        }
+    };
+
+    checkAuthStatus();
+  }, [router]);
 
   const searchAccount = async (user_id: string) => {
     if(user_id === ""){

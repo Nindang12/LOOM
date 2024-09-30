@@ -1,13 +1,10 @@
 "use client"
 import Link from "next/link"
 import { useEffect, useState } from "react"
+import { getUserId } from "@/utils/auth";
+
 export default function RowThreadssreposts(){
-    const [username,setUsername] = useState<string|null>(null);
-    useEffect(()=>{
-        if(sessionStorage.getItem("isLogin")){
-            setUsername(sessionStorage.getItem("user_id"))
-        }
-    },[])
+    const username = getUserId();
     return(
         <div className="flex items-center justify-between ">
             <Link  href={`/@${username}`} className="w-1/3 flex justify-center border-solid border-b-[1px]">

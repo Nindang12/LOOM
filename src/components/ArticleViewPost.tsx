@@ -2,16 +2,16 @@
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import LexicalEditor from "./LexicalEditor";
-
+import { getUserId } from "@/utils/auth";
 
 export default function ArticleViewPost({ post }: { post: Post }) {
+    const userId = getUserId();
     const [isShow, setIsShow] = useState<boolean>(false);
     const [image, setImage] = useState<string | null>(null);
     const [content, setContent] = useState<string>('');
     const [issShow, setIssShow] = useState<boolean>(false);
     const [isLiked, setIsLiked] = useState(false);
     const [likeCount, setLikeCount] = useState(0);
-    const [userId, setUserId] = useState<string | null>(null);
     const [commentContent, setCommentContent] = useState<string|null>(null);
     const [commentCount, setCommentCount] = useState<number>(0);
     const [timeAgo, setTimeAgo] = useState<string>("");
@@ -19,12 +19,6 @@ export default function ArticleViewPost({ post }: { post: Post }) {
     const [isReposted, setIsReposted] = useState(false);
     const [repostCount, setRepostCount] = useState(0);
 
-    useEffect(() => {
-        const storedUserId = sessionStorage.getItem('user_id');
-        if (storedUserId) {
-            setUserId(storedUserId);
-        }
-    }, []);
 
     const toggleModal = () => {
         setIsShow((prevState) => !prevState);
@@ -403,7 +397,7 @@ export default function ArticleViewPost({ post }: { post: Post }) {
                                 <span className=" w-[120px]text-black md:text-white font-bold">Thread trả lời</span>
                                 <div className="w-[120px] md:hidden"></div>
                             </div>
-                            <div onClick={(e) => e.stopPropagation()} className={`md:bg-white px-4 md:p-3 md:rounded-lg md:shadow-lg w-[540px] h-full ${image?"md:max-h-[500px]":"md:h-[300px]"}`}>
+                            <div onClick={(e) => e.stopPropagation()} className={`md:bg-white px-4 md:p-3 md:rounded-lg md:shadow-lg w-[540px] h-full ${image?"md:max-h-[500px]":"md:h-[350px]"}`}>
                                 <div className="flex flex-row items-center justify-between">
                                     <div className="flex flex-row gap-2 mt-2 ml-0 ">
                                         <div>

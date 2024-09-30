@@ -1,14 +1,12 @@
 "use client"
 import { useCallback, useEffect, useState } from "react"
 import Link from "next/link"
+import { getUserId } from "@/utils/auth";
+
 export default function Suggest({data}:{data: AccountData}){
     const [isFollowing, setIsFollowing] = useState<boolean>(false);
-    const [userId, setUserId] = useState<string | null>(null);
+    const userId = getUserId();
 
-    useEffect(() => {
-        const storedUserId = sessionStorage.getItem('user_id');
-        setUserId(storedUserId);
-    }, []);
 
     const toggleFollow = () => {
         if (!userId) {

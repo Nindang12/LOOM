@@ -1,6 +1,9 @@
 "use client"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import LexicalEditor from "./LexicalEditor";
+import { getUserId } from "@/utils/auth";
+
+
 export default function UploadThread(){
     const [iesShow, setIsShow] = useState<boolean>(false);
     const toggleModal = () => {
@@ -8,24 +11,11 @@ export default function UploadThread(){
     }
     const [content, setContent] = useState("");
     const [isLoading, setIsLoading] = useState(false);
-    const [userId, setUserId] = useState<string | null>(null);
     const [image, setImage] = useState<any>(null);
-
-    const getUserId = () => {
-        if (typeof window !== 'undefined') {
-            return sessionStorage.getItem('user_id');
-        }
-        return null;
-    };
-
-    useEffect(() => {
-        const id = getUserId();
-        setUserId(id);
-    }, []);
+    const userId = getUserId();
 
     const handleUploadThread = async () => {
         try {
-            const userId = sessionStorage.getItem('user_id');
             if (!userId) {
                 throw new Error('User ID not found in SessionStorage');
             }
@@ -81,16 +71,16 @@ export default function UploadThread(){
                             <div onClick={(e) => e.stopPropagation()} className=" bg-white p-3 rounded-lg shadow-lg w-[600px]">
                                 <div className="flex items-start mb-4">
                                     <img src="/assets/avt.png" className="w-10 h-10 rounded-full flex items-start justify-center" alt="" />
-                                    <div className="ml-4 w-full">
-                                    <div className="font-semibold">{userId}</div>
-                                        <LexicalEditor setOnchange={setContent}/>
-                                        {
-                                            image && (
-                                                <img src={image} className="w-56 h-56 mt-4 object-cover" alt="image" />
-                                            )
-                                        }
+                                        <div className="ml-4 w-full">
+                                            <div className="font-semibold">{userId}</div>
+                                                <LexicalEditor setOnchange={setContent}/>
+                                                {
+                                                    image && (
+                                                        <img src={image} className="w-56 h-56 mt-4 object-cover" alt="image" />
+                                                    )
+                                                }
+                                        </div>
                                     </div>
-                                </div>
                                 <div className="flex items-center mb-4">
                                     <div className="flex items-center">
                                         <button className="px-2" onClick={() => document.getElementById('upload-image-input')?.click()}>
