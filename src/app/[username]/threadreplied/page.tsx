@@ -9,7 +9,6 @@ import Threadsreplied from "@/components/threadreplied";
 import React, { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import axios from "axios";
-import { checkLogin } from "@/utils/auth";
 
 export default function ThreadReplied() {
   const router = useRouter();
@@ -17,16 +16,6 @@ export default function ThreadReplied() {
   const username = pathName ? pathName.replace("/@", "").replace("/threadreplied", "") : "";
   const [dataAccounts, setDataAccounts] = useState<any>([]);
   
-  useEffect(() => {
-    const checkAuthStatus = async () => {
-      const loggedInUserId = await checkLogin();
-      if(!loggedInUserId){
-        router.push("/login")
-      }
-    };
-
-    checkAuthStatus();
-  }, [router]);
 
   const loadProfile = async () => {
       try {

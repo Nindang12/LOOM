@@ -9,15 +9,7 @@ export async function generateToken(userId: string) {
     .sign(SECRET_KEY);
 }
 
-export async function checkLogin(): Promise<string | null> {
-  const cookieString = document.cookie;
-  const cookies = parseCookies(cookieString);
-  const token = cookies['token'];
-
-  if (!token) {
-    return null;
-  }
-
+export async function verifyToken(token: string) {
   try {
     const { payload } = await jwtVerify(token, SECRET_KEY);
     return payload.userId as string;
@@ -54,3 +46,18 @@ function parseCookies(cookieString: string) {
       return acc;
     }, {} as { [key: string]: string });
 }
+
+export const checkLogin = async () => {
+  const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+  if (!token) {
+    return false;
+  }
+
+  const userId = await verifyToken(token);
+  return userId !== null;
+};
+
+export const logout = () => {
+  document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+  localStorage.removeItem('lastLoginTime');
+};

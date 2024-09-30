@@ -10,7 +10,7 @@ import Thread from "@/components/Thread";
 import React, {  useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import axios from "axios";
-import { checkLogin } from "@/utils/auth";
+
 
 export default function Home() {
     const router = useRouter()
@@ -18,16 +18,6 @@ export default function Home() {
     const username = pathName.replace("/@","")
     const [dataAccounts,setDataAccounts] = useState<any>([])
 
-    useEffect(() => {
-      const checkAuthStatus = async () => {
-        const loggedInUserId = await checkLogin();
-        if(!loggedInUserId){
-          router.push("/login")
-        }
-      };
-  
-      checkAuthStatus();
-    }, [router]);
 
     const loadProfile = async()=>{
         try {

@@ -10,7 +10,7 @@ import React, { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import axios from "axios";
 import RowThreadsreposts from "@/components/RowThreadsreporst";
-import { checkLogin } from "@/utils/auth";
+
 
 export default function ThreadReporsts() {
     const router = useRouter();
@@ -18,17 +18,6 @@ export default function ThreadReporsts() {
     const username = pathName ? pathName.replace("/@", "").replace("/threadreporsts", "") : "";
     const [dataAccounts, setDataAccounts] = useState<any>([]);
     const [reposts,setReposts] = useState<any>([])
-
-    useEffect(() => {
-        const checkAuthStatus = async () => {
-            const loggedInUserId = await checkLogin();
-            if(!loggedInUserId){
-                router.push("/login")
-            }
-        };
-    
-        checkAuthStatus();
-    }, [router]);
 
     const loadProfile = async () => {
         try {

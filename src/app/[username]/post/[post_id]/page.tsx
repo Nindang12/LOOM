@@ -6,21 +6,11 @@ import { useParams, useRouter } from "next/navigation";
 import ArticleViewPost from "@/components/ArticleViewPost";
 import ContentComment from "@/components/ContentComment";
 import HeaderViewPost from "@/components/HeaderViewPost";
-import { checkLogin } from "@/utils/auth";
+
 
 export default function ViewPost(){  
     const router = useRouter()
 
-    useEffect(() => {
-        const checkAuthStatus = async () => {
-            const loggedInUserId = await checkLogin();
-            if(!loggedInUserId){
-                router.push("/login")
-            }
-        };
-    
-        checkAuthStatus();
-    }, [router]);
 
     const {post_id,username} = useParams()
 

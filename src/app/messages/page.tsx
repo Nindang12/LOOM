@@ -4,9 +4,10 @@ import Sidebar from "@/components/Sidebar"
 import FriendList from "@/components/FriendList"
 import AddFriend from "@/components/AddFriend"
 import { init } from "@instantdb/react"
-import { useState } from "react"
-import { getUserId } from "@/utils/auth";
+import { useState, useEffect } from "react"
+import { getUserId, checkLogin } from "@/utils/auth";
 import { tx,id } from "@instantdb/react"
+import { useRouter } from 'next/navigation';
 
 // ID for app: NexuSocial
 const APP_ID = '5e07a141-e7d9-4273-9cba-877a820f73dd'
@@ -35,8 +36,23 @@ const db = init<Schema>({ appId: APP_ID })
 
 const Messages = () => {
     const [showAddFriend, setShowAddFriend] = useState(false)
+    const [isLoggedIn, setIsLoggedIn] = useState(false)
+    const [isLoading, setIsLoading] = useState(true)
+    const router = useRouter()
 
     const currentUserId = getUserId() as string;
+
+    useEffect(() => {
+        const verifyLogin = async () => {
+            const loggedIn = await checkLogin();
+            setIsLoggedIn(loggedIn);
+            setIsLoading(false);
+            if (!loggedIn) {
+                router.push('/login');
+            }
+        };
+        verifyLogin();
+    }, [router]);
 
     const handleFriendAdded = () => {
         setShowAddFriend(false)
@@ -53,9 +69,12 @@ const Messages = () => {
         },
     }
 
-    const { isLoading, error, data } = db.useQuery(query)
+    const { isLoading: isQueryLoading, error, data } = db.useQuery(query)
 
     if (isLoading) return <div>Loading...</div>
+    if (!isLoggedIn) return null; // This will prevent the component from rendering while redirecting
+
+    if (isQueryLoading) return <div>Loading friend requests...</div>
     if (error) return <div>Error loading friend requests: {error.message}</div>
 
     const handleAcceptFriend = async (friendshipId: string, friendId: string) => {
@@ -82,7 +101,6 @@ const Messages = () => {
             alert("Error accepting friend request")
         }
     }
-
 
     return (
         <div className="flex md:flex-row flex-col-reverse w-full overflow-hidden h-screen">
