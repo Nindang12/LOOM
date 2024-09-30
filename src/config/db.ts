@@ -5,8 +5,8 @@ const createDbConnection = async () => {
     const connection = await mysql.createConnection({
       host: process.env.HOST,
       port: parseInt(process.env.PORT_SQL as string),
-      user: process.env.USER,
-      password: process.env.PASSWORD,
+      user: 'root',
+      password: process.env.PASSWORD ? process.env.PASSWORD : '',
       database: process.env.DATABASE
     });
 
