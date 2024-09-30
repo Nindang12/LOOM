@@ -28,7 +28,7 @@ const ChatList = () => {
             <ul>
                 {chats.length > 0 && chats.map((chat) => (
                     <li key={chat.id} className="mb-2">
-                        <Link href={`/chat/${chat.otherUserId}`}>
+                        <Link href={`/messages/chat/${chat.otherUserId}`}>
                             <div className="bg-white p-4 rounded shadow">
                                 <h3 className="font-semibold">{chat.otherUserName}</h3>
                                 <p className="text-gray-600">{chat.lastMessage}</p>

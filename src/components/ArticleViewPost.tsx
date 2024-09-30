@@ -8,11 +8,10 @@ export default function ArticleViewPost({ post }: { post: Post }) {
     const userId = getUserId();
     const [isShow, setIsShow] = useState<boolean>(false);
     const [image, setImage] = useState<string | null>(null);
-    const [content, setContent] = useState<string>('');
     const [issShow, setIssShow] = useState<boolean>(false);
     const [isLiked, setIsLiked] = useState(false);
     const [likeCount, setLikeCount] = useState(0);
-    const [commentContent, setCommentContent] = useState<string|null>(null);
+    const [commentContent, setCommentContent] = useState<string>('');
     const [commentCount, setCommentCount] = useState<number>(0);
     const [timeAgo, setTimeAgo] = useState<string>("");
     const [images, setImages] = useState([]);
@@ -126,6 +125,7 @@ export default function ArticleViewPost({ post }: { post: Post }) {
                 console.log('Comment created successfully:', result);
                 setCommentContent('');
                 toggleModal()
+                window.location.reload();
                 // You might want to update the UI here, e.g., add the new comment to a list of comments
             } else {
                 console.error('Failed to create comment');
@@ -209,7 +209,7 @@ export default function ArticleViewPost({ post }: { post: Post }) {
     };
     
     const handleRepost = async () => {
-        if (!userId || !post.post_id || !content) return;
+        if (!userId || !post.post_id || !post.post_content) return;
 
         try {
             const response = await fetch(`/api/post/repost`, {
@@ -217,7 +217,7 @@ export default function ArticleViewPost({ post }: { post: Post }) {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ user_id: userId, post_id: post.post_id,post_content:content }),
+                body: JSON.stringify({ user_id: userId, post_id: post.post_id,post_content:post.post_content }),
             });
 
             if (response.ok) {
@@ -433,7 +433,7 @@ export default function ArticleViewPost({ post }: { post: Post }) {
                                         <img src="/assets/avt.png" className="w-8 h-8 rounded-full flex items-start justify-center" alt="" />
                                         <div className="ml-2 w-full flex flex-col">
                                             <div className="font-semibold text-sm">{userId}</div>
-                                                <LexicalEditor setOnchange={setContent}/>
+                                                <LexicalEditor setOnchange={setCommentContent}/>
                                                 {
                                                     image && (
                                                         <img src={image} className="w-32 h-32 mt-4 object-cover" alt="image" />

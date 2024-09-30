@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
     } catch (error) {
         console.error("Error creating comment:", error);
         return NextResponse.json(
-            { message: "An error occurred while creating the comment" },
+            { message: "An error occurred while creating the comment", error: error },
             { status: 500 }
         );
     }

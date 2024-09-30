@@ -13,6 +13,8 @@ export async function POST(req: NextRequest) {
             [post_id, user_id]
         );
 
+        const create_at = new Date().getTime();
+
         if (Array.isArray(existingLike) && existingLike.length > 0) {
             // User has already liked the post, so remove the like
             await connection.execute(
@@ -23,15 +25,15 @@ export async function POST(req: NextRequest) {
         } else {
             // User hasn't liked the post, so add a new like
             await connection.execute(
-                'INSERT INTO action_like_post (post_id, user_id) VALUES (?, ?)',
-                [post_id, user_id]
+                'INSERT INTO action_like_post (post_id, user_id, create_at) VALUES (?, ?, ?)',
+                [post_id, user_id, create_at]
             );
             return NextResponse.json({ message: "Post liked successfully" });
         }
     } catch (error) {
         console.error("Error in like/unlike action:", error);
         return NextResponse.json(
-            { message: "An error occurred while processing the like/unlike action" },
+            { message: "An error occurred while processing the like/unlike action", error: error },
             { status: 500 }
         );
     }

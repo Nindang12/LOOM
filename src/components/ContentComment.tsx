@@ -356,7 +356,7 @@ export default function ContentComment({
                     </div>
                 </div>
                 {/* reply comment */}
-                <div className="flex flex-row items-start justify-between">
+                {/* <div className="flex flex-row items-start justify-between">
                     <div className="h-auto flex flex-row gap-2 mt-2 ml-5 min-h-[97px]">
                         <div className="flex flex-col h-100% justify-start items-start gap-2">
                             <img className="rounded-full w-8 h-8 bg-cover" src="/assets/avt.png" alt="avt" />                       
@@ -440,7 +440,7 @@ export default function ContentComment({
                         }
             
                     </div>
-                </div>
+                </div> */}
                 {/* footer */}
             </div>
             {

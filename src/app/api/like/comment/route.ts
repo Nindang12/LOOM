@@ -13,6 +13,8 @@ export async function POST(req: NextRequest) {
             [comment_id, user_id]
         );
 
+        const create_at = new Date().getTime();
+
         if (Array.isArray(existingLike) && existingLike.length > 0) {
             // User has already liked the comment, so remove the like
             await connection.execute(
@@ -23,8 +25,8 @@ export async function POST(req: NextRequest) {
         } else {
             // User hasn't liked the comment, so add a new like
             await connection.execute(
-                'INSERT INTO action_like_comment (comment_id, user_id) VALUES (?, ?)',
-                [comment_id, user_id]
+                'INSERT INTO action_like_comment (comment_id, user_id, create_at) VALUES (?, ?, ?)',
+                [comment_id, user_id, create_at]
             );
             return NextResponse.json({ message: "Comment liked successfully" });
         }
