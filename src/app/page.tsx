@@ -42,7 +42,7 @@ export default function Home() {
 
   return (
     <div className="flex md:flex-row flex-col-reverse w-full overflow-hidden h-screen">
-      <div className="">
+      <div>
         <Siderbar/>
       </div>
       <div className="flex flex-row justify-center mt-2 w-full ">
@@ -52,10 +52,10 @@ export default function Home() {
               <div className="w-full hidden md:block  h-[80px]">
                   <UploadThread/>
               </div>
-              <div className="w-full md:hidden  h-[80px] ">
+              <div className="w-full md:hidden mb-[30px] h-[80px] ">
                 <Foryou/>
               </div>
-              <div className="w-full  ">
+              <div className="w-full">
                 {
                   posts.map((post,idx)=>(
                     <Article key={idx} user_id={post.user_id} postId={post.post_id} content={post.post_content}/>

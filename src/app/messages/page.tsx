@@ -6,7 +6,7 @@ import AddFriend from "@/components/AddFriend"
 import { init } from "@instantdb/react"
 import { useState } from "react"
 import { getUserId } from "@/utils/auth";
-import { tx,id } from "@instantdb/react"
+import LayoutChat from "@/components/LayoutChat"
 
 // ID for app: NexuSocial
 const APP_ID = '5e07a141-e7d9-4273-9cba-877a820f73dd'
@@ -58,63 +58,30 @@ const Messages = () => {
     if (isLoading) return <div>Loading...</div>
     if (error) return <div>Error loading friend requests: {error.message}</div>
 
-    const handleAcceptFriend = async (friendshipId: string, friendId: string) => {
-        try {
-            await db.transact(
-                tx.friendships[friendshipId].update({
-                    isFriend: true,
-                    isPendingRequest: false,
-                })
-            )
-
-            await db.transact(
-                tx.friendships[id()].update({
-                    userId: currentUserId,
-                    friendId: friendId,
-                    createdAt: Date.now(),
-                    isFriend: true,
-                    isPendingRequest: false,
-                })
-            )
-
-        } catch (error) {
-            console.error("Error accepting friend request:", error)
-            alert("Error accepting friend request")
-        }
-    }
-
 
     return (
-        <div className="flex md:flex-row flex-col-reverse w-full overflow-hidden h-screen">
+        <div className="flex md:flex-row flex-col-reverse w-full h-screen">
             <Sidebar />
-            <div className="flex flex-col w-full">
-            {data?.friendships?.map((friendship: any) => (
-                <div key={friendship.id} className="p-4 border-b">
-                    <span>{friendship.userId} wants to be your friend</span>
-                    <button
-                        onClick={() => handleAcceptFriend(friendship.id, friendship.userId)}
-                        className="ml-2 px-4 py-2 bg-green-500 text-white rounded"
-                    >
-                        Accept
-                    </button>
+            <div className="flex flex-col w-full h-full">
+                <div className="md:hidden">
+                    <h2 className="text-xl font-bold p-4 border-b">Tin nhắn</h2>
+                    <FriendList db={db} currentUserId={currentUserId} />    
                 </div>
-            ))}
-                <button
-                    onClick={() => setShowAddFriend(!showAddFriend)}
-                    className="m-2 px-4 py-2 bg-blue-500 text-white rounded"
-                >
-                    {showAddFriend ? 'Cancel' : 'Add Friend'}
-                </button>
-                {showAddFriend && (
-                    <AddFriend
-                        currentUserId={currentUserId}
-                        db={db}
-                        onFriendAdded={handleFriendAdded}
-                    />
-                )}
-                <div className="flex flex-row justify-center mt-2 w-full">
-                    <FriendList db={db} currentUserId={currentUserId} />
-                    {/* <ChatMessages currentUserId={currentUserId} friendId={selectedFriendId} db={db} /> */}
+                <div className="flex-grow hidden md:block h-full">
+                    <LayoutChat>
+                        <div className="flex items-center justify-center w-full">
+                            <div className="text-center max-w-md mx-auto">
+                                <div className="flex justify-center items-center mb-8">
+                                    <div className="border-2 border-black flex flex-col justify-center items-center rounded-full p-6">
+                                        <img width={80} src="/assets/messenger.svg" alt="messenger" />
+                                    </div>
+                                </div>
+                                <h1 className="text-2xl font-semibold mb-4">Tin nhắn của bạn</h1>
+                                <p className="text-gray-600 mb-6">Gửi ảnh và tin nhắn riêng tư cho bạn bè hoặc nhóm</p>
+                                <button className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg text-lg transition duration-300">Gửi tin nhắn</button>
+                            </div>
+                        </div>
+                    </LayoutChat>
                 </div>
             </div>
         </div>

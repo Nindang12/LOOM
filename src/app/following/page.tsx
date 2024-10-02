@@ -23,10 +23,8 @@ export default function Home() {
               <div className="w-full md:hidden  h-[80px]">
                 <Following/>
               </div>
-              <div className="w-full z-1">
-                <div >
-                  <ArticleFollowing/>
-                </div>
+              <div className="w-full">
+                <ArticleFollowing/>
               </div>
           </div>
         </div>
