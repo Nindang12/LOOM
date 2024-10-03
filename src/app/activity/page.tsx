@@ -15,9 +15,7 @@ export default function Home() {
                   <Option_active/> 
                 </div>
                 <div className="w-full h-full">
-                  <div >
-                    <Active/>
-                  </div>
+                  <Active/>
                 </div>
             </div>
           </div>
