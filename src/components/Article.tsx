@@ -369,7 +369,7 @@ export default function Article({ user_id, content,postId,images }: ArticleProps
                             </div>
                         </div>
                         <Link href={`/@${user_id}/post/${postId}`} className="flex flex-col gap-3">
-                            <span>{content}</span>
+                            <span className="min-w-[535px] max-w-[540px] break-words whitespace-pre-wrap">{content}</span>
                             <div className="flex overflow-x-scroll gap-2 ">
                                 {images &&
                                     images.map((image:string,index) => {
