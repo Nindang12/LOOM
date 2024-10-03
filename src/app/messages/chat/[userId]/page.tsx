@@ -17,7 +17,7 @@ const ChatPage = () => {
             <div className="hidden md:block">
                 <div className="flex md:flex-row flex-col-reverse overflow-hidden w-full h-screen">       
                         <Sidebar />
-                    <div className="flex flex-col w-full w-full h-full overflow-hidden">
+                    <div className="flex flex-col w-full h-full overflow-hidden">
                         <LayoutChat>
                             <div className="flex items-center justify-center w-full">
                                 <div className="flex-grow h-full overflow-y-auto">
