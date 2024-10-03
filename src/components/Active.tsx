@@ -3,6 +3,7 @@ import Link from "next/link"
 import { useEffect, useState } from "react"
 import { getUserId } from "@/utils/auth"
 import { db } from "@/utils/contants"
+import { tx, id } from "@instantdb/react"
 
 export default function Active() {
     const currentUserId = getUserId()
@@ -20,7 +21,25 @@ export default function Active() {
         }
     }
     const { data } = db.useQuery(query)
-    console.log(data)
+    
+    const addFriend = async (userId: string, friendId: string) => {
+        if (!userId || !friendId) return;
+
+        try {
+            db.transact([tx.friendships[id()].update(
+                { 
+                    userId: userId,
+                    friendId: friendId,
+                    isFriend: true,
+                    isPendingRequest: false,
+                    createdAt: Date.now()
+                }
+            )]);
+        } catch (error) {
+            console.error('Error adding friend:', error);
+            alert('Error adding friend');
+        }
+    };
 
     return (
         <div className="flex flex-col">
@@ -38,7 +57,7 @@ export default function Active() {
                                 <span className="text-sm text-gray-400">wants to add you as a friend</span>
                             </div>
                             <div className="flex gap-2 mt-2">
-                                <button className="bg-black text-white px-4 py-2 rounded-full text-sm">Accept</button>
+                                <button className="bg-black text-white px-4 py-2 rounded-full text-sm" onClick={() => addFriend(request.userId, currentUserId as string)}>Accept</button>
                                 <button className="bg-gray-200 text-black px-4 py-2 rounded-full text-sm">Decline</button>
                             </div>
                         </div>
