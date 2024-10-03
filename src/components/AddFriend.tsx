@@ -27,7 +27,7 @@ const AddFriend: NextPage<AddFriendProps> = ({ currentUserId, db }) => {
         }
     
         if (queryData) {
-            console.log("queryData", queryData)
+            //console.log("queryData", queryData)
             setData(queryData)
         }
     }, [queryLoading, queryError, queryData])

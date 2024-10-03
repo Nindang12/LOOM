@@ -15,15 +15,14 @@ export default function Home() {
   const [posts, setPosts] = useState<Post[]>([]);
 
   useEffect(() => {
-    const checkAuthStatus = async () => {
-      const loggedInUserId = await checkLogin();
-      if(!loggedInUserId){
-        router.push("/login")
-      }
+    const verifyLogin = async () => {
+        const loggedIn = await checkLogin();
+        if (!loggedIn) {
+            router.push('/login');
+        }
     };
-
-    checkAuthStatus();
-  }, [router]);
+    verifyLogin();
+}, [router]);
 
   const getAllPosts = async () => {
       try {

@@ -22,7 +22,7 @@ const FriendList: React.FC<FriendListProps> = ({ db, currentUserId }) => {
         },
     }
     const { isLoading, error, data } = db.useQuery(query)
-    console.log("friendships", data)
+    //console.log("friendships", data)
 
     if (isLoading) return <div>Loading friends...</div>
     if (error) return <div>Error loading friends: {error.message}</div>
