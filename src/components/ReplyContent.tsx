@@ -1,21 +1,20 @@
 import { useEffect, useState } from "react";
 import ContentCommentReply from "./ContentCommentReply";
+import { getUserId } from "@/utils/auth";
 const ReplyContent = ({post, comment}: {post: Post, comment: Comment}) => {
     const {
-        comment_content,
-        comment_id,
-        create_at,
-        user_id,
-        post_id
+        content,
+        commentId,
+        createdAt,
+        userId,
+        postId
     } = comment;
     const [images, setImages] = useState([]);
     const [timeAgoPost, setTimeAgoPost] = useState('');
     const [timeAgoComment, setTimeAgoComment] = useState('');
     const [image, setImage] = useState<string | null>(null);
-    const [content, setContent] = useState<string>('');
     const [isLikedReply, setIsLikedReply] = useState(false);
     const [likeCount, setLikeCount] = useState(0);
-    const [userId, setUserId] = useState<string | null>(null);
     const [commentContent, setCommentContent] = useState<string|null>(null);
     const [commentCount, setCommentCount] = useState<number>(0);
     const [isReposted, setIsReposted] = useState(false);
@@ -31,10 +30,10 @@ const ReplyContent = ({post, comment}: {post: Post, comment: Comment}) => {
     const [repostCount, setRepostCount] = useState<number>(0);
 
     const getImagesForPost = async () => {
-        if (!post.post_id) return;
+        if (!post.postId) return;
 
         try {
-            const response = await fetch(`/api/photo?postId=${post.post_id}`, {
+            const response = await fetch(`/api/photo?postId=${post.postId}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -52,12 +51,7 @@ const ReplyContent = ({post, comment}: {post: Post, comment: Comment}) => {
         }
     };
 
-    useEffect(() => {
-        const storedUserId = sessionStorage.getItem('user_id');
-        if (storedUserId) {
-            setUserId(storedUserId);
-        }
-    }, []);
+    const userAccountId = getUserId()
 
     const handleLike = async () => {
         if (!userId) return; // Ensure user is logged in
@@ -68,7 +62,7 @@ const ReplyContent = ({post, comment}: {post: Post, comment: Comment}) => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ post_id: post.post_id, user_id: userId }),
+                body: JSON.stringify({ post_id: post.postId, user_id: userId }),
             });
 
             if (response.ok) {
@@ -89,7 +83,7 @@ const ReplyContent = ({post, comment}: {post: Post, comment: Comment}) => {
     };
 
     const handleRepost = async () => {
-        if (!userId || !post_id || !comment_content) return;
+        if (!userAccountId || !post.postId || !content) return;
 
         try {
             const response = await fetch(`/api/post/repost`, {
@@ -97,7 +91,7 @@ const ReplyContent = ({post, comment}: {post: Post, comment: Comment}) => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ user_id: userId, post_id: post_id,post_content:comment_content }),
+                body: JSON.stringify({ user_id: userAccountId, post_id: post.postId,post_content:content }),
             });
 
             if (response.ok) {
@@ -112,10 +106,10 @@ const ReplyContent = ({post, comment}: {post: Post, comment: Comment}) => {
     };
     
     const checkIsReposted = async () => {
-        if (!userId || !post_id) return;
+        if (!userAccountId || !post.postId) return;
     
         try {
-            const response = await fetch(`/api/post/repost/isReposted?postId=${post_id}&userId=${userId}`, {
+            const response = await fetch(`/api/post/repost/isReposted?postId=${post.postId}&userId=${userAccountId}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -134,10 +128,10 @@ const ReplyContent = ({post, comment}: {post: Post, comment: Comment}) => {
     };
     
     const getTotalReposts = async () => {
-        if (!post_id) return;
+        if (!post.postId) return;
 
         try {
-            const response = await fetch(`/api/post/repost?postId=${post_id}`, {
+            const response = await fetch(`/api/post/repost?postId=${post.postId}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -156,10 +150,10 @@ const ReplyContent = ({post, comment}: {post: Post, comment: Comment}) => {
     };
 
     const checkIsLiked = async () => {
-        if (!userId || !post.post_id) return;
+        if (!userAccountId || !post.postId) return;
     
         try {
-            const response = await fetch(`/api/like/post/isLiked?postId=${post.post_id}&userId=${userId}`, {
+            const response = await fetch(`/api/like/post/isLiked?postId=${post.postId}&userId=${userAccountId}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -178,10 +172,10 @@ const ReplyContent = ({post, comment}: {post: Post, comment: Comment}) => {
     };
 
     const getTotalLikes = async () => {
-        if (!post.post_id) return;
+        if (!post.postId) return;
 
         try {
-            const response = await fetch(`/api/like/post?postId=${post.post_id}`, {
+            const response = await fetch(`/api/like/post?postId=${post.postId}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -201,18 +195,18 @@ const ReplyContent = ({post, comment}: {post: Post, comment: Comment}) => {
 
     useEffect(() => {
         getTotalLikes();
-    }, [post.post_id]);
+    }, [post.postId]);
 
     useEffect(() => {
         checkIsLiked();
         checkIsReposted();
         getTotalReposts();
-    }, [post.post_id, userId]);
+    }, [post.postId, userAccountId]);
 
     useEffect(() => {
         const calculateTimeAgo = () => {
             const now = new Date().getTime();
-            const diffInSeconds = Math.floor((now - Number(post.create_at)) / 1000);
+            const diffInSeconds = Math.floor((now - Number(createdAt)) / 1000);
 
             if (diffInSeconds < 60) {
                 setTimeAgoPost(`${diffInSeconds} giây`);
@@ -237,7 +231,7 @@ const ReplyContent = ({post, comment}: {post: Post, comment: Comment}) => {
     useEffect(() => {
         const calculateTimeAgo = () => {
             const now = new Date().getTime();
-            const diffInSeconds = Math.floor((now - Number(comment.create_at)) / 1000);
+            const diffInSeconds = Math.floor((now - Number(createdAt)) / 1000);
 
             if (diffInSeconds < 60) {
                 setTimeAgoComment(`${diffInSeconds} giây`);
@@ -257,11 +251,11 @@ const ReplyContent = ({post, comment}: {post: Post, comment: Comment}) => {
         const timer = setInterval(calculateTimeAgo, 60000); // Update every minute
 
         return () => clearInterval(timer);
-    }, [comment.create_at]);
+    }, [createdAt]);
 
     useEffect(() => {
         getImagesForPost();
-    }, [post.post_id]);
+    }, [post.postId]);
 
     const toggleModal = () => {
         setIsShow((prevState) => !prevState);
@@ -324,7 +318,7 @@ const ReplyContent = ({post, comment}: {post: Post, comment: Comment}) => {
     }, [post.post_id]);
 
     const handleLikeComment = async () => {
-        if (!comment_id) return; // Ensure user is logged in
+        if (!commentId) return; // Ensure user is logged in
 
         try {
             const response = await fetch('/api/like/comment', {
@@ -332,7 +326,7 @@ const ReplyContent = ({post, comment}: {post: Post, comment: Comment}) => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ comment_id: comment_id, user_id: user_id }),
+                body: JSON.stringify({ comment_id: commentId, user_id: userAccountId }),
             });
 
             if (response.ok) {
@@ -353,10 +347,10 @@ const ReplyContent = ({post, comment}: {post: Post, comment: Comment}) => {
     };
 
     const getTotalLikeComment = async () => {
-        if (!comment_id) return;
+        if (!commentId) return;
 
         try {
-            const response = await fetch(`/api/like/comment?commentId=${comment_id}`, {
+            const response = await fetch(`/api/like/comment?commentId=${commentId}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -376,10 +370,10 @@ const ReplyContent = ({post, comment}: {post: Post, comment: Comment}) => {
 
     useEffect(() => {
         getTotalLikeComment();
-    }, [comment_id]);
+    }, [commentId]);
 
     const handleReplyComment = async () => {
-        if (!comment_id || !user_id) return;
+        if (!commentId || !userId) return;
 
         try {
             const response = await fetch('/api/comment/reply', {
@@ -388,10 +382,10 @@ const ReplyContent = ({post, comment}: {post: Post, comment: Comment}) => {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    comment_id: comment_id,
-                    user_id: user_id,
+                    comment_id: commentId,
+                    user_id: userAccountId,
                     reply_content: replyContent,
-                    post_id: post_id
+                    post_id: postId
                 }),
             });
 
@@ -410,10 +404,10 @@ const ReplyContent = ({post, comment}: {post: Post, comment: Comment}) => {
     };
 
     const getTotalCommentReplies = async () => {
-        if (!comment_id) return;
+        if (!commentId) return;
 
         try {
-            const response = await fetch(`/api/comment/reply?commentId=${comment_id}`, {
+            const response = await fetch(`/api/comment/reply?commentId=${commentId}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -433,13 +427,13 @@ const ReplyContent = ({post, comment}: {post: Post, comment: Comment}) => {
 
     useEffect(() => {
         getTotalCommentReplies();
-    }, [comment_id]);
+    }, [commentId]);
 
     const checkIsLikedReply = async () => {
-        if (!userId || !comment_id) return;
+        if (!userAccountId || !commentId) return;
     
         try {
-            const response = await fetch(`/api/like/comment/isLiked?commentId=${comment_id}&userId=${userId}`, {
+            const response = await fetch(`/api/like/comment/isLiked?commentId=${commentId}&userId=${userAccountId}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -458,7 +452,7 @@ const ReplyContent = ({post, comment}: {post: Post, comment: Comment}) => {
     };
     
     const handleRepostReply = async () => {
-        if (!userId || !comment_id || !comment_content) return;
+        if (!userAccountId || !commentId || !commentContent) return;
 
         try {
             const response = await fetch(`/api/comment/repost`, {
@@ -466,7 +460,7 @@ const ReplyContent = ({post, comment}: {post: Post, comment: Comment}) => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ user_id: userId, comment_id: comment_id, comment_content: comment_content }),
+                body: JSON.stringify({ user_id: userAccountId, comment_id: commentId, comment_content: commentContent }),
             });
 
             if (response.ok) {
@@ -482,10 +476,10 @@ const ReplyContent = ({post, comment}: {post: Post, comment: Comment}) => {
     };
     
     const checkIsRepostedReply = async () => {
-        if (!userId || !comment_id) return;
+        if (!userAccountId || !commentId) return;
     
         try {
-            const response = await fetch(`/api/comment/repost/isReposted?commentId=${comment_id}&userId=${userId}`, {
+            const response = await fetch(`/api/comment/repost/isReposted?commentId=${commentId}&userId=${userAccountId}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -504,10 +498,10 @@ const ReplyContent = ({post, comment}: {post: Post, comment: Comment}) => {
     };
     
     const getTotalRepostsReply = async () => {
-        if (!comment_id) return;
+        if (!commentId) return;
 
         try {
-            const response = await fetch(`/api/comment/repost?commentId=${comment_id}`, {
+            const response = await fetch(`/api/comment/repost?commentId=${commentId}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -526,12 +520,12 @@ const ReplyContent = ({post, comment}: {post: Post, comment: Comment}) => {
     };
 
     useEffect(() => {
-        if (comment_id && userId) {
+        if (commentId && userAccountId) {
             checkIsLikedReply();
             checkIsRepostedReply();
             getTotalRepostsReply();
         }
-    }, [comment_id, userId]);
+    }, [commentId, userAccountId]);
 
     return(
         <div className="relative w-full border-b border-gray-400 px-4" >
@@ -581,7 +575,7 @@ const ReplyContent = ({post, comment}: {post: Post, comment: Comment}) => {
             <div className="flex flex-col gap-2">
                             {
                                 
-                                    <ContentCommentReply  key={comment.comment_id} {...comment} post_id={post_id as string}/>
+                                    <ContentCommentReply  key={commentId} {...comment} postId={post.postId as string}/>
                                 
                             }
                         </div>

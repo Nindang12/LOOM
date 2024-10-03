@@ -36,7 +36,7 @@ export default function Threadsreplied({userId}:{userId:string}){
     return(
         <div className="flex flex-col gap-2 mt-4">
             {comments.map((comment) => (
-                <ThreadReply key={comment.comment_id} post_id={comment.post_id as string} comment={comment} />
+                <ThreadReply key={comment.commentId} postId={comment.postId as string} comment={comment} />
             ))}
         </div>
     )

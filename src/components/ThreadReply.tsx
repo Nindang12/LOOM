@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import ReplyContent from "./ReplyContent";
-const ThreadReply = ({post_id, comment}: {post_id: string, comment: Comment}) => {
+const ThreadReply = ({postId, comment}: {postId: string, comment: Comment}) => {
     const [post, setPost] = useState<Post[]>([]);
     const getPostForPostId = async () => {
-        if (!post_id) return;
+        if (!postId) return;
 
         try {
-            const response = await fetch(`/api/post/postForPostId?postId=${post_id}`, {
+            const response = await fetch(`/api/post/postForPostId?postId=${postId}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -28,7 +28,7 @@ const ThreadReply = ({post_id, comment}: {post_id: string, comment: Comment}) =>
 
     useEffect(() => {
         getPostForPostId();
-    }, [post_id]);
+    }, [postId]);
 
     return(
         <div>

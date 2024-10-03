@@ -45,6 +45,21 @@ export default function Article({ user_id, content,postId,images }: ArticleProps
     const queryPosts = { posts: {} }
     const { data: dataPosts } = db.useQuery(queryPosts)
 
+    const queryFriendships = {
+        friendships: {
+            $: {
+                where: {
+                    friendId: userId,
+                    isFriend: true,
+                    userId: user_id
+                },
+            },
+        },
+    }
+
+    const { data: dataFriendships } = db.useQuery(queryFriendships)
+
+    //console.log(dataFriendships)
     const totalLikes = data?.actionLikePost.filter(
         (like: any) => like.postId === postId
     ).length || 0;
@@ -255,51 +270,20 @@ export default function Article({ user_id, content,postId,images }: ArticleProps
         if (!userId || !friendId || isFriendAdded) return;
 
         try {
-            const response = await fetch('/api/addFriend', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ userId, friendId }),
-            });
-
-            if (response.ok) {
-                const result = await response.json();
-                if (result.success) {
-                    console.log('Friend added successfully');
-                    setIsFriendAdded(true);
-                    // You might want to update the UI or state here
-                } else {
-                    console.error('Failed to add friend:', result.message);
+            db.transact([tx.friendships[id()].update(
+                { 
+                    userId: userId,
+                    friendId: friendId,
+                    isFriend: false,
+                    isPendingRequest: true,
+                    createdAt: Date.now()
                 }
-            } else {
-                console.error('Failed to add friend');
-            }
+            )]);
         } catch (error) {
             console.error('Error adding friend:', error);
             alert('Error adding friend');
         }
     };
-
-    const checkFriendStatus = async (userId: string, friendId: string) => {
-        try {
-            const response = await fetch(`/api/checkFriendStatus?userId=${userId}&friendId=${friendId}`);
-            if (response.ok) {
-                const result = await response.json();
-                setIsFriendAdded(result.isFriend);
-            } else {
-                console.error('Failed to check friend status');
-            }
-        } catch (error) {
-            console.error('Error checking friend status:', error);
-        }
-    };
-
-    useEffect(() => {
-        if (userId && user_id && userId !== user_id) {
-            checkFriendStatus(userId, user_id);
-        }
-    }, [userId, user_id]);
     
 
     return(
@@ -309,7 +293,7 @@ export default function Article({ user_id, content,postId,images }: ArticleProps
                 <div className="flex flex-row gap-3 max-w-full">
                     <div className="relative flex-row w-8 h-8 justify-center">
                         <img className="rounded-full w-8 h-8 bg-cover" src="/assets/avt.png" alt="avatar" />
-                        {userId && user_id && userId !== user_id && !isFriendAdded && (
+                        {userId && user_id && userId !== user_id && !dataFriendships?.friendships.length && (
                             <button 
                                 onClick={() => {
                                     addFriend(userId, user_id);

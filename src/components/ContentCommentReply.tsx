@@ -1,16 +1,16 @@
 "use client"
+import { getUserId } from "@/utils/auth";
 import Link from "next/link"
 import { useEffect, useState } from "react"
 
 export default function ContentComment({
-    comment_content,
-    comment_id,
-    create_at,
-    user_id,
-    post_id
+    content,
+    commentId,
+    createdAt,
+    userId,
+    postId
 }: Comment) {
     const [isShow, setIsShow] = useState<boolean>(false);
-    const [userId, setUserId] = useState<string | null>(null);
     const [replyContent, setReplyContent] = useState<string|null>(null);
     const [issShow, setIssShow] = useState<boolean>(false);
     const [isLiked, setIsLiked] = useState<boolean>(false);
@@ -20,12 +20,8 @@ export default function ContentComment({
     const [isReposted, setIsReposted] = useState<boolean>(false);
     const [repostCount, setRepostCount] = useState<number>(0);
 
-    useEffect(() => {
-        const storedUserId = sessionStorage.getItem('user_id');
-        if (storedUserId) {
-            setUserId(storedUserId);
-        }
-    }, []);
+    const userAccountId = getUserId()
+
     const toggleModal = () => {
         setIsShow((prevState) => !prevState);
     }
@@ -33,7 +29,7 @@ export default function ContentComment({
     useEffect(() => {
         const calculateTimeAgo = () => {
             const now = new Date().getTime();
-            const diffInSeconds = Math.floor((now - Number(create_at)) / 1000);
+            const diffInSeconds = Math.floor((now - Number(createdAt)) / 1000);
 
             if (diffInSeconds < 60) {
                 setTimeAgo(`${diffInSeconds} giây`);
@@ -53,10 +49,10 @@ export default function ContentComment({
         const timer = setInterval(calculateTimeAgo, 60000); // Update every minute
 
         return () => clearInterval(timer);
-    }, [create_at]);
+    }, [createdAt]);
 
     const handleLikeComment = async () => {
-        if (!comment_id) return; // Ensure user is logged in
+        if (!commentId) return; // Ensure user is logged in
 
         try {
             const response = await fetch('/api/like/comment', {
@@ -64,7 +60,7 @@ export default function ContentComment({
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ comment_id: comment_id, user_id: user_id }),
+                body: JSON.stringify({ comment_id: commentId, user_id: userAccountId }),
             });
 
             if (response.ok) {
@@ -85,10 +81,10 @@ export default function ContentComment({
     };
 
     const getTotalLikeComment = async () => {
-        if (!comment_id) return;
+        if (!commentId) return;
 
         try {
-            const response = await fetch(`/api/like/comment?commentId=${comment_id}`, {
+            const response = await fetch(`/api/like/comment?commentId=${commentId}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -108,11 +104,11 @@ export default function ContentComment({
 
     useEffect(() => {
         getTotalLikeComment();
-    }, [comment_id]);
+    }, [commentId]);
 
 
     const handleReplyComment = async () => {
-        if (!comment_id || !user_id) return;
+        if (!commentId || !userAccountId) return;
 
         try {
             const response = await fetch('/api/comment/reply', {
@@ -121,10 +117,10 @@ export default function ContentComment({
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    comment_id: comment_id,
-                    user_id: user_id,
+                    comment_id: commentId,
+                    user_id: userAccountId,
                     reply_content: replyContent,
-                    post_id: post_id
+                    post_id: postId
                 }),
             });
 
@@ -143,10 +139,10 @@ export default function ContentComment({
     };
 
     const getTotalCommentReplies = async () => {
-        if (!comment_id) return;
+        if (!commentId) return;
 
         try {
-            const response = await fetch(`/api/comment/reply?commentId=${comment_id}`, {
+            const response = await fetch(`/api/comment/reply?commentId=${commentId}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -166,14 +162,14 @@ export default function ContentComment({
 
     useEffect(() => {
         getTotalCommentReplies();
-    }, [comment_id]);
+    }, [commentId]);
 
 
     const checkIsLiked = async () => {
-        if (!userId || !comment_id) return;
+        if (!userAccountId || !commentId) return;
     
         try {
-            const response = await fetch(`/api/like/comment/isLiked?commentId=${comment_id}&userId=${userId}`, {
+            const response = await fetch(`/api/like/comment/isLiked?commentId=${commentId}&userId=${userAccountId}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -192,7 +188,7 @@ export default function ContentComment({
     };
     
     const handleRepost = async () => {
-        if (!userId || !post_id || !comment_content) return;
+        if (!userAccountId || !postId || !content) return;
 
         try {
             const response = await fetch(`/api/post/repost`, {
@@ -200,7 +196,7 @@ export default function ContentComment({
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ user_id: userId, post_id: post_id,post_content:comment_content }),
+                body: JSON.stringify({ user_id: userAccountId, post_id: postId,post_content:content }),
             });
 
             if (response.ok) {
@@ -215,10 +211,10 @@ export default function ContentComment({
     };
     
     const checkIsReposted = async () => {
-        if (!userId || !post_id) return;
+        if (!userAccountId || !postId) return;
     
         try {
-            const response = await fetch(`/api/post/repost/isReposted?postId=${post_id}&userId=${userId}`, {
+            const response = await fetch(`/api/post/repost/isReposted?postId=${postId}&userId=${userAccountId}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -237,10 +233,10 @@ export default function ContentComment({
     };
     
     const getTotalReposts = async () => {
-        if (!post_id) return;
+        if (!postId) return;
 
         try {
-            const response = await fetch(`/api/post/repost?postId=${post_id}`, {
+            const response = await fetch(`/api/post/repost?postId=${postId}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -263,7 +259,7 @@ export default function ContentComment({
         checkIsLiked();
         checkIsReposted();
         getTotalReposts()
-    }, [comment_id, userId]);
+    }, [commentId, userAccountId]);
 
     
 
@@ -278,13 +274,13 @@ export default function ContentComment({
                         </div>
                         <div className="h-full">
                             <div className="flex gap-2">
-                                <Link href={`/@${user_id}`} className="font-bold text-sm">
-                                    <span className="">{user_id}</span>
+                                <Link href={`/@${userId}`} className="font-bold text-sm">
+                                    <span className="">{userId}</span>
                                 </Link>
                                 <span className="text-sm text-gray-400">{timeAgo}</span>
                             </div>
                             <div className="text-sm">
-                                <p>{comment_content}</p>
+                                <p>{content}</p>
                             </div>
                             <div className="flex justify-center md:justify-start items-center text-sm font-thin gap-3 mb-3 ">
                                 <div className="flex gap-1 p-2">
@@ -375,13 +371,13 @@ export default function ContentComment({
                                         </div>
                                         <div>
                                             <div className="flex flex-row gap-3">
-                                                <Link href={`/@${user_id}`} className="font-bold text-sm">
-                                                    <span>{user_id}</span>
+                                                <Link href={`/@${userId}`} className="font-bold text-sm">
+                                                    <span>{userId}</span>
                                                 </Link>
                                                 <span className="text-sm text-gray-400">20 giờ</span>
                                             </div>
                                             <div className="text-sm">
-                                                <p>{comment_content}</p>
+                                                <p>{content}</p>
                                             </div>
                                         </div>
                                     </div>
