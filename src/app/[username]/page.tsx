@@ -1,76 +1,64 @@
 "use client"
-
-import EditProfile from "@/components/EditProfile";
-import Follower from "@/components/FollowerInProfile";
-import HeaderProfile from "@/components/HeaderProfile";
-import NameProfile from "@/components/NameProfile";
-import Siderbar from "@/components/Sidebar"
-import RowThreadss from "@/components/RowThreads";
+import ProfileLayout from "@/components/ProfileLayoutProps";
+import RowThreads from "@/components/RowThreads";
 import Thread from "@/components/Thread";
-import React, {  useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import axios from "axios";
-
-
+import { checkLogin } from "@/utils/auth";
+import RowThreadss from "@/components/RowThreads";
 export default function Home() {
-    const router = useRouter()
-    const pathName = usePathname();
-    const username = pathName.replace("/@","")
-    const [dataAccounts,setDataAccounts] = useState<any>([])
+  const router = useRouter();
+  const pathName = usePathname();
+  const username = pathName.replace("/@", "");
+  const [dataAccounts, setDataAccounts] = useState<any>([]);
 
+  useEffect(() => {
+    const checkAuthStatus = async () => {
+      const loggedInUserId = await checkLogin();
+      if (!loggedInUserId) {
+        router.push("/login");
+      }
+    };
 
-    const loadProfile = async()=>{
-        try {
-            const res = await axios.post("/api/account/",{
-                username
-            },{
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-            const data = await res.data
-            //console.log(data)
-            setDataAccounts(data[0])
-        } catch (error) {
-            console.error(error)
-        }
+    checkAuthStatus();
+  }, [router]);
+
+  const loadProfile = async () => {
+    try {
+      const cachedData = localStorage.getItem(`profile_${username}`);
+      if (cachedData) {
+        setDataAccounts(JSON.parse(cachedData));
+      } else {
+        const res = await axios.post("/api/account/", {
+          username,
+        }, {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        const data = await res.data;
+        setDataAccounts(data[0]);
+        localStorage.setItem(`profile_${username}`, JSON.stringify(data[0]));
+      }
+    } catch (error) {
+      console.error(error);
     }
+  };
 
-    useEffect(()=>{
-      loadProfile()
-    },[])
+  useEffect(() => {
+    loadProfile();
+  }, []);
 
-    
-    return (
-      <div className="flex md:flex-row flex-col-reverse w-full overflow-hidden h-[90vh]">
-        <Siderbar/>
-        <div className="flex flex-row justify-center mt-2 w-full">
-          <div className="max-w-screen-sm w-full h-screen">
-            <HeaderProfile />
-            <div className="flex flex-col border border-gray-300 w-full  rounded-xl mt-10 h-screen overflow-y-scroll ">
-                <div className="w-max-[630px] h-[80px] ml-[15px] mr-[15px]">
-                    {
-                      dataAccounts&&(
-                            <NameProfile username={dataAccounts.user_id} fullname={dataAccounts.fullname}/>
-                        )
-                    }
-                </div>
-                <div className="w-max-[630px] h-[80px] ml-[15px] mr-[20px]  ">
-                    <Follower/>
-                </div>
-                <div className="w-max-[630px] h-[90px] t-0">
-                  <EditProfile/>
-                </div>
-                <div className="w-max-[630px] h-[80px] t-0">
-                  <RowThreadss/>
-                </div>
-                <div className="w-max-[630px] h-full t-0 ml-[20px] mr-[20px]">
-                  <Thread userId={username}/>
-                </div>
-
-            </div>
-          </div>
-        </div>
+  return (
+    <ProfileLayout username={dataAccounts.user_id} fullname={dataAccounts.fullname}>
+      <div className="w-max-[630px] h-[80px] t-0">
+        <RowThreadss />
       </div>
-    );
-  }
+      <div className="w-max-[630px] h-full t-0 ml-[20px] mr-[20px] z-0">
+        <Thread userId={username} />
+      </div>
+    </ProfileLayout>
+  );
+}
+

@@ -1,14 +1,11 @@
 "use client"
 import Link from "next/link"
 import { useEffect, useState } from "react"
+import { getUserId } from "@/utils/auth";
 
 export default function RowThreadss(){
-    const [username,setUsername] = useState<string|null>(null);
-    useEffect(()=>{
-        if(sessionStorage.getItem("isLogin")){
-            setUsername(sessionStorage.getItem("user_id"))
-        }
-    },[])
+    const username = getUserId();
+
         return(
         <div className="flex ">
             <Link  href={`/@${username}`} className="w-1/3 flex border-black justify-center border-solid border-b-[1px]">

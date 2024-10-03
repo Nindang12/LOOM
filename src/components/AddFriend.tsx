@@ -10,7 +10,7 @@ interface AddFriendProps {
     onFriendAdded: () => void
 }
 
-const AddFriend: NextPage<AddFriendProps> = ({ currentUserId, db, onFriendAdded }) => {
+const AddFriend: NextPage<AddFriendProps> = ({ currentUserId, db }) => {
     const [friendUsername, setFriendUsername] = useState('');
     const [data, setData] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -51,7 +51,6 @@ const AddFriend: NextPage<AddFriendProps> = ({ currentUserId, db, onFriendAdded 
                         isPendingRequest: true,
                     })
                 )
-                onFriendAdded()
             } catch (error) {
                 console.error("Error adding friend:", error)
                 alert("Error adding friend")

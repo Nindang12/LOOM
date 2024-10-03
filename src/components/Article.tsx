@@ -18,6 +18,8 @@ export default function Article({ user_id, content,postId,images }: ArticleProps
     const [isLiked, setIsLiked] = useState(false);
     const [commentContent, setCommentContent] = useState<string>('');
     const [isReposted, setIsReposted] = useState<boolean>(false);
+    const [repostCount, setRepostCount] = useState<number>(0);
+    const [image, setImage] = useState<string|null>(null);
     const [shareCount, setShareCount] = useState<number>(0);
     const [uploadedImages, setUploadedImages] = useState<string[]>([]);
 
@@ -247,13 +249,78 @@ export default function Article({ user_id, content,postId,images }: ArticleProps
         checkIsReposted();
         checkIsLiked();
     }, [postId, userId]);
+    const [isFriendAdded, setIsFriendAdded] = useState(false);
+
+    const addFriend = async (userId: string, friendId: string) => {
+        if (!userId || !friendId || isFriendAdded) return;
+
+        try {
+            const response = await fetch('/api/addFriend', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ userId, friendId }),
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                if (result.success) {
+                    console.log('Friend added successfully');
+                    setIsFriendAdded(true);
+                    // You might want to update the UI or state here
+                } else {
+                    console.error('Failed to add friend:', result.message);
+                }
+            } else {
+                console.error('Failed to add friend');
+            }
+        } catch (error) {
+            console.error('Error adding friend:', error);
+            alert('Error adding friend');
+        }
+    };
+
+    const checkFriendStatus = async (userId: string, friendId: string) => {
+        try {
+            const response = await fetch(`/api/checkFriendStatus?userId=${userId}&friendId=${friendId}`);
+            if (response.ok) {
+                const result = await response.json();
+                setIsFriendAdded(result.isFriend);
+            } else {
+                console.error('Failed to check friend status');
+            }
+        } catch (error) {
+            console.error('Error checking friend status:', error);
+        }
+    };
+
+    useEffect(() => {
+        if (userId && user_id && userId !== user_id) {
+            checkFriendStatus(userId, user_id);
+        }
+    }, [userId, user_id]);
+    
 
     return(
-        <div>
-            <div className="border-b border-gray-200 w-full px-2 mt-2">
+        <div className="max-w-full">
+            <div className="border-b border-gray-200 max-w-full py-2 px-5">
                 {/* <header> */}
-                <div className="flex flex-row gap-3 w-full">
-                    <img className="rounded-full w-8 h-8 bg-cover" src="/assets/avt.png" alt="avatar" />
+                <div className="flex flex-row gap-3 max-w-full">
+                    <div className="relative flex-row w-8 h-8 justify-center">
+                        <img className="rounded-full w-8 h-8 bg-cover" src="/assets/avt.png" alt="avatar" />
+                        {userId && user_id && userId !== user_id && !isFriendAdded && (
+                            <button 
+                                onClick={() => {
+                                    addFriend(userId, user_id);
+                                    setIsFriendAdded(true);
+                                }}
+                                className="absolute top-5 right-[-1px] bg-white rounded-full shadow-md hover:bg-gray-100 p-1"
+                            >
+                                <img width={12} src="/assets/addfriend.svg" alt="Add friend" />
+                            </button>
+                        )}
+                    </div>
                     <div className="flex flex-col">
                         <div className="flex flex-row justify-between w-full items-center">
                             <Link href={`/@${user_id}`}>
@@ -302,7 +369,7 @@ export default function Article({ user_id, content,postId,images }: ArticleProps
                             </div>
                         </div>
                         <Link href={`/@${user_id}/post/${postId}`} className="flex flex-col gap-3">
-                            <span>{content}</span>
+                            <span>{content?JSON.parse(content as string):""}</span>
                             <div className="flex overflow-x-scroll gap-2 ">
                                 {images &&
                                     images.map((image:string,index) => {
@@ -351,7 +418,7 @@ export default function Article({ user_id, content,postId,images }: ArticleProps
                                 <span className=" w-[120px]text-black md:text-white font-bold">Thread trả lời</span>
                                 <div className="w-[120px] md:hidden"></div>
                             </div>
-                            <div onClick={(e) => e.stopPropagation()} className={`md:bg-white px-4 md:p-3 md:rounded-lg md:shadow-lg w-full md:w-1/3 h-full ${uploadedImages.length > 0 ? "md:h-[700px] " : "md:h-[500px] " }`}>
+                            <div onClick={(e) => e.stopPropagation()} className={`md:bg-white px-4 md:p-3 md:rounded-lg md:shadow-lg w-[340px] h-full md:h-[500px]`}>
                                 <div className="flex flex-row items-center justify-between">
                                     <div className="flex flex-row gap-2 mt-2 ml-0 items-start">
                                         <img className=" rounded-full z-0 w-8 h-8 bg-cover" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQgFPzdgOy4CJfBOVER-gmHRQJjVfNd3LMf-Q&s" alt="" />

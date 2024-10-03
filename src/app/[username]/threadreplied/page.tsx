@@ -1,70 +1,65 @@
 "use client"
-import EditProfile from "@/components/EditProfile";
-import Follower from "@/components/FollowerInProfile";
-import HeaderProfile from "@/components/HeaderProfile";
-import NameProfile from "@/components/NameProfile";
-import Siderbar from "@/components/Sidebar"
+import ProfileLayout from "@/components/ProfileLayoutProps";
 import RowThreadssreplied from "@/components/RowThreadsreplied";
 import Threadsreplied from "@/components/threadreplied";
 import React, { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import axios from "axios";
+import { checkLogin } from "@/utils/auth";
 
 export default function ThreadReplied() {
   const router = useRouter();
   const pathName = usePathname();
   const username = pathName ? pathName.replace("/@", "").replace("/threadreplied", "") : "";
   const [dataAccounts, setDataAccounts] = useState<any>([]);
-  
+
+  useEffect(() => {
+    const checkAuthStatus = async () => {
+      const loggedInUserId = await checkLogin();
+      if (!loggedInUserId) {
+        router.push("/login");
+      }
+    };
+
+    checkAuthStatus();
+  }, [router]);
 
   const loadProfile = async () => {
-      try {
-          const res = await axios.post("/api/account/", {
-              username
-          }, {
-              headers: {
-                  'Content-Type': 'application/json'
-              }
-          });
-          const data = await res.data;
-          setDataAccounts(data[0]);
-      } catch (error) {
-          console.error(error);
+    try {
+      const cachedData = localStorage.getItem(`profile_${username}`);
+      if (cachedData) {
+        setDataAccounts(JSON.parse(cachedData));
+      } else {
+        const res = await axios.post("/api/account/", {
+          username,
+        }, {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        const data = await res.data;
+        setDataAccounts(data[0]);
+        localStorage.setItem(`profile_${username}`, JSON.stringify(data[0]));
       }
+    } catch (error) {
+      console.error(error);
+    }
   };
 
-  useEffect(()=>{
-    loadProfile()
-  },[])
+  useEffect(() => {
+    loadProfile();
+  }, []);
 
   return (
-    <div className="flex md:flex-row flex-col-reverse w-full overflow-hidden h-screen">
-      <Siderbar/>
-      <div className="flex flex-row justify-center mt-2 w-full">
-        <div className="max-w-screen-sm w-full h-screen">
-          <HeaderProfile />
-          <div className="flex flex-col border border-gray-300 w-full  rounded-xl mt-10 h-[90vh] overflow-y-scroll ">
-              <div className="w-max-[630px] h-[80px] ml-[15px] mr-[15px]">
-                {dataAccounts && (
-                                <NameProfile username={dataAccounts.user_id} fullname={dataAccounts.fullname} />
-                            )}              
-                </div>
-              <div className="w-max-[630px] h-[80px] ml-[15px] mr-[20px]  ">
-                  <Follower/>
-              </div>
-              <div className="w-max-[630px] h-[90px] t-0">
-                <EditProfile/>
-              </div>
-              <div className="w-max-[630px] h-[80px] t-0">
-                <RowThreadssreplied/>
-              </div>
-              <div className="w-min-[630px] h-full flex t-0 mr-[20px]">
-                <Threadsreplied userId={username}/>
-              </div>
-
-          </div>
+    dataAccounts && (
+      <ProfileLayout username={dataAccounts.user_id} fullname={dataAccounts.fullname}>
+        <div className="w-max-[630px] h-[80px] t-0">
+          <RowThreadssreplied />
         </div>
-      </div>
-    </div>
+        <div className="w-min-[630px] h-full flex t-0 mr-[20px]">
+          <Threadsreplied userId={username} />
+        </div>
+      </ProfileLayout>
+    )
   );
 }
