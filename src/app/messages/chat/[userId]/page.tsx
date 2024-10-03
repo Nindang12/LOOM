@@ -14,10 +14,10 @@ const ChatPage = () => {
 
     return (
         <div>
-            <div className="md:block">
+            <div className="hidden md:block">
                 <div className="flex md:flex-row flex-col-reverse overflow-hidden w-full h-screen">       
                         <Sidebar />
-                    <div className="flex flex-col w-full md:w-3/4 lg:w-4/5 h-full overflow-hidden">
+                    <div className="flex flex-col w-full w-full h-full overflow-hidden">
                         <LayoutChat>
                             <div className="flex items-center justify-center w-full">
                                 <div className="flex-grow h-full overflow-y-auto">
@@ -32,7 +32,7 @@ const ChatPage = () => {
                 </div> 
             </div>
             <div className="md:hidden">
-                <div className="flex flex-col h-screen">
+                <div className="flex flex-col h-screen w-screen">
                     <div className="flex items-center justify-between p-4 border-b">
                         <Link href="/messages" className="text-blue-500">
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">

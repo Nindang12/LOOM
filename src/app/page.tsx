@@ -14,7 +14,15 @@ import { db } from "@/utils/contants";
 export default function Home() {
   const router = useRouter()
 
-  const query = { posts: {} }
+  const query = {
+    posts: {
+      $: {
+        order: {
+          serverCreatedAt: "desc" as const
+        }
+      }
+    }
+  }
   const { data } = db.useQuery(query)
 
   const filterPost = data?.posts.filter((post:any) => !post?.repost)

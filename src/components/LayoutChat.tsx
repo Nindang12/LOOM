@@ -29,9 +29,9 @@ const currentUserId = getUserId() as string;
 const db = init<Schema>({ appId: APP_ID })
     return(
 
-        <div className="flex flex-row overflow-y-auto w-full">
-            <FriendList db={db} currentUserId={currentUserId} /> 
-            {children}       
+        <div className="flex flex-row  overflow-y-auto w-full">
+            <div className=" w-auto"><FriendList db={db} currentUserId={currentUserId} /> </div>
+            <div className="overflow-y-auto w-full">{children}</div>       
         </div>
     )
 }
