@@ -3,16 +3,20 @@ interface Profile{
     fullname?: string
 }
 interface Post {
-    post_id: string;
-    post_content: string;
-    user_id: string;
-    create_at: number;
+    id: string;
+    postId: string;
+    postContent: string;
+    userId: string;
+    createdAt: number;
+    images: string[];
+    repost: string;
 }
 
 interface ArticleProps {
     user_id?: string;
     content?: string;
     postId?: string;
+    images?: string[];
 }
 
 interface Post {
@@ -24,12 +28,11 @@ interface Post {
   }
 
 interface Comment {
-    comment_content: string;
-    comment_id: string;
-    create_at: string;
-    like_count: number;
-    user_id: string;
-    post_id?: string;
+    content: string;
+    commentId: string;
+    createdAt: string;
+    userId: string;
+    postId?: string;
 }
 
 interface AccountData {

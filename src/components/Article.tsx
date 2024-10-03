@@ -4,8 +4,11 @@ import { use, useEffect, useState } from "react";
 import {Buffer} from "buffer" 
 import LexicalEditor from "./LexicalEditor";
 import { getUserId } from "@/utils/auth";
+import {db} from "@/utils/contants"
+import {tx,id} from "@instantdb/react"
+import { toast } from "react-toastify";
 
-export default function Article({ user_id, content,postId }: ArticleProps) {
+export default function Article({ user_id, content,postId,images }: ArticleProps) {
     const userId = getUserId();
     const [isShow, setIsShow] = useState<boolean>(false);
     const toggleModal = () => {
@@ -13,191 +16,130 @@ export default function Article({ user_id, content,postId }: ArticleProps) {
     }
     const [issShow, setIssShow] = useState<boolean>(false);
     const [isLiked, setIsLiked] = useState(false);
-    const [likeCount, setLikeCount] = useState(0);
     const [commentContent, setCommentContent] = useState<string>('');
-    const [commentCount, setCommentCount] = useState<number>(0);
     const [isReposted, setIsReposted] = useState<boolean>(false);
-    const [repostCount, setRepostCount] = useState<number>(0);
-    const [images, setImages] = useState([]);
-    const [image, setImage] = useState<string|null>(null);
     const [shareCount, setShareCount] = useState<number>(0);
+    const [uploadedImages, setUploadedImages] = useState<string[]>([]);
 
+    const query = { actionLikePost: {} }
+    const { isLoading, error, data } = db.useQuery(query)
 
-    const getImagesForPost = async () => {
-        if (!postId) return;
-
-        try {
-            const response = await fetch(`/api/photo?postId=${postId}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            if (response.ok) {
-                const result = await response.json();
-                setImages(result.photos);
-            } else {
-                console.error('Failed to fetch images for post');
+    const queryCheckIsLiked = { actionLikePost:{
+        $:{
+            where:{
+                postId:postId,
+                userId:userId
             }
-        } catch (error) {
-            console.error('Error fetching images for post:', error);
+        }
+    }};
+    const { data: dataCheckIsLiked } = db.useQuery(queryCheckIsLiked);
+
+    const queryComments = { comments: {} }
+    const { data: dataComments } = db.useQuery(queryComments)
+
+    const queryShares = { shares: {} }
+    const { data: dataShares } = db.useQuery(queryShares)
+
+    const queryPosts = { posts: {} }
+    const { data: dataPosts } = db.useQuery(queryPosts)
+
+    const totalLikes = data?.actionLikePost.filter(
+        (like: any) => like.postId === postId
+    ).length || 0;
+
+    const totalShares = dataShares?.shares.filter(
+        (share: any) => share.postId === postId
+    ).length || 0;
+
+    const totalComments = dataComments?.comments.filter(
+                (comment: any) => comment.postId === postId
+            ).length || 0;
+
+    const totalReposts = dataPosts?.posts.filter(
+        (post: any) => post.repost === postId
+    ).length || 0;
+
+    const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const files = event.target.files;
+        if (!files) return;
+
+        const newImages: string[] = [];
+
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            const reader = new FileReader();
+
+            reader.onloadend = () => {
+                newImages.push(reader.result as string);
+                if (newImages.length === files.length) {
+                    setUploadedImages(prevImages => [...prevImages, ...newImages]);
+                }
+            };
+
+            reader.readAsDataURL(file);
         }
     };
 
-    useEffect(() => {
-        getImagesForPost();
-    }, [postId]);
-
     const handleLike = async () => {
         if (!userId) return; // Ensure user is logged in
-
+        // Check if the user has already liked this post
+        const isUserLiked = data?.actionLikePost.some(
+            (like: any) => like.postId === postId && like.userId === userId
+        );
+        const actionLikePostId = data?.actionLikePost.find(
+            (like: any) => like.postId === postId && like.userId === userId 
+        )?.id;
         try {
-            const response = await fetch('/api/like/post', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ post_id: postId, user_id: userId }),
-            });
-
-            if (response.ok) {
-                const result = await response.json();
-                if (result.message === "Post liked successfully") {
-                    setIsLiked(true);
-                    setLikeCount(prevCount => prevCount + 1);
-                } else if (result.message === "Like removed successfully") {
-                    setIsLiked(false);
-                    setLikeCount(prevCount => prevCount - 1);
-                }
+            if (isUserLiked) {
+                setIsLiked(false);
+                db.transact([tx.actionLikePost[actionLikePostId as string].delete()]);
             } else {
-                console.error('Failed to like/unlike post');
+                db.transact([tx.actionLikePost[id()].update(
+                    { 
+                        postId: postId,
+                        userId: userId,
+                        createdAt: new Date().getTime()
+                    }
+                )]);
+                setIsLiked(true);
             }
         } catch (error) {
             console.error('Error liking/unliking post:', error);
         }
     };
 
-    const getTotalLikes = async () => {
-        if (!postId) return;
-
-        try {
-            const response = await fetch(`/api/like/post?postId=${postId}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            if (response.ok) {
-                const result = await response.json();
-                setLikeCount(result.total_likes);
-            } else {
-                console.error('Failed to fetch total likes');
-            }
-        } catch (error) {
-            console.error('Error fetching total likes:', error);
-        }
-    };
 
     const createComment = async () => {
-        if (!postId || !userId) return;
+        if (!postId || !userId || !commentContent) return;
 
         try {
-            const response = await fetch('/api/comment', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    post_id: postId,
-                    user_id: userId,
-                    comment_content: commentContent
-                }),
-            });
-
-            if (response.ok) {
-                const result = await response.json();
-                console.log('Comment created successfully:', result);
-                setCommentContent('');
-                toggleModal()
-                window.location.reload();
-                // You might want to update the UI here, e.g., add the new comment to a list of comments
-            } else {
-                console.error('Failed to create comment');
-            }
+            const commentId = Math.random().toString(36).substring(2, 7) + Math.random().toString(36).substring(2, 7);
+            db.transact([tx.comments[id()].update(
+                { 
+                    commentId: commentId,
+                    postId: postId,
+                    userId: userId,
+                    content: commentContent,
+                    createdAt: new Date().getTime(),
+                    images: uploadedImages
+                }
+            )]);
+            toast.success('Comment created successfully');
+            setCommentContent('');
+            toggleModal()
         } catch (error) {
             console.error('Error creating comment:', error);
         }
     };
 
-    const getTotalComments = async () => {
-        if (!postId) return;
-
-        try {
-            const response = await fetch(`/api/comment?postId=${postId}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            if (response.ok) {
-                const result = await response.json();
-                setCommentCount(result.comments.length);
-            } else {
-                console.error('Failed to fetch total comments');
-            }
-        } catch (error) {
-            console.error('Error fetching total comments:', error);
-        }
-    };
-
-    const getTotalShares = async () => {
-        if (!postId) return;
-
-        try {
-            const response = await fetch(`/api/post/sharePost?postId=${postId}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            if (response.ok) {
-                const result = await response.json();
-                setShareCount(result.total_shares);
-            } else {
-                console.error('Failed to fetch total shares');
-            }
-        } catch (error) {
-            console.error('Error fetching total shares:', error);
-        }
-    };
-
-    useEffect(() => {
-        getTotalComments();
-        getTotalLikes();
-        getTotalShares();
-    }, [postId]);
-
-
     const checkIsLiked = async () => {
         if (!userId || !postId) return;
     
         try {
-            const response = await fetch(`/api/like/post/isLiked?postId=${postId}&userId=${userId}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-    
-            if (response.ok) {
-                const result = await response.json();
-                setIsLiked(result.isLiked);
+            if (dataCheckIsLiked && dataCheckIsLiked.actionLikePost && dataCheckIsLiked.actionLikePost.length > 0) {
+                setIsLiked(true);
             } else {
-                console.error('Failed to check if post is liked');
+                setIsLiked(false);
             }
         } catch (error) {
             console.error('Error checking if post is liked:', error);
@@ -209,93 +151,92 @@ export default function Article({ user_id, content,postId }: ArticleProps) {
         if (!userId || !postId || !content) return;
 
         try {
-            const response = await fetch(`/api/post/repost`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ user_id: userId, post_id: postId,post_content:content }),
-            });
+            const existingRepost = dataPosts?.posts.find(
+                (post: any) => post.repost === postId && post.userId === userId
+            );
 
-            if (response.ok) {
-                console.log('Post successfully reposted');
-                window.location.reload();
-            } else {
-                console.error('Failed to repost');
+            if (existingRepost) {
+                // If the post is already reposted, remove the repost
+                try {
+                    db.transact([tx.posts[existingRepost.id].delete()]);
+                    setIsReposted(false);
+                    return; // Exit the function early
+                } catch (error) {
+                    console.error('Error removing repost:', error);
+                    return; // Exit the function early
+                }
             }
+            const post_id = Math.random().toString(36).substring(2, 7) + Math.random().toString(36).substring(2, 7);
+            db.transact(
+                [tx.posts[id()].update(
+                    { 
+                        userId: userId,
+                        postId: post_id,
+                        content: content,
+                        images: images,  // Change this line
+                        createdAt: new Date().getTime(),
+                        repost: postId
+                    }
+                )]
+            );
+            setIsReposted(true);
         } catch (error) {
             console.error('Error reposting:', error);
         }
     };
     
-    const checkIsReposted = async () => {
+    const checkIsReposted = () => {
         if (!userId || !postId) return;
     
         try {
-            const response = await fetch(`/api/post/repost/isReposted?postId=${postId}&userId=${userId}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-    
-            if (response.ok) {
-                const result = await response.json();
-                setIsReposted(result.isReposted);
+            // Check if the post is already reposted by the user
+            
+            const userRepost = dataPosts?.posts.find(
+                (post: any) => post.repost === postId && post.userId === userId
+            );
+            
+            if (userRepost) {
+                setIsReposted(true);
             } else {
-                console.error('Failed to check if post is reposted');
+                setIsReposted(false);
             }
         } catch (error) {
             console.error('Error checking if post is reposted:', error);
         }
     };
     
-    const getTotalReposts = async () => {
-        if (!postId) return;
 
-        try {
-            const response = await fetch(`/api/post/repost?postId=${postId}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            if (response.ok) {
-                const result = await response.json();
-                setRepostCount(result.repostCount);
-            } else {
-                console.error('Failed to get total reposts');
-            }
-        } catch (error) {
-            console.error('Error getting total reposts:', error);
-        }
-    };
-
-    const handleShare = async () => {
+    const handleShare = () => {
         if (!userId || !postId) return;
 
         try {
-            const response = await fetch('/api/post/sharePost', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ post_id: postId, user_id: userId }),
-            });
+            // Check if the post is already shared by the user
+            const isShared = dataShares?.shares.some(
+                (share: any) => share.postId === postId && share.userId === userId
+            );
 
-            if (response.ok) {
-                const result = await response.json();
-                if (result.message === "Post shared successfully") {
-                    const textToCopy = `${window.location.href}@${userId}/post/${postId}`;
-                    navigator.clipboard.writeText(textToCopy);
-                    setIsReposted(true);
-                    setShareCount((prevCount) => prevCount + 1);
-                } else {
-                    console.error(result.message);
+            if (isShared) {
+                // If already shared, remove the share
+                const shareToRemove = dataShares?.shares.find(
+                    (share: any) => share.postId === postId && share.userId === userId
+                );
+                if (shareToRemove) {
+                    db.transact([tx.shares[shareToRemove.id].delete()]);
+                    setShareCount(shareCount - 1);
+                    return; // Exit the function early
                 }
-            } else {
-                console.error('Failed to share post');
+            }
+            else{
+                db.transact(
+                    [tx.shares[id()].update(
+                        { 
+                            userId: userId,
+                            postId: postId,
+                            createdAt: new Date().getTime(),
+                        }
+                    )]
+                );
+                setShareCount(shareCount + 1);
             }
         } catch (error) {
             console.error('Error sharing post:', error);
@@ -304,11 +245,8 @@ export default function Article({ user_id, content,postId }: ArticleProps) {
 
     useEffect(() => {
         checkIsReposted();
-        getTotalReposts()
         checkIsLiked();
     }, [postId, userId]);
-
-    
 
     return(
         <div>
@@ -364,12 +302,13 @@ export default function Article({ user_id, content,postId }: ArticleProps) {
                             </div>
                         </div>
                         <Link href={`/@${user_id}/post/${postId}`} className="flex flex-col gap-3">
-                            <span>{content?JSON.parse(content as string):""}</span>
+                            <span>{content}</span>
                             <div className="flex overflow-x-scroll gap-2 ">
-                                {images.map((image:Image,index) => {
+                                {images &&
+                                    images.map((image:string,index) => {
                                     return(
                                         <div key={index} className="rounded-lg w-52 h-52 bg-gray-200 flex items-center justify-center">
-                                            <img src={image.photo_content} alt={`image`} className="object-cover w-full h-full rounded-lg" />
+                                            <img src={image} alt={`image`} className="object-cover w-full h-full rounded-lg" />
                                         </div>
                                     )
                                 })}
@@ -387,19 +326,19 @@ export default function Article({ user_id, content,postId }: ArticleProps) {
                                 alt={isLiked ? "redheart" : "heart"}
                             />
                         </button>
-                        <small className={`${isLiked ? "text-red-600" : ""}`}>{likeCount}</small>
+                        <small className={`${isLiked ? "text-red-600" : ""}`}>{totalLikes}</small>
                     </div>
                     <button onClick={()=>setIsShow((prv)=>!prv)} className="flex gap-1 hover:bg-slate-100 p-2 rounded-3xl">
                         <img width={20} src="/assets/comment.svg" alt="" />
-                        <small>{commentCount}</small>
+                        <small>{totalComments}</small>
                     </button>
                     <button onClick={handleRepost} className={`flex gap-1 hover:bg-slate-100 p-2 rounded-3xl ${isReposted ? "bg-opacity-50 hover:bg-green-100" : ""}`}>
                         <img width={20} src={isReposted ? "/assets/replay-green.svg" : "/assets/replay.svg"} alt="" />
-                        <small className={`${isReposted ? "text-green-600" : ""}`}>{repostCount}</small>
+                        <small className={`${isReposted ? "text-green-600" : ""}`}>{totalReposts}</small>
                     </button>
                     <button onClick={handleShare} className="flex gap-1 hover:bg-slate-100 p-1 rounded-3xl">
                         <img width={30} src="/assets/share.svg" alt="" />
-                        <small>{shareCount}</small>
+                        <small>{totalShares}</small>
                     </button>
                 </div>
             </div>
@@ -412,21 +351,19 @@ export default function Article({ user_id, content,postId }: ArticleProps) {
                                 <span className=" w-[120px]text-black md:text-white font-bold">Thread trả lời</span>
                                 <div className="w-[120px] md:hidden"></div>
                             </div>
-                            <div onClick={(e) => e.stopPropagation()} className={`md:bg-white px-4 md:p-3 md:rounded-lg md:shadow-lg w-[340px] h-full md:h-[500px]`}>
+                            <div onClick={(e) => e.stopPropagation()} className={`md:bg-white px-4 md:p-3 md:rounded-lg md:shadow-lg w-full md:w-1/3 h-full ${uploadedImages.length > 0 ? "md:h-[700px] " : "md:h-[500px] " }`}>
                                 <div className="flex flex-row items-center justify-between">
-                                    <div className="flex flex-row gap-2 mt-2 ml-0 ">
-                                        <div>
-                                            <img className=" rounded-full z-0 w-8 h-8 bg-cover" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQgFPzdgOy4CJfBOVER-gmHRQJjVfNd3LMf-Q&s" alt="" />                                                
-                                        </div>
+                                    <div className="flex flex-row gap-2 mt-2 ml-0 items-start">
+                                        <img className=" rounded-full z-0 w-8 h-8 bg-cover" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQgFPzdgOy4CJfBOVER-gmHRQJjVfNd3LMf-Q&s" alt="" />
                                         <div>
                                             <div className="flex flex-row gap-3">
-                                                <Link href={`/chien_ha`} className="font-bold text-sm">
+                                                <Link href={`/${user_id}`} className="font-bold text-sm">
                                                     <span>{user_id}</span>
                                                 </Link>
                                                 <span className="text-sm text-gray-400">20 giờ</span>
                                             </div>
                                             <div className="text-sm">
-                                                <p>{JSON.parse(content as string)}</p>
+                                                <p>{content}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -435,10 +372,11 @@ export default function Article({ user_id, content,postId }: ArticleProps) {
                                 <div className="flex flex-row">
                                     <div className="h-[img] w-[1px] bg-slate-500 mx-4"></div>
                                     <div className="flex overflow-x-scroll gap-2 mt-1">
-                                        {images.map((image:Image,index) => {
+                                        {images && 
+                                            images.map((image:string,index) => {
                                             return(
                                                 <div key={index} className="rounded-lg w-52 h-52 bg-gray-200 flex items-center justify-center">
-                                                    <img src={image.photo_content} alt={`image`} className="object-cover w-full h-full rounded-lg" />
+                                                    <img src={image} alt={`image`} className="object-cover w-full h-full rounded-lg" />
                                                 </div>
                                             )
                                         })}
@@ -449,19 +387,31 @@ export default function Article({ user_id, content,postId }: ArticleProps) {
                                     <div className="w-full">
                                             <div className="font-semibold text-sm">{userId}</div>
                                                 <LexicalEditor setOnchange={setCommentContent}/>
-                                                {
-                                                    image && (
-                                                        <img src={image as string} className="w-56 h-56 mt-4 object-cover" alt="image" />
-                                                    )
-                                                }
+                                                {uploadedImages.length > 0 && (
+                                                    <div className="flex overflow-x-scroll gap-2 mt-1">
+                                                        {uploadedImages.map((image, index) => (
+                                                            <div key={index} className="rounded-lg w-52 h-52 bg-gray-200 flex items-center justify-center">
+                                                                <img src={image} alt={`uploaded-${index}`} className="object-cover w-full h-full rounded-lg" />
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
                                         </div>
                                 </div>
                                 <div className="flex flex-row">
                                     <div className="h-[25px] w-[2px] bg-slate-500 mx-4"></div>
                                     <div className="flex flex-row items-center mb-2">
-                                        <button className="px-2">
+                                        <input
+                                            type="file"
+                                            multiple
+                                            accept="image/*"
+                                            onChange={handleImageUpload}
+                                            style={{ display: 'none' }}
+                                            id="image-upload"
+                                        />
+                                        <label htmlFor="image-upload" className="px-2 cursor-pointer">
                                             <img width={20} src="/assets/album.svg" className="" alt="icon" />
-                                        </button >   
+                                        </label>  
                                         <button className="px-2">
                                             <img width={15} src="/assets/gif.svg" alt="" />
                                         </button>

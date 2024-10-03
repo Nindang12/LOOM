@@ -2,7 +2,9 @@
 import { useState } from "react"
 import LexicalEditor from "./LexicalEditor";
 import { getUserId } from "@/utils/auth";
-
+import {id,tx} from "@instantdb/react"
+import { db } from "@/utils/contants";
+import { toast } from "react-toastify";
 
 export default function UploadThread(){
     const [iesShow, setIsShow] = useState<boolean>(false);
@@ -11,42 +13,56 @@ export default function UploadThread(){
     }
     const [content, setContent] = useState("");
     const [isLoading, setIsLoading] = useState(false);
-    const [image, setImage] = useState<any>(null);
+    const [images, setImages] = useState<string[]>([]);
     const userId = getUserId();
 
     const handleUploadThread = async () => {
         try {
             if (!userId) {
-                throw new Error('User ID not found in SessionStorage');
+                toast.error('User ID not found in SessionStorage');
             }
-
-            const response = await fetch('/api/post', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    user_id: userId,
-                    content: JSON.stringify(content),
-                    image_content: image
-                }),
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to upload thread');
-            }
-
-            const data = await response.json();
-            console.log('Thread uploaded successfully:', data);
+            const post_id = Math.random().toString(36).substring(2, 7) + Math.random().toString(36).substring(2, 7);
+            db.transact(
+                [tx.posts[id()].update(
+                    { 
+                        userId: userId,
+                        postId: post_id,
+                        content: content,
+                        images: images,  // Change this line
+                        createdAt: new Date().getTime()
+                    }
+                )]
+            );
             setContent("");
+            setImages([]);  // Reset images after posting
             toggleModal();
-            window.location.reload();
+            toast.success("Thread created successfully!");
         } catch (error) {
             console.error('Error uploading thread:', error);
         } finally {
             setIsLoading(false);
         }
     };
+
+    const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = e.target.files;
+        if (files) {
+            const newImages: string[] = [];
+            Array.from(files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    if (e.target?.result) {
+                        newImages.push(e.target.result as string);
+                        if (newImages.length === files.length) {
+                            setImages(prevImages => [...prevImages, ...newImages]);
+                        }
+                    }
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+    };
+
     // End of Selection
     //console.log(JSON.stringify(content));
     return(
@@ -74,11 +90,13 @@ export default function UploadThread(){
                                         <div className="ml-4 w-full">
                                             <div className="font-semibold">{userId}</div>
                                                 <LexicalEditor setOnchange={setContent}/>
-                                                {
-                                                    image && (
-                                                        <img src={image} className="w-56 h-56 mt-4 object-cover" alt="image" />
-                                                    )
-                                                }
+                                                {images.length > 0 && (
+                                                    <div className="flex flex-wrap mt-4">
+                                                        {images.map((img, index) => (
+                                                            <img key={index} src={img} className="w-28 h-28 m-1 object-cover" alt={`image-${index}`} />
+                                                        ))}
+                                                    </div>
+                                                )}
                                         </div>
                                     </div>
                                 <div className="flex items-center mb-4">
@@ -91,18 +109,8 @@ export default function UploadThread(){
                                             id="upload-image-input"
                                             style={{ display: 'none' }}
                                             accept="image/*"
-                                            onChange={(e) => {
-                                                const file = e.target.files?.[0];
-                                                if (file) { 
-                                                    const reader = new FileReader();
-                                                    reader.readAsDataURL(file);
-                                                    reader.onload = () => {
-                                                        setImage(reader.result);
-                                                    };
-                                                    
-                                                }
-                                                //console.log(file)
-                                            }}
+                                            multiple  // Add this line
+                                            onChange={handleImageUpload}
                                         />
                                         <button className="px-2">
                                             <img width={15} src="/assets/gif.svg" alt="" />

@@ -3,8 +3,11 @@ import Link from "next/link"
 import { useEffect, useState } from "react"
 import LexicalEditor from "./LexicalEditor";
 import { getUserId } from "@/utils/auth";
+import { db } from "@/utils/contants";
+import { id, tx } from "@instantdb/react";
+import { toast } from "react-toastify";
 
-export default function ArticleViewPost({ post }: { post: Post }) {
+export default function ArticleViewPost({ post }: { post: any }) {
     const userId = getUserId();
     const [isShow, setIsShow] = useState<boolean>(false);
     const [image, setImage] = useState<string | null>(null);
@@ -17,154 +20,17 @@ export default function ArticleViewPost({ post }: { post: Post }) {
     const [images, setImages] = useState([]);
     const [isReposted, setIsReposted] = useState(false);
     const [repostCount, setRepostCount] = useState(0);
-
+    const [uploadedImages, setUploadedImages] = useState<string[]>([]);
 
     const toggleModal = () => {
         setIsShow((prevState) => !prevState);
     }
 
-    const getImagesForPost = async () => {
-        if (!post.post_id) return;
-
-        try {
-            const response = await fetch(`/api/photo?postId=${post.post_id}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            if (response.ok) {
-                const result = await response.json();
-                setImages(result.photos);
-            } else {
-                console.error('Failed to fetch images for post');
-            }
-        } catch (error) {
-            console.error('Error fetching images for post:', error);
-        }
-    };
-
-    useEffect(() => {
-        getImagesForPost();
-    }, [post.post_id]);
-
-    const handleLike = async () => {
-        if (!userId) return; // Ensure user is logged in
-
-        try {
-            const response = await fetch('/api/like/post', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ post_id: post.post_id, user_id: userId }),
-            });
-
-            if (response.ok) {
-                const result = await response.json();
-                if (result.message === "Post liked successfully") {
-                    setIsLiked(true);
-                    setLikeCount(prevCount => prevCount + 1);
-                } else if (result.message === "Like removed successfully") {
-                    setIsLiked(false);
-                    setLikeCount(prevCount => prevCount - 1);
-                }
-            } else {
-                console.error('Failed to like/unlike post');
-            }
-        } catch (error) {
-            console.error('Error liking/unliking post:', error);
-        }
-    };
-
-    const getTotalLikes = async () => {
-        if (!post.post_id) return;
-
-        try {
-            const response = await fetch(`/api/like/post?postId=${post.post_id}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            if (response.ok) {
-                const result = await response.json();
-                setLikeCount(result.total_likes);
-            } else {
-                console.error('Failed to fetch total likes');
-            }
-        } catch (error) {
-            console.error('Error fetching total likes:', error);
-        }
-    };
-
-    useEffect(() => {
-        getTotalLikes();
-    }, [post.post_id]);
-
-    const createComment = async () => {
-        if (!post.post_id || !userId) return;
-
-        try {
-            const response = await fetch('/api/comment', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    post_id: post.post_id,
-                    user_id: userId,
-                    comment_content: commentContent
-                }),
-            });
-
-            if (response.ok) {
-                const result = await response.json();
-                console.log('Comment created successfully:', result);
-                setCommentContent('');
-                toggleModal()
-                window.location.reload();
-                // You might want to update the UI here, e.g., add the new comment to a list of comments
-            } else {
-                console.error('Failed to create comment');
-            }
-        } catch (error) {
-            console.error('Error creating comment:', error);
-        }
-    };
-
-    const getTotalComments = async () => {
-        if (!post.post_id) return;
-
-        try {
-            const response = await fetch(`/api/comment?postId=${post.post_id}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            if (response.ok) {
-                const result = await response.json();
-                setCommentCount(result.comments.length);
-            } else {
-                console.error('Failed to fetch total comments');
-            }
-        } catch (error) {
-            console.error('Error fetching total comments:', error);
-        }
-    };
-
-    useEffect(() => {
-        getTotalComments();
-    }, [post.post_id]);
 
     useEffect(() => {
         const calculateTimeAgo = () => {
             const now = new Date().getTime();
-            const diffInSeconds = Math.floor((now - Number(post.create_at)) / 1000);
+            const diffInSeconds = Math.floor((now - Number(post.createdAt)) / 1000);
 
             if (diffInSeconds < 60) {
                 setTimeAgo(`${diffInSeconds} giây`);
@@ -179,107 +45,226 @@ export default function ArticleViewPost({ post }: { post: Post }) {
                 setTimeAgo(`${days} ngày`);
             }
         };
-
         calculateTimeAgo();
         const timer = setInterval(calculateTimeAgo, 60000); // Update every minute
 
         return () => clearInterval(timer);
-    }, [post.create_at]);
+    }, [post.createdAt]);
+
+    const query = { actionLikePost: {} }
+    const { isLoading, error, data } = db.useQuery(query)
+
+    const queryCheckIsLiked = { actionLikePost:{
+        $:{
+            where:{
+                postId: post.postId,
+                userId: userId
+            }
+        }
+    }};
+    const { data: dataCheckIsLiked } = db.useQuery(queryCheckIsLiked);
+
+    const queryComments = { comments: {} }
+    const { data: dataComments } = db.useQuery(queryComments)
+
+    const queryShares = { shares: {} }
+    const { data: dataShares } = db.useQuery(queryShares)
+
+    const queryPosts = { posts: {} }
+    const { data: dataPosts } = db.useQuery(queryPosts)
+
+    const totalLikes = data?.actionLikePost.filter(
+        (like: any) => like.postId === post.postId
+    ).length || 0;
+
+    const totalShares = dataShares?.shares.filter(
+        (share: any) => share.postId === post.postId
+    ).length || 0;
+
+    const totalComments = dataComments?.comments.filter(
+        (comment: any) => comment.postId === post.postId
+    ).length || 0;
+
+    const totalReposts = dataPosts?.posts.filter(
+        (p: any) => p.repost === post.postId
+    ).length || 0;
+
+    const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const files = event.target.files;
+        if (!files) return;
+
+        const newImages: string[] = [];
+
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            const reader = new FileReader();
+
+            reader.onloadend = () => {
+                newImages.push(reader.result as string);
+                if (newImages.length === files.length) {
+                    setUploadedImages(prevImages => [...prevImages, ...newImages]);
+                }
+            };
+
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleLike = async () => {
+        if (!userId) return; // Ensure user is logged in
+        // Check if the user has already liked this post
+        const isUserLiked = data?.actionLikePost.some(
+            (like: any) => like.postId === post.postId && like.userId === userId
+        );
+        const actionLikePostId = data?.actionLikePost.find(
+            (like: any) => like.postId === post.postId && like.userId === userId 
+        )?.id;
+        try {
+            if (isUserLiked) {
+                setIsLiked(false);
+                db.transact([tx.actionLikePost[actionLikePostId as string].delete()]);
+            } else {
+                db.transact([tx.actionLikePost[id()].update(
+                    { 
+                        postId: post.postId,
+                        userId: userId,
+                        createdAt: new Date().getTime()
+                    }
+                )]);
+                setIsLiked(true);
+            }
+        } catch (error) {
+            console.error('Error liking/unliking post:', error);
+        }
+    };
+
+
+    const createComment = async () => {
+        if (!post.postId || !userId || !commentContent) return;
+
+        try {
+            const commentId = Math.random().toString(36).substring(2, 7) + Math.random().toString(36).substring(2, 7);
+            db.transact([tx.comments[id()].update(
+                { 
+                    commentId: commentId,
+                    postId: post.postId,
+                    userId: userId,
+                    content: commentContent,
+                    createdAt: new Date().getTime(),
+                    images: uploadedImages
+                }
+            )]);
+            toast.success('Comment created successfully');
+            setCommentContent('');
+            toggleModal()
+        } catch (error) {
+            console.error('Error creating comment:', error);
+        }
+    };
 
     const checkIsLiked = async () => {
-        if (!userId || !post.post_id) return;
+        if (!userId || !post.postId) return;
     
         try {
-            const response = await fetch(`/api/like/post/isLiked?postId=${post.post_id}&userId=${userId}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-    
-            if (response.ok) {
-                const result = await response.json();
-                setIsLiked(result.isLiked);
+            if (dataCheckIsLiked && dataCheckIsLiked.actionLikePost && dataCheckIsLiked.actionLikePost.length > 0) {
+                setIsLiked(true);
             } else {
-                console.error('Failed to check if post is liked');
+                setIsLiked(false);
             }
         } catch (error) {
             console.error('Error checking if post is liked:', error);
         }
     };
     
+
     const handleRepost = async () => {
-        if (!userId || !post.post_id || !post.post_content) return;
+        if (!userId || !post.postId || !post.content) return;
 
         try {
-            const response = await fetch(`/api/post/repost`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ user_id: userId, post_id: post.post_id,post_content:post.post_content }),
-            });
+            const existingRepost = dataPosts?.posts.find(
+                (p: any) => p.repost === post.postId && p.userId === userId
+            );
 
-            if (response.ok) {
-                console.log('Post successfully reposted');
-                window.location.reload();
-            } else {
-                console.error('Failed to repost');
+            if (existingRepost) {
+                // If the post is already reposted, remove the repost
+                try {
+                    db.transact([tx.posts[existingRepost.id].delete()]);
+                    setIsReposted(false);
+                    return; // Exit the function early
+                } catch (error) {
+                    console.error('Error removing repost:', error);
+                    return; // Exit the function early
+                }
             }
+            const post_id = Math.random().toString(36).substring(2, 7) + Math.random().toString(36).substring(2, 7);
+                db.transact(
+                    [tx.posts[id()].update(
+                        { 
+                            userId: userId,
+                            postId: post_id,
+                            content: post.content,
+                            images: post.images,  // Change this line
+                            createdAt: new Date().getTime(),
+                            repost: post.postId
+                        }
+                    )]
+                );
+            setIsReposted(true);
         } catch (error) {
             console.error('Error reposting:', error);
         }
     };
-
-    const checkIsReposted = async () => {
-        if (!userId || !post.post_id) return;
+    
+    const checkIsReposted = () => {
+        if (!userId || !post.postId) return;
     
         try {
-            const response = await fetch(`/api/post/repost/isReposted?postId=${post.post_id}&userId=${userId}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-    
-            if (response.ok) {
-                const result = await response.json();
-                setIsReposted(result.isReposted);
+            const userRepost = dataPosts?.posts.find(
+                (p: any) => p.repost === post.postId && p.userId === userId
+            );
+            
+            if (userRepost) {
+                setIsReposted(true);
             } else {
-                console.error('Failed to check if post is reposted');
+                setIsReposted(false);
             }
         } catch (error) {
             console.error('Error checking if post is reposted:', error);
         }
     };
     
-    const getTotalReposts = async () => {
-        if (!post.post_id) return;
+
+    const handleShare = () => {
+        if (!userId || !post.postId) return;
 
         try {
-            const response = await fetch(`/api/post/repost?postId=${post.post_id}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
+            const existingShare = dataShares?.shares.find(
+                (share: any) => share.postId === post.postId && share.userId === userId
+            );
 
-            if (response.ok) {
-                const result = await response.json();
-                setRepostCount(result.repostCount);
-            } else {
-                console.error('Failed to get total reposts');
+            if (existingShare) {
+                // If already shared, remove the share
+                db.transact([tx.shares[existingShare.id].delete()]);
+                return; // Exit the function early
             }
+            db.transact(
+                [tx.shares[id()].update(
+                    { 
+                        userId: userId,
+                        postId: post.postId,
+                        createdAt: new Date().getTime(),
+                    }
+                )]
+            );
         } catch (error) {
-            console.error('Error getting total reposts:', error);
+            console.error('Error sharing post:', error);
         }
     };
 
     useEffect(() => {
-        checkIsLiked();
         checkIsReposted();
-        getTotalReposts();
-    }, [post.post_id, userId]);
+        checkIsLiked();
+    }, [post.postId, userId]);
 
     
 
@@ -297,8 +282,8 @@ export default function ArticleViewPost({ post }: { post: Post }) {
                         </div>
                         
                         <div className="flex gap-2 mt-2 ">
-                            <Link href={`/${post.user_id}`} className="font-bold text-sm">
-                                <span className="">{post.user_id}</span>
+                            <Link href={`/${post.userId}`} className="font-bold text-sm">
+                                <span className="">{post.userId}</span>
                             </Link>
                             <span className="text-sm text-gray-400">{timeAgo}</span>
                         </div>        
@@ -349,15 +334,18 @@ export default function ArticleViewPost({ post }: { post: Post }) {
                 {/* body  */}
                 <div className="flex flex-col gap-2 px-6">
                     <div className="text-sm ">
-                        <p>{JSON.parse(post.post_content)}</p>
+                        <p>{post.content}</p>
                     </div>
-                    {images.map((image:Image,index) => {
-                        return(
-                            <div key={index} className="rounded-lg w-52 h-52 bg-gray-200 flex items-center justify-center">
-                                <img src={image.photo_content} alt={`image`} className="object-cover w-full h-full rounded-lg" />
-                            </div>
-                        )
-                    })}
+                    <div className="flex overflow-x-scroll gap-2 mt-1">
+                        {post.images && 
+                            post.images.map((image:string,index:number) => {
+                            return(
+                                <div key={index} className="rounded-lg w-52 h-52 bg-gray-200 flex items-center justify-center">
+                                    <img src={image} alt={`image`} className="object-cover w-full h-full rounded-lg" />
+                                </div>
+                            )
+                        })}
+                    </div>
                 </div>
                 {/* footer */}
                 <div className="flex mt-5 md:ml-[16px] justify-center md:justify-start items-center text-sm font-thin gap-5 mb-3 ">
@@ -369,19 +357,19 @@ export default function ArticleViewPost({ post }: { post: Post }) {
                                 alt={isLiked ? "redheart" : "heart"}
                             />
                         </button>
-                        <small className={`${isLiked ? "text-red-600" : ""}`}>{likeCount}</small>
+                        <small className={`${isLiked ? "text-red-600" : ""}`}>{totalLikes}</small>
                     </div>
                     <button onClick={()=>setIsShow((prv)=>!prv)} className="flex gap-1 hover:bg-slate-100 p-2 rounded-3xl">
                         <img width={20} src="/assets/comment.svg" alt="" />
-                        <small>{commentCount}</small>
+                        <small>{totalComments}</small>
                     </button>
                     <button onClick={handleRepost} className={`flex gap-1 hover:bg-slate-100 p-2 rounded-3xl ${isReposted ? "bg-opacity-50 hover:bg-green-100" : ""}`}>
                         <img width={20} src={isReposted ? "/assets/replay-green.svg" : "/assets/replay.svg"} alt="" />
-                        <small className={`${isReposted ? "text-green-600" : ""}`}>{repostCount}</small>
+                        <small className={`${isReposted ? "text-green-600" : ""}`}>{totalReposts}</small>
                     </button>
-                    <button className="flex gap-1 hover:bg-slate-100 p-1 rounded-3xl">
+                    <button onClick={handleShare} className="flex gap-1 hover:bg-slate-100 p-1 rounded-3xl">
                         <img width={30} src="/assets/share.svg" alt="" />
-                        <small>100</small>
+                        <small>{totalShares}</small>
                     </button>
                 </div>
                 <div className="flex justify-center">
@@ -397,7 +385,7 @@ export default function ArticleViewPost({ post }: { post: Post }) {
                                 <span className=" w-[120px]text-black md:text-white font-bold">Thread trả lời</span>
                                 <div className="w-[120px] md:hidden"></div>
                             </div>
-                            <div onClick={(e) => e.stopPropagation()} className={`md:bg-white px-4 md:p-3 md:rounded-lg md:shadow-lg w-[540px] h-full ${image?"md:max-h-[500px]":"md:h-[350px]"}`}>
+                            <div onClick={(e) => e.stopPropagation()} className={`md:bg-white px-4 md:p-3 md:rounded-lg md:shadow-lg md:w-1/3 h-full ${post.images? uploadedImages.length > 0 ? "md:max-h-[700px]":"md:max-h-[500px]":"md:h-[350px]"}`}>
                                 <div className="flex flex-row items-center justify-between">
                                     <div className="flex flex-row gap-2 mt-2 ml-0 ">
                                         <div>
@@ -405,13 +393,13 @@ export default function ArticleViewPost({ post }: { post: Post }) {
                                         </div>
                                         <div>
                                             <div className="flex flex-row gap-3">
-                                                <Link href={`/@${post.user_id}`} className="font-bold text-sm">
-                                                    <span>{post.user_id}</span>
+                                                <Link href={`/@${post.userId}`} className="font-bold text-sm">
+                                                    <span>{post.userId}</span>
                                                 </Link>
-                                                <span className="text-sm text-gray-400">20 giờ</span>
+                                                <span className="text-sm text-gray-400">{timeAgo}</span>
                                             </div>
                                             <div className="text-sm">
-                                                <p>{JSON.parse(post.post_content)}</p>
+                                                <p>{post.content}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -419,13 +407,18 @@ export default function ArticleViewPost({ post }: { post: Post }) {
                                 {/* body  */}
                                 <div className="flex flex-row">
                                     <div className="h-[img] w-[1px] bg-slate-500 mx-4"></div>
-                                    {images.map((image:Image,index) => {
-                                        return(
-                                            <div key={index} className="rounded-lg w-32 h-32 mt-1 bg-gray-200 flex items-center justify-center">
-                                                <img src={image.photo_content} alt={`image`} className="object-cover w-full h-full rounded-lg" />
-                                            </div>
-                                        )
-                                    })}
+                                    <div className="flex flex-row gap-2">
+                                        <div className="flex overflow-x-scroll gap-2 mt-1">
+                                            {post.images && 
+                                                post.images.map((image:string,index:number) => {
+                                                return(
+                                                    <div key={index} className="rounded-lg w-52 h-52 bg-gray-200 flex items-center justify-center">
+                                                        <img src={image} alt={`image`} className="object-cover w-full h-full rounded-lg" />
+                                                    </div>
+                                                )
+                                            })}
+                                        </div>
+                                    </div>
                                 </div>
                                 
                                 <div className="flex flex-col mt-3">
@@ -434,36 +427,30 @@ export default function ArticleViewPost({ post }: { post: Post }) {
                                         <div className="ml-2 w-full flex flex-col">
                                             <div className="font-semibold text-sm">{userId}</div>
                                                 <LexicalEditor setOnchange={setCommentContent}/>
-                                                {
-                                                    image && (
-                                                        <img src={image} className="w-32 h-32 mt-4 object-cover" alt="image" />
-                                                    )
-                                                }
+                                                {uploadedImages.length > 0 && (
+                                                    <div className="flex overflow-x-scroll gap-2 mt-1">
+                                                        {uploadedImages.map((image, index) => (
+                                                            <div key={index} className="rounded-lg w-52 h-52 bg-gray-200 flex items-center justify-center">
+                                                                <img src={image} alt={`uploaded-${index}`} className="object-cover w-full h-full rounded-lg" />
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
                                         </div>
                                     </div>
                                     <div className="flex items-center mb-4">
                                         <div className="flex items-center">
-                                            <button className="px-2" onClick={() => document.getElementById('upload-image-input')?.click()}>
-                                                <img width={20} src="/assets/album.svg" className="" alt="icon" />
-                                            </button>
                                             <input
                                                 type="file"
-                                                id="upload-image-input"
-                                                style={{ display: 'none' }}
+                                                multiple
                                                 accept="image/*"
-                                                onChange={(e) => {
-                                                    const file = e.target.files?.[0];
-                                                    if (file) { 
-                                                        const reader = new FileReader();
-                                                        reader.readAsDataURL(file);
-                                                        reader.onload = () => {
-                                                            setImage(reader.result as string);
-                                                        };
-                                                        
-                                                    }
-                                                    //console.log(file)
-                                                }}
+                                                onChange={handleImageUpload}
+                                                style={{ display: 'none' }}
+                                                id="image-upload"
                                             />
+                                            <label htmlFor="image-upload" className="px-2 cursor-pointer">
+                                                <img width={20} src="/assets/album.svg" className="" alt="icon" />
+                                            </label>  
                                             <button className="px-2">
                                                 <img width={15} src="/assets/gif.svg" alt="" />
                                             </button>

@@ -17,6 +17,33 @@ type Schema = {
         address: string
         avatar: string
         status: string
+    },
+    posts: {
+        id: string
+        userId: string
+        createdAt: number
+        content: string
+        images: string[],
+        repost: string,
+    },
+    comments: {
+        id: string
+        userId: string
+        createdAt: number
+        content: string
+        images: string[]
+    },
+    actionLikeComment: {
+        id: string
+        userId: string
+        createdAt: number
+        commentId: string
+    },
+    actionLikePost: {
+        id: string
+        userId: string
+        createdAt: number
+        postId: string
     }
 }
 

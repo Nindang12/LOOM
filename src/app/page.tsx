@@ -9,36 +9,29 @@ import Foryou from "@/components/Foryou";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { checkLogin } from "@/utils/auth";
+import { db } from "@/utils/contants";
 
 export default function Home() {
   const router = useRouter()
-  const [posts, setPosts] = useState<Post[]>([]);
+
+  const query = { posts: {} }
+  const { data } = db.useQuery(query)
+
+  const filterPost = data?.posts.filter((post:any) => !post?.repost)
+
 
   useEffect(() => {
-    const verifyLogin = async () => {
-        const loggedIn = await checkLogin();
-        if (!loggedIn) {
-            router.push('/login');
-        }
-    };
-    verifyLogin();
-}, [router]);
-
-  const getAllPosts = async () => {
-      try {
-          const response = await axios.get("/api/postListAll");
-          if (response.status === 200) {
-              setPosts(response.data.posts);
+      const verifyLogin = async () => {
+          const loggedIn = await checkLogin();
+          if (!loggedIn) {
+              router.push('/login');
           }
-      } catch (error) {
-          console.error("Error fetching posts:", error);
-      }
-  };
+      };
+      verifyLogin();
+  }, [router]);
 
-  useEffect(() => {
-      getAllPosts();
-  }, []);
 
+  //console.log(data)
   return (
     <div className="flex md:flex-row flex-col-reverse w-full overflow-hidden h-screen">
       <div className="">
@@ -55,10 +48,10 @@ export default function Home() {
                 <Foryou/>
               </div>
               <div className="w-full  ">
-                {
-                  posts.map((post,idx)=>(
-                    <Article key={idx} user_id={post.user_id} postId={post.post_id} content={post.post_content}/>
-                  ))
+                {filterPost &&
+                  (filterPost.map((post:any, idx:number) => (
+                    <Article key={idx} user_id={post.userId} postId={post.postId} content={post.content} images={post.images} />
+                  )))
                 }
               </div>
           </div>
