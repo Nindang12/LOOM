@@ -1,38 +1,25 @@
 import { useState, useEffect } from "react";
 import ReplyContent from "./ReplyContent";
+import { db } from "@/utils/contants";
 const ThreadReply = ({postId, comment}: {postId: string, comment: Comment}) => {
-    const [post, setPost] = useState<Post[]>([]);
-    const getPostForPostId = async () => {
-        if (!postId) return;
-
-        try {
-            const response = await fetch(`/api/post/postForPostId?postId=${postId}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            if (response.ok) {
-                const result = await response.json();
-                setPost(result.posts);
-                //console.log(result.posts);
-            } else {
-                console.error('Failed to fetch post for post ID');
+    
+    const query = {
+        posts: {
+            $: {
+                where: {
+                    postId: postId
+                }
             }
-        } catch (error) {
-            console.error('Error fetching post for post ID:', error);
         }
     }
+    
+    const {data, isLoading} = db.useQuery(query)
 
-
-    useEffect(() => {
-        getPostForPostId();
-    }, [postId]);
+    console.log(data)
 
     return(
         <div>
-            {post.map((post) => (
+            {data?.posts.map((post: any) => (
                 <ReplyContent post={post} comment={comment} />
             ))}
         </div>

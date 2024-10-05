@@ -1,151 +1,129 @@
 import { useEffect, useState } from "react";
 import ContentCommentReply from "./ContentCommentReply";
 import { getUserId } from "@/utils/auth";
+import { db } from "@/utils/contants";
+import { id, tx } from "@instantdb/react";
+import { toast } from "react-toastify";
+
 const ReplyContent = ({post, comment}: {post: Post, comment: Comment}) => {
-    const {
-        content,
-        commentId,
-        createdAt,
-        userId,
-        postId
-    } = comment;
-    const [images, setImages] = useState([]);
-    const [timeAgoPost, setTimeAgoPost] = useState('');
-    const [timeAgoComment, setTimeAgoComment] = useState('');
-    const [image, setImage] = useState<string | null>(null);
-    const [isLikedReply, setIsLikedReply] = useState(false);
-    const [likeCount, setLikeCount] = useState(0);
     const [commentContent, setCommentContent] = useState<string|null>(null);
-    const [commentCount, setCommentCount] = useState<number>(0);
     const [isReposted, setIsReposted] = useState(false);
-    const [repostCountReply, setRepostCountReply] = useState(0);
     const [isShow, setIsShow] = useState<boolean>(false);
-    const [replyContent, setReplyContent] = useState<string|null>(null);
-    const [issShow, setIssShow] = useState<boolean>(false);
     const [isLiked, setIsLiked] = useState<boolean>(false);
-    const [localLikeCount, setLocalLikeCount] = useState<number>(0);
-    const [totalReplies, setTotalReplies] = useState(0);
-    const [timeAgo, setTimeAgo] = useState<string>('');
-    const [isRepostedReply, setIsRepostedReply] = useState<boolean>(false);
-    const [repostCount, setRepostCount] = useState<number>(0);
-
-    const getImagesForPost = async () => {
-        if (!post.postId) return;
-
-        try {
-            const response = await fetch(`/api/photo?postId=${post.postId}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            if (response.ok) {
-                const result = await response.json();
-                setImages(result.photos);
-            } else {
-                console.error('Failed to fetch images for post');
-            }
-        } catch (error) {
-            console.error('Error fetching images for post:', error);
-        }
-    };
+    const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+    const [shareCount, setShareCount] = useState(0);
+    const [timeAgoRepost, setTimeAgoRepost] = useState<string>('');
 
     const userAccountId = getUserId()
 
-    const handleLike = async () => {
-        if (!userId) return; // Ensure user is logged in
+    const query = { actionLikePost: {} }
+    const { data } = db.useQuery(query)
 
-        try {
-            const response = await fetch('/api/like/post', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ post_id: post.postId, user_id: userId }),
-            });
+    const queryCheckIsLiked = { actionLikePost:{
+        $:{
+            where:{
+                postId:post.postId,
+                userId:userAccountId
+            }
+        }
+    }};
+    const { data: dataCheckIsLiked } = db.useQuery(queryCheckIsLiked);
 
-            if (response.ok) {
-                const result = await response.json();
-                if (result.message === "Post liked successfully") {
-                    setIsLiked(true);
-                    setLikeCount(prevCount => prevCount + 1);
-                } else if (result.message === "Like removed successfully") {
-                    setIsLiked(false);
-                    setLikeCount(prevCount => prevCount - 1);
+    const queryComments = { comments: {} }
+    const { data: dataComments } = db.useQuery(queryComments)
+
+    const queryShares = { shares: {} }
+    const { data: dataShares } = db.useQuery(queryShares)
+
+    const queryPosts = { posts: {} }
+    const { data: dataPosts } = db.useQuery(queryPosts)
+
+    //console.log(dataFriendships)
+    const totalLikes = data?.actionLikePost.filter(
+        (like: any) => like.postId === post.postId
+    ).length || 0;
+
+    const totalShares = dataShares?.shares.filter(
+        (share: any) => share.postId === post.postId
+    ).length || 0;
+
+    const totalComments = dataComments?.comments.filter(
+        (comment: any) => comment.postId === post.postId
+    ).length || 0;
+
+    const totalReposts = dataPosts?.posts.filter(
+        (post: any) => post.repost === post.postId
+    ).length || 0;
+
+    const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const files = event.target.files;
+        if (!files) return;
+
+        const newImages: string[] = [];
+
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            const reader = new FileReader();
+
+            reader.onloadend = () => {
+                newImages.push(reader.result as string);
+                if (newImages.length === files.length) {
+                    setUploadedImages(prevImages => [...prevImages, ...newImages]);
                 }
+            };
+
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleLike = async () => {
+        if (!userAccountId) return; // Ensure user is logged in
+        // Check if the user has already liked this post
+        const isUserLiked = data?.actionLikePost.some(
+            (like: any) => like.postId === post.postId && like.userId === userAccountId
+        );
+        const actionLikePostId = data?.actionLikePost.find(
+            (like: any) => like.postId === post.postId && like.userId === userAccountId 
+        )?.id;
+        try {
+            if (isUserLiked) {
+                setIsLiked(false);
+                db.transact([tx.actionLikePost[actionLikePostId as string].delete()]);
             } else {
-                console.error('Failed to like/unlike post');
+                db.transact([tx.actionLikePost[id()].update(
+                    { 
+                        postId: post.postId,
+                        userId: userAccountId,
+                        createdAt: new Date().getTime()
+                    }
+                )]);
+                setIsLiked(true);
             }
         } catch (error) {
             console.error('Error liking/unliking post:', error);
         }
     };
 
-    const handleRepost = async () => {
-        if (!userAccountId || !post.postId || !content) return;
+
+    const createComment = async () => {
+        if (!post.postId || !userAccountId || !commentContent) return;
 
         try {
-            const response = await fetch(`/api/post/repost`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ user_id: userAccountId, post_id: post.postId,post_content:content }),
-            });
-
-            if (response.ok) {
-                console.log('Post successfully reposted');
-                window.location.reload();
-            } else {
-                console.error('Failed to repost');
-            }
+            const commentId = Math.random().toString(36).substring(2, 7) + Math.random().toString(36).substring(2, 7);
+            db.transact([tx.comments[id()].update(
+                { 
+                    commentId: commentId,
+                    postId: post.postId,
+                    userId: userAccountId,
+                    content: commentContent,
+                    createdAt: new Date().getTime(),
+                    images: uploadedImages
+                }
+            )]);
+            toast.success('Comment created successfully');
+            setCommentContent('');
         } catch (error) {
-            console.error('Error reposting:', error);
-        }
-    };
-    
-    const checkIsReposted = async () => {
-        if (!userAccountId || !post.postId) return;
-    
-        try {
-            const response = await fetch(`/api/post/repost/isReposted?postId=${post.postId}&userId=${userAccountId}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-    
-            if (response.ok) {
-                const result = await response.json();
-                setIsReposted(result.isReposted);
-            } else {
-                console.error('Failed to check if post is reposted');
-            }
-        } catch (error) {
-            console.error('Error checking if post is reposted:', error);
-        }
-    };
-    
-    const getTotalReposts = async () => {
-        if (!post.postId) return;
-
-        try {
-            const response = await fetch(`/api/post/repost?postId=${post.postId}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            if (response.ok) {
-                const result = await response.json();
-                setRepostCount(result.repostCount);
-            } else {
-                console.error('Failed to get total reposts');
-            }
-        } catch (error) {
-            console.error('Error getting total reposts:', error);
+            console.error('Error creating comment:', error);
         }
     };
 
@@ -153,395 +131,180 @@ const ReplyContent = ({post, comment}: {post: Post, comment: Comment}) => {
         if (!userAccountId || !post.postId) return;
     
         try {
-            const response = await fetch(`/api/like/post/isLiked?postId=${post.postId}&userId=${userAccountId}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-    
-            if (response.ok) {
-                const result = await response.json();
-                setIsLiked(result.isLiked);
+            if (dataCheckIsLiked && dataCheckIsLiked.actionLikePost && dataCheckIsLiked.actionLikePost.length > 0) {
+                setIsLiked(true);
             } else {
-                console.error('Failed to check if post is liked');
+                setIsLiked(false);
             }
         } catch (error) {
             console.error('Error checking if post is liked:', error);
         }
     };
+    
 
-    const getTotalLikes = async () => {
-        if (!post.postId) return;
-
-        try {
-            const response = await fetch(`/api/like/post?postId=${post.postId}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            if (response.ok) {
-                const result = await response.json();
-                setLikeCount(result.total_likes);
-            } else {
-                console.error('Failed to fetch total likes');
-            }
-        } catch (error) {
-            console.error('Error fetching total likes:', error);
-        }
-    };
-
-    useEffect(() => {
-        getTotalLikes();
-    }, [post.postId]);
-
-    useEffect(() => {
-        checkIsLiked();
-        checkIsReposted();
-        getTotalReposts();
-    }, [post.postId, userAccountId]);
-
-    useEffect(() => {
-        const calculateTimeAgo = () => {
-            const now = new Date().getTime();
-            const diffInSeconds = Math.floor((now - Number(createdAt)) / 1000);
-
-            if (diffInSeconds < 60) {
-                setTimeAgoPost(`${diffInSeconds} giây`);
-            } else if (diffInSeconds < 3600) {
-                const minutes = Math.floor(diffInSeconds / 60);
-                setTimeAgoPost(`${minutes} phút`);
-            } else if (diffInSeconds < 86400) {
-                const hours = Math.floor(diffInSeconds / 3600);
-                setTimeAgoPost(`${hours} giờ`);
-            } else {
-                const days = Math.floor(diffInSeconds / 86400);
-                setTimeAgoPost(`${days} ngày`);
-            }
-        };
-
-        calculateTimeAgo();
-        const timer = setInterval(calculateTimeAgo, 60000); // Update every minute
-
-        return () => clearInterval(timer);
-    }, [post.create_at]);
-
-    useEffect(() => {
-        const calculateTimeAgo = () => {
-            const now = new Date().getTime();
-            const diffInSeconds = Math.floor((now - Number(createdAt)) / 1000);
-
-            if (diffInSeconds < 60) {
-                setTimeAgoComment(`${diffInSeconds} giây`);
-            } else if (diffInSeconds < 3600) {
-                const minutes = Math.floor(diffInSeconds / 60);
-                setTimeAgoComment(`${minutes} phút`);
-            } else if (diffInSeconds < 86400) {
-                const hours = Math.floor(diffInSeconds / 3600);
-                setTimeAgoComment(`${hours} giờ`);
-            } else {
-                const days = Math.floor(diffInSeconds / 86400);
-                setTimeAgoComment(`${days} ngày`);
-            }
-        };
-
-        calculateTimeAgo();
-        const timer = setInterval(calculateTimeAgo, 60000); // Update every minute
-
-        return () => clearInterval(timer);
-    }, [createdAt]);
-
-    useEffect(() => {
-        getImagesForPost();
-    }, [post.postId]);
-
-    const toggleModal = () => {
-        setIsShow((prevState) => !prevState);
-    }
-
-    const createComment = async () => {
-        if (!post.post_id || !userId) return;
+    const handleRepost = async () => {
+        if (!userAccountId || !post.postId || !post.content) return;
 
         try {
-            const response = await fetch('/api/comment', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    post_id: post.post_id,
-                    user_id: userId,
-                    comment_content: commentContent
-                }),
-            });
+            const existingRepost = dataPosts?.posts.find(
+                (post: any) => post.repost === post.postId && post.userId === userAccountId
+            );
 
-            if (response.ok) {
-                const result = await response.json();
-                console.log('Comment created successfully:', result);
-                setCommentContent('');
-                toggleModal()
-                // You might want to update the UI here, e.g., add the new comment to a list of comments
-            } else {
-                console.error('Failed to create comment');
-            }
-        } catch (error) {
-            console.error('Error creating comment:', error);
-        }
-    };
-
-    const getTotalComments = async () => {
-        if (!post.post_id) return;
-
-        try {
-            const response = await fetch(`/api/comment?postId=${post.post_id}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            if (response.ok) {
-                const result = await response.json();
-                setCommentCount(result.comments.length);
-            } else {
-                console.error('Failed to fetch total comments');
-            }
-        } catch (error) {
-            console.error('Error fetching total comments:', error);
-        }
-    };
-
-    useEffect(() => {
-        getTotalComments();
-    }, [post.post_id]);
-
-    const handleLikeComment = async () => {
-        if (!commentId) return; // Ensure user is logged in
-
-        try {
-            const response = await fetch('/api/like/comment', {
-                method: 'POST', 
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ comment_id: commentId, user_id: userAccountId }),
-            });
-
-            if (response.ok) {
-                const result = await response.json();
-                if (result.message === "Comment liked successfully") {
-                    setIsLiked(true);
-                    setLocalLikeCount(prevCount => prevCount + 1);
-                } else if (result.message === "Like removed successfully") {
-                    setIsLiked(false);
-                    setLocalLikeCount(prevCount => prevCount - 1);
+            if (existingRepost) {
+                // If the post is already reposted, remove the repost
+                try {
+                    db.transact([tx.posts[existingRepost.id].delete()]);
+                    setIsReposted(false);
+                    return; // Exit the function early
+                } catch (error) {
+                    console.error('Error removing repost:', error);
+                    return; // Exit the function early
                 }
+            }
+            const post_id = Math.random().toString(36).substring(2, 7) + Math.random().toString(36).substring(2, 7);
+            db.transact(
+                [tx.posts[id()].update(
+                    { 
+                        userId: userAccountId,
+                        postId: post_id,
+                        content: post.content,
+                        images: post.images,  // Change this line
+                        createdAt: new Date().getTime(),
+                        repost: post.postId
+                    }
+                )]
+            );
+            setIsReposted(true);
+        } catch (error) {
+            console.error('Error reposting:', error);
+        }
+    };
+    
+    const checkIsReposted = () => {
+        if (!userAccountId || !post.postId) return;
+    
+        try {
+            // Check if the post is already reposted by the user
+            
+            const userRepost = dataPosts?.posts.find(
+                (post: any) => post.repost === post.postId && post.userId === userAccountId
+            );
+            
+            if (userRepost) {
+                setIsReposted(true);
             } else {
-                console.error('Failed to like/unlike post');
+                setIsReposted(false);
             }
         } catch (error) {
-            console.error('Error liking/unliking post:', error);
+            console.error('Error checking if post is reposted:', error);
+        }
+    };
+    
+
+    const handleShare = () => {
+        if (!userAccountId || !post.postId) return;
+
+        try {
+            // Check if the post is already shared by the user
+            const isShared = dataShares?.shares.some(
+                (share: any) => share.postId === post.postId && share.userId === userAccountId
+            );
+
+            if (isShared) {
+                // If already shared, remove the share
+                const shareToRemove = dataShares?.shares.find(
+                    (share: any) => share.postId === post.postId && share.userId === userAccountId
+                );
+                if (shareToRemove) {
+                    db.transact([tx.shares[shareToRemove.id].delete()]);
+                    setShareCount(prevCount => prevCount - 1);
+                    return; // Exit the function early
+                }
+            }
+            else{
+                db.transact(
+                    [tx.shares[id()].update(
+                        { 
+                            userId: userAccountId,
+                            postId: post.postId,
+                            createdAt: new Date().getTime(),
+                        }
+                    )]
+                );
+                setShareCount(prevCount => prevCount + 1);
+            }
+        } catch (error) {
+            console.error('Error sharing post:', error);
         }
     };
 
-    const getTotalLikeComment = async () => {
-        if (!commentId) return;
-
-        try {
-            const response = await fetch(`/api/like/comment?commentId=${commentId}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            if (response.ok) {
-                const result = await response.json();
-                setLocalLikeCount(result.total_likes);
-            } else {
-                console.error('Failed to fetch total likes for comment');
-            }
-        } catch (error) {
-            console.error('Error fetching total likes for comment:', error);
-        }
+    const calculateTimeAgoRepost = (createdAt: number) => {
+        const now = new Date().getTime();
+        const diffInSeconds = Math.floor((now - createdAt) / 1000);
+        
+        if (diffInSeconds < 60) return `${diffInSeconds}s`;
+        if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m`;
+        if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h`;
+        if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)}d`;
+        if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 604800)}w`;
+        if (diffInSeconds < 31536000) return `${Math.floor(diffInSeconds / 2592000)}mo`;
+        return `${Math.floor(diffInSeconds / 31536000)}y`;
     };
 
     useEffect(() => {
-        getTotalLikeComment();
-    }, [commentId]);
-
-    const handleReplyComment = async () => {
-        if (!commentId || !userId) return;
-
-        try {
-            const response = await fetch('/api/comment/reply', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    comment_id: commentId,
-                    user_id: userAccountId,
-                    reply_content: replyContent,
-                    post_id: postId
-                }),
-            });
-
-            if (response.ok) {
-                const result = await response.json();
-                console.log('Reply posted successfully:', result);
-                setReplyContent(''); 
-                getTotalCommentReplies();
-                setIsShow(false)
-            } else {
-                console.error('Failed to post reply');
-            }
-        } catch (error) {
-            console.error('Error posting reply:', error);
-        }
-    };
-
-    const getTotalCommentReplies = async () => {
-        if (!commentId) return;
-
-        try {
-            const response = await fetch(`/api/comment/reply?commentId=${commentId}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            if (response.ok) {
-                const result = await response.json();
-                setTotalReplies(result.total_replies);
-            } else {
-                console.error('Failed to fetch total replies for comment');
-            }
-        } catch (error) {
-            console.error('Error fetching total replies for comment:', error);
-        }
-    };
+        checkIsReposted();
+        checkIsLiked();
+        // Initialize shareCount
+        const initialShareCount = dataShares?.shares.filter(
+            (share: any) => share.postId === post.postId
+        ).length || 0;
+        setShareCount(initialShareCount);
+    }, [post.postId, userAccountId, dataShares, dataPosts]);
 
     useEffect(() => {
-        getTotalCommentReplies();
-    }, [commentId]);
+        const calculateTimeAgo = () => {
+            const now = new Date().getTime();
+            const diffInSeconds = Math.floor((now - Number(post.createdAt)) / 1000);
 
-    const checkIsLikedReply = async () => {
-        if (!userAccountId || !commentId) return;
-    
-        try {
-            const response = await fetch(`/api/like/comment/isLiked?commentId=${commentId}&userId=${userAccountId}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-    
-            if (response.ok) {
-                const result = await response.json();
-                setIsLikedReply(result.isLikedReply);
+            if (diffInSeconds < 60) {
+                setTimeAgoRepost(`${diffInSeconds} giây`);
+            } else if (diffInSeconds < 3600) {
+                const minutes = Math.floor(diffInSeconds / 60);
+                setTimeAgoRepost(`${minutes} phút`);
+            } else if (diffInSeconds < 86400) {
+                const hours = Math.floor(diffInSeconds / 3600);
+                setTimeAgoRepost(`${hours} giờ`);
             } else {
-                console.error('Failed to check if post is liked');
+                const days = Math.floor(diffInSeconds / 86400);
+                setTimeAgoRepost(`${days} ngày`);
             }
-        } catch (error) {
-            console.error('Error checking if post is liked:', error);
-        }
-    };
-    
-    const handleRepostReply = async () => {
-        if (!userAccountId || !commentId || !commentContent) return;
+        };
+        calculateTimeAgo();
+        const timer = setInterval(calculateTimeAgo, 60000); // Update every minute
 
-        try {
-            const response = await fetch(`/api/comment/repost`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ user_id: userAccountId, comment_id: commentId, comment_content: commentContent }),
-            });
-
-            if (response.ok) {
-                console.log('Comment successfully reposted');
-                setIsRepostedReply(true);
-                setRepostCountReply(prevCount => prevCount + 1);
-            } else {
-                console.error('Failed to repost comment');
-            }
-        } catch (error) {
-            console.error('Error reposting comment:', error);
-        }
-    };
-    
-    const checkIsRepostedReply = async () => {
-        if (!userAccountId || !commentId) return;
-    
-        try {
-            const response = await fetch(`/api/comment/repost/isReposted?commentId=${commentId}&userId=${userAccountId}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-    
-            if (response.ok) {
-                const result = await response.json();
-                setIsRepostedReply(result.isRepostedReply);
-            } else {
-                console.error('Failed to check if comment is reposted');
-            }
-        } catch (error) {
-            console.error('Error checking if comment is reposted:', error);
-        }
-    };
-    
-    const getTotalRepostsReply = async () => {
-        if (!commentId) return;
-
-        try {
-            const response = await fetch(`/api/comment/repost?commentId=${commentId}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            if (response.ok) {
-                const result = await response.json();
-                setRepostCountReply(result.repostCount);
-            } else {
-                console.error('Failed to get total reposts for reply');
-            }
-        } catch (error) {
-            console.error('Error getting total reposts for reply:', error);
-        }
-    };
-
-    useEffect(() => {
-        if (commentId && userAccountId) {
-            checkIsLikedReply();
-            checkIsRepostedReply();
-            getTotalRepostsReply();
-        }
-    }, [commentId, userAccountId]);
+        return () => clearInterval(timer);
+    }, [post.createdAt]);
 
     return(
-        <div className="relative w-full border-b border-gray-400 px-4" >
+        <div className="relative w-full border-b border-gray-400 px-4">
+            {/* {post.repost && (
+                <div className="text-sm text-gray-500 mb-2">
+                    You reposted {timeAgoRepost} ago
+                </div>
+            )} */}
             <div className="flex items-start mb-4 ">
                 <img src="https://placehold.co/40x40" alt="User profile picture" className="rounded-full w-10 h-10 mr-3"/>
                 <div>
                     <div className="flex items-center mb-1">
-                        <span className="font-bold mr-2">{post.user_id}</span>
-                        <span className="text-gray-500 text-sm">{timeAgoPost}</span>
+                        <span className="font-bold mr-2">{post.userId}</span>
+                        <span className="text-gray-500 text-sm">{timeAgoRepost}</span>
                     </div>
-                    <p className="mb-3">{JSON.parse(post.post_content)}</p>
+                    <p className="mb-3">{post.content}</p>
                     <div className="flex overflow-x-scroll gap-2 ">
-                        {images.map((image:Image,index) => {
+                        {post.images.map((image:string,index:number) => {
                             return(
                                 <div key={index} className="rounded-lg w-64 h-64 bg-gray-200 flex items-center justify-center">
-                                    <img src={image.photo_content} alt={`image`} className="object-cover w-full h-full rounded-lg" />
+                                    <img src={image} alt={`image`} className="object-cover w-full h-full rounded-lg" />
                                 </div>
                             )
                         })}
@@ -555,30 +318,30 @@ const ReplyContent = ({post, comment}: {post: Post, comment: Comment}) => {
                                     alt={isLiked ? "redheart" : "heart"}
                                 />
                             </button>
-                            <small className={`${isLiked ? "text-red-600" : ""}`}>{likeCount}</small>
+                            <small className={`${isLiked ? "text-red-600" : ""}`}>{totalLikes}</small>
                         </div>
                         <button onClick={()=>setIsShow((prv)=>!prv)} className="flex gap-1 hover:bg-slate-100 p-2 rounded-3xl">
                             <img width={20} src="/assets/comment.svg" alt="" />
-                            <small>{commentCount}</small>
+                            <small>{totalComments}</small>
                         </button>
                         <button onClick={handleRepost} className={`flex gap-1 hover:bg-slate-100 p-2 rounded-3xl ${isReposted ? "bg-opacity-50 hover:bg-green-100" : ""}`}>
                             <img width={20} src={isReposted ? "/assets/replay-green.svg" : "/assets/replay.svg"} alt="" />
-                            <small className={`${isReposted ? "text-green-600" : ""}`}>{repostCount}</small>
+                            <small className={`${isReposted ? "text-green-600" : ""}`}>{totalReposts}</small>
                         </button>
-                        <button className="flex gap-1 hover:bg-slate-100 p-1 rounded-3xl">
+                        <button onClick={handleShare} className="flex gap-1 hover:bg-slate-100 p-1 rounded-3xl">
                             <img width={30} src="/assets/share.svg" alt="" />
-                            <small>100</small>
+                            <small>{shareCount}</small>
                         </button>
                     </div>
                 </div>
             </div>
             <div className="flex flex-col gap-2">
-                            {
-                                
-                                    <ContentCommentReply  key={commentId} {...comment} postId={post.postId as string}/>
-                                
-                            }
-                        </div>
+                {
+                    
+                    <ContentCommentReply  key={comment.commentId} {...comment} postId={post.postId as string}/>
+                    
+                }
+            </div>
         </div>
     )
 }

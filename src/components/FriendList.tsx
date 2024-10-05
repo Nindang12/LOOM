@@ -122,7 +122,6 @@ const FriendList: React.FC<FriendListProps> = ({ db, currentUserId }) => {
                 </div>
             </div>
             )}
-            }
         </div>
     )
 }
