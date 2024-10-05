@@ -1,43 +1,31 @@
 import Link from "next/link"
 import Article from "./Article"
 import { useEffect, useState } from "react";
+import { db } from "@/utils/contants";
 export default function Thread({userId}:{userId:string}){
-    const [posts, setPosts] = useState<Post[]>([]);
 
-    const getPostsForUser = async () => {
-        if (!userId) return;
-
-        try {
-            const response = await fetch(`/api/post/postForUser?userId=${userId}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
+    const query = {
+        posts:{
+            $:{
+                where:{
+                    userId: userId,
                 },
-            });
-
-            if (response.ok) {
-                const result = await response.json();
-                //console.log(result.posts);
-                setPosts(result.posts);
-            } else {
-                console.error('Failed to fetch posts for user');
+                order: {
+                    serverCreatedAt: "desc" as const
+                }
             }
-        } catch (error) {
-            console.error('Error fetching posts for user:', error);
-            return [];
         }
     }
 
-    useEffect(() => {
-        getPostsForUser();
-    }, [userId]);
+    const {data, isLoading} = db.useQuery(query)
+    const filterPost = data?.posts.filter((post:any) => !post.repost)
 
     return(
         // header
         <div className="flex flex-col gap-2 mt-4">
         {/* header2 */}
             {
-                posts.length == 0 && (
+                filterPost?.length == 0 && (
                     <div className="mr-[20px] ml-[20px]">
                         <div className="flex flex-row justify-between text-sm mb-[4px]">
                             <div className="w-[200px] h-[30px]">
@@ -104,8 +92,8 @@ export default function Thread({userId}:{userId:string}){
                     </div>
                 )
             }
-            {posts.map((post) => (
-                <Article key={post.post_id} user_id={post.user_id} content={post.post_content} postId={post.post_id} />
+            {filterPost?.map((post) => (
+                <Article key={post.id} user_id={post.userId} content={post.content} postId={post.id} images={post.images} />
             ))}
         </div>
         

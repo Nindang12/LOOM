@@ -56,9 +56,6 @@ const ButtonLogin = ({username, password}: {username: string, password: string})
     }
 
     return(
-        isLoggedIn ? 
-        <button onClick={onLogout} className="md:w-[370px] w-full px-6 py-4 rounded-2xl bg-red-500 text-white font-bold text-sm">Đăng xuất</button>
-        :
         <button onClick={onLogin} className="md:w-[370px] w-full px-6 py-4 rounded-2xl bg-black text-white font-bold text-sm">Đăng nhập</button>
     )
 }

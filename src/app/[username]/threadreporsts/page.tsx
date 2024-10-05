@@ -6,13 +6,12 @@ import React, { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import axios from "axios";
 import { checkLogin } from "@/utils/auth";
+import { db } from "@/utils/contants";
 
 export default function ThreadReporsts() {
   const router = useRouter();
   const pathName = usePathname();
   const username = pathName.replace("/@", "").replace("/threadreporsts", "");
-  const [dataAccounts, setDataAccounts] = useState<any>([]);
-  const [reposts, setReposts] = useState<any>([]);
 
   useEffect(() => {
     const checkAuthStatus = async () => {
@@ -25,56 +24,48 @@ export default function ThreadReporsts() {
     checkAuthStatus();
   }, [router]);
 
-  const loadProfile = async () => {
-    try {
-      const cachedData = localStorage.getItem(`profile_${username}`);
-      if (cachedData) {
-        setDataAccounts(JSON.parse(cachedData));
-      } else {
-        const res = await axios.post("/api/account/", {
-          username,
-        }, {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-        const data = await res.data;
-        setDataAccounts(data[0]);
-        localStorage.setItem(`profile_${username}`, JSON.stringify(data[0]));
+  const query = {
+    userDetails: {
+      $: {
+        where: {
+          userId: username
+        }
       }
-    } catch (error) {
-      console.error(error);
     }
-  };
+  }
 
-  const getRepostForUser = async () => {
-    try {
-      const response = await fetch(`/api/post/repost/repostForUser?userId=${username}`);
-      if (response.ok) {
-        const result = await response.json();
-        setReposts(result.reposts || []);
+  const {data, isLoading} = db.useQuery(query)
+
+  const queryReposts = {
+    posts: {
+      $: {
+        where: {
+          userId: username
+        },
+        order: {
+          serverCreatedAt: "desc" as const
+        }
       }
-    } catch (error) {
-      console.error("Error fetching reposts for user:", error);
     }
-  };
+  }
+  const { data: dataReposts } = db.useQuery(queryReposts)
 
-  useEffect(() => {
-    loadProfile();
-    getRepostForUser();
-  }, [username]);
+  const filterPost = dataReposts?.posts.filter((post:any) => post?.repost)
+
+  console.log(filterPost)
 
   return (
-    <ProfileLayout username={dataAccounts.user_id} fullname={dataAccounts.fullname}>
+    <ProfileLayout username={data?.userDetails[0].userId} fullname={data?.userDetails[0].fullname}>
       <RowThreadsreposts />
       <div className="w-max-[630px] flex justify-center h-auto t-0 ml-[20px] mr-[20px] flex-col gap-2">
-        {reposts.map((data: any) => (
+        {filterPost?.map((data: any) => (
           <Threadsreporsts
             key={data.repost}
-            user_id={data.user_id}
-            content={data.original_content}
+            user_id={data.userId}
+            content={data.content}
             postId={data.repost}
             repostedBy={username}
+            images={data.images}
           />
         ))}
       </div>

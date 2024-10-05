@@ -6,12 +6,12 @@ import React, { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import axios from "axios";
 import { checkLogin } from "@/utils/auth";
+import { db } from "@/utils/contants";
 
 export default function ThreadReplied() {
   const router = useRouter();
   const pathName = usePathname();
   const username = pathName ? pathName.replace("/@", "").replace("/threadreplied", "") : "";
-  const [dataAccounts, setDataAccounts] = useState<any>([]);
 
   useEffect(() => {
     const checkAuthStatus = async () => {
@@ -24,35 +24,21 @@ export default function ThreadReplied() {
     checkAuthStatus();
   }, [router]);
 
-  const loadProfile = async () => {
-    try {
-      const cachedData = localStorage.getItem(`profile_${username}`);
-      if (cachedData) {
-        setDataAccounts(JSON.parse(cachedData));
-      } else {
-        const res = await axios.post("/api/account/", {
-          username,
-        }, {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-        const data = await res.data;
-        setDataAccounts(data[0]);
-        localStorage.setItem(`profile_${username}`, JSON.stringify(data[0]));
-      }
-    } catch (error) {
-      console.error(error);
+  const query = {
+    userDetails: {
+      $:{
+        where:{
+          userId: username
+        }
+      },
     }
-  };
+  }
 
-  useEffect(() => {
-    loadProfile();
-  }, []);
-
+  const {data, isLoading} = db.useQuery(query)
+  //console.log(data)
   return (
-    dataAccounts && (
-      <ProfileLayout username={dataAccounts.user_id} fullname={dataAccounts.fullname}>
+    data && (
+      <ProfileLayout username={data.userDetails[0].userId} fullname={data.userDetails[0].fullname}>
         <div className="w-max-[630px] h-[80px] t-0">
           <RowThreadssreplied />
         </div>

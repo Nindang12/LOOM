@@ -57,7 +57,7 @@ export default function Active() {
                                 <span className="text-sm text-gray-400">wants to add you as a friend</span>
                             </div>
                             <div className="flex gap-2 mt-2">
-                                <button className="bg-black text-white px-4 py-2 rounded-full text-sm" onClick={() => addFriend(request.userId, currentUserId as string)}>Accept</button>
+                                <button className="bg-black text-white px-4 py-2 rounded-full text-sm" onClick={() => addFriend(currentUserId as string, request.userId as string)}>Accept</button>
                                 <button className="bg-gray-200 text-black px-4 py-2 rounded-full text-sm">Decline</button>
                             </div>
                         </div>

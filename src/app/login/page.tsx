@@ -1,10 +1,8 @@
 "use client"
-import axios from "axios"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { ToastContainer, toast } from 'react-toastify';
 import Link from "next/link";
-import { init,tx,id } from "@instantdb/react"
 import ButtonLogin from "@/components/ButtonLogin"
 import LoginGoogle from "@/components/LoginGoogle"
 
@@ -32,7 +30,7 @@ export default function Login(){
                 <button className="md:w-[370px] w-full px-6 py-4  rounded-2xl border border-solid border-black font-bold text-sm">Tạo tài khoản</button>
             </Link>
             <span className="text-gray-400 text-sm mt-2">Hoặc có thể đăng nhập bằng</span>
-            <LoginGoogle/>
+            {/* <LoginGoogle/> */}
         </div>
     )
 }

@@ -4,9 +4,10 @@ import Sidebar from "@/components/Sidebar"
 import FriendList from "@/components/FriendList"
 import AddFriend from "@/components/AddFriend"
 import { init } from "@instantdb/react"
-import { useState } from "react"
-import { getUserId } from "@/utils/auth";
+import { useEffect, useState } from "react"
+import { checkLogin, getUserId } from "@/utils/auth";
 import LayoutChat from "@/components/LayoutChat"
+import { useRouter } from "next/navigation"
 
 // ID for app: NexuSocial
 const APP_ID = '5e07a141-e7d9-4273-9cba-877a820f73dd'
@@ -34,30 +35,18 @@ type Schema = {
 const db = init<Schema>({ appId: APP_ID })
 
 const Messages = () => {
-    const [showAddFriend, setShowAddFriend] = useState(false)
-
+    const router = useRouter()
     const currentUserId = getUserId() as string;
-
-    const handleFriendAdded = () => {
-        setShowAddFriend(false)
-    }
-
-    const query = {
-        friendships: {
-            $: {
-                where: {
-                    friendId: currentUserId,
-                    isPendingRequest: true,
-                },
-            },
-        },
-    }
-
-    const { isLoading, error, data } = db.useQuery(query)
-
-    if (isLoading) return <div>Loading...</div>
-    if (error) return <div>Error loading friend requests: {error.message}</div>
-
+    
+    useEffect(() => {
+        const verifyLogin = async () => {
+            const loggedIn = await checkLogin();
+            if (!loggedIn) {
+                router.push('/login');
+            }
+        };
+        verifyLogin();
+    }, [router]);
 
     return (
         <div className="flex md:flex-row flex-col-reverse w-full h-screen">

@@ -5,7 +5,7 @@ interface Profile{
 interface Post {
     id: string;
     postId: string;
-    postContent: string;
+    content: string;
     userId: string;
     createdAt: number;
     images: string[];
@@ -25,14 +25,16 @@ interface Post {
     user_id: string;
     create_at: number;
     // Add any other properties that might be present in the post object
-  }
+}
 
 interface Comment {
-    content: string;
+    id: string;
     commentId: string;
-    createdAt: string;
+    content: string;
+    createdAt: number;
     userId: string;
-    postId?: string;
+    postId: string;
+    images?: string[];
 }
 
 interface AccountData {
