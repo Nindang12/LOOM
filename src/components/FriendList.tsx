@@ -1,7 +1,9 @@
 'use client'
 
 import Link from 'next/link'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import axios from "axios";
+import { AccountData } from '@/utils/types';
 
 interface FriendListProps {
     db: any
@@ -10,13 +12,43 @@ interface FriendListProps {
 
 const FriendList: React.FC<FriendListProps> = ({ db, currentUserId }) => {
     const [isShow, setIsShow] = useState<boolean>(false);
+    const [isShowMessage, setisShowMessage] = useState<boolean>(false);
+    const [accountData, setAccountData] = useState<AccountData[]>([]);
+    const [searchTerm, setSearchTerm] = useState<string>('');
+
     const toggleModal = () => {
         setIsShow((prevState) => !prevState);
     }
+
     const toggleModelMess = () => {
         setisShowMessage((prevState) => !prevState)
     }
-    const [isShowMessage,setisShowMessage] = useState<boolean>(false);
+
+    const searchFriend = async (user_id: string) => {
+        if (user_id === "") {
+            setAccountData([]);
+        } else {
+            if (user_id.length > 0) {
+                try {
+                    const response = await axios.get(`/api/account?userId=${user_id}`);
+                    if (!response) {
+                        return null;
+                    }
+                    const accountData = await response.data;
+                    setAccountData(accountData);
+                } catch (error) {
+                    console.error('Failed to fetch account:', error);
+                }
+            }
+        }
+    };
+
+    useEffect(() => {
+        if (searchTerm) {
+            searchFriend(searchTerm);
+        }
+    }, [searchTerm]);
+
     const query = {
         friendships: {
             $: {
@@ -47,7 +79,7 @@ const FriendList: React.FC<FriendListProps> = ({ db, currentUserId }) => {
 
             {/* Navigation */}
             <div className='flex justify-between border-b'>
-                <h2 className="text-base font-bold p-4 cursor-pointer hover:bg-gray-100">Tin nhắn</h2>
+                <h2 className="text-base font-bold p-4">Tin nhắn</h2>
                 <h2 className="text-base text-gray-300 font-bold p-4 cursor-pointer hover:bg-gray-100">Tin nhắn đang chờ</h2>
             </div>
 
@@ -101,28 +133,54 @@ const FriendList: React.FC<FriendListProps> = ({ db, currentUserId }) => {
                 </div>
             )}
             {isShowMessage && (
-                <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
-                <div className="bg-white rounded-lg w-1/2">
-                    <div className="flex justify-between items-center p-4 border-b">
-                        <span className="text-lg">Tin nhắn mới</span>
-                        <i className="fas fa-times"></i>
-                    </div>
-                    <div className="p-4">
-                        <div className="flex items-center mb-4">
-                            <span className="mr-2">Tới:</span>
-                            <input type="text" placeholder="Tìm kiếm..." className="flex-1 p-2 border rounded"/>
+                <div onClick={toggleModelMess} className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
+                    <div onClick={(e) => e.stopPropagation()} className="bg-white rounded-lg w-1/3 h-2/3 flex flex-col">
+                        <div className="flex justify-between items-center p-4 border-b">
+                            <div></div>
+                            <span className="font-medium text-xl">Tin nhắn mới</span>
+                            <button onClick={toggleModelMess} className="text-gray-500 hover:text-gray-700">
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
                         </div>
-                        <div className='min-h-4xl'>
-                            <p>Không tìm thấy tài khoản.</p>
+                        <div className="p-4 flex-grow flex flex-col border-b">
+                            <div className="flex items-center mb-4">
+                                <span className="mr-2">Tới:</span>
+                                <input 
+                                    type="text" 
+                                    placeholder="Tìm kiếm..." 
+                                    className="flex-1 p-2 border rounded"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                            </div>
+                            <div className='flex-grow overflow-y-auto'>
+                                {accountData.length > 0 ? (
+                                    accountData.map((account) => (
+                                        <div key={account.user_id} className="flex items-center p-2 hover:bg-gray-100 cursor-pointer">
+                                            <img
+                                                src={account.image || `https://api.dicebear.com/6.x/initials/svg?seed=${account.username}`}
+                                                alt={`${account.fullname}'s avatar`}
+                                                className="w-10 h-10 rounded-full mr-3"
+                                            />
+                                            <div>
+                                                <p className="font-medium">{account.fullname}</p>
+                                                <p className="text-sm text-gray-500">@{account.username}</p>
+                                            </div>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <p className="text-center text-gray-500">Không tìm thấy tài khoản.</p>
+                                )}
+                            </div>
                         </div>
-                    </div>
-                    <div className="p-4 border-t">
-                        <button className="w-full bg-blue-200 text-blue-700 py-2 rounded">Chat</button>
+                        <div className="p-4 border-t">
+                            <button className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition duration-300">Chat</button>
+                        </div>
                     </div>
                 </div>
-            </div>
             )}
-            }
         </div>
     )
 }
