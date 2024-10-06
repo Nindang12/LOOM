@@ -15,6 +15,7 @@ const FriendList: React.FC<FriendListProps> = ({ db, currentUserId }) => {
     const [isShowMessage, setisShowMessage] = useState<boolean>(false);
     const [accountData, setAccountData] = useState<AccountData[]>([]);
     const [searchTerm, setSearchTerm] = useState<string>('');
+    const [selectedFriends, setSelectedFriends] = useState<string[]>([]);
 
     const toggleModal = () => {
         setIsShow((prevState) => !prevState);
@@ -44,10 +45,29 @@ const FriendList: React.FC<FriendListProps> = ({ db, currentUserId }) => {
     };
 
     useEffect(() => {
-        if (searchTerm) {
-            searchFriend(searchTerm);
-        }
+        const delayDebounceFn = setTimeout(() => {
+            if (searchTerm) {
+                searchFriend(searchTerm);
+            }
+        }, 300)
+
+        return () => clearTimeout(delayDebounceFn)
     }, [searchTerm]);
+
+    const handleFriendSelection = (friendId: string) => {
+        setSelectedFriends(prev => 
+            prev.includes(friendId) 
+                ? prev.filter(id => id !== friendId) 
+                : [...prev, friendId]
+        );
+    };
+
+    const startChat = () => {
+        // Logic to start a chat with selected friends
+        console.log("Starting chat with:", selectedFriends);
+        // Here you would typically navigate to a chat room or open a chat interface
+        toggleModelMess();
+    };
 
     const query = {
         friendships: {
@@ -80,7 +100,7 @@ const FriendList: React.FC<FriendListProps> = ({ db, currentUserId }) => {
             {/* Navigation */}
             <div className='flex justify-between border-b'>
                 <h2 className="text-base font-bold p-4">Tin nhắn</h2>
-                <h2 className="text-base text-gray-300 font-bold p-4 cursor-pointer hover:bg-gray-100">Tin nhắn đang chờ</h2>
+                <Link href={'/requests'}><h2 className="text-base text-gray-300 font-bold p-4 cursor-pointer hover:bg-gray-100">Tin nhắn đang chờ</h2></Link>
             </div>
 
             {/* Friend List */}
@@ -126,7 +146,7 @@ const FriendList: React.FC<FriendListProps> = ({ db, currentUserId }) => {
                                 </svg>
                             </div>
                             <div className="text-center">
-                                <a href="#" className="text-blue-500 hover:text-blue-600 font-medium">Đăng nhập vào tài khoản hiện có</a>
+                                <Link href="/login" className="text-blue-500 hover:text-blue-600 font-medium">Đăng nhập vào tài khoản hiện có</Link>
                             </div>
                         </div>
                     </div>
@@ -158,7 +178,11 @@ const FriendList: React.FC<FriendListProps> = ({ db, currentUserId }) => {
                             <div className='flex-grow overflow-y-auto'>
                                 {accountData.length > 0 ? (
                                     accountData.map((account) => (
-                                        <div key={account.user_id} className="flex items-center p-2 hover:bg-gray-100 cursor-pointer">
+                                        <div 
+                                            key={account.user_id} 
+                                            className={`flex items-center p-2 hover:bg-gray-100 cursor-pointer ${selectedFriends.includes(account.user_id) ? 'bg-blue-100' : ''}`}
+                                            onClick={() => handleFriendSelection(account.user_id)}
+                                        >
                                             <img
                                                 src={account.image || `https://api.dicebear.com/6.x/initials/svg?seed=${account.username}`}
                                                 alt={`${account.fullname}'s avatar`}
@@ -176,7 +200,13 @@ const FriendList: React.FC<FriendListProps> = ({ db, currentUserId }) => {
                             </div>
                         </div>
                         <div className="p-4 border-t">
-                            <button className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition duration-300">Chat</button>
+                            <button 
+                                className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition duration-300"
+                                onClick={startChat}
+                                disabled={selectedFriends.length === 0}
+                            >
+                                Chat
+                            </button>
                         </div>
                     </div>
                 </div>

@@ -289,11 +289,11 @@ export default function Article({ user_id, content, postId, images }: ArticlePro
 
 
     return (
-        <div className="max-w-full overflow-x-hidden">
-            <div className="border-b border-gray-200 max-w-full py-2 px-5">
+        <div className="w-full overflow-x-hidden">
+            <div className="border-b border-gray-200 w-full py-2 px-5">
                 {/* <header> */}
-                <div className="flex flex-row gap-3 max-w-full">
-                    <div className="relative flex-row w-8 h-8 justify-center">
+                <div className="flex flex-row gap-3 w-full">
+                    <div className="relative flex-row w-8 h-8 justify-center flex-shrink-0">
                         <img className="rounded-full w-8 h-8 bg-cover" src="/assets/avt.png" alt="avatar" />
                         {userId && user_id && userId !== user_id && !dataFriendships?.friendships.length && (
                             <button
@@ -308,7 +308,7 @@ export default function Article({ user_id, content, postId, images }: ArticlePro
                         )}
                     </div>
                     <div className="flex flex-col">
-                        <div className="flex flex-row justify-between w-full items-center">
+                        <div className="flex flex-row max-w-[300px] min-w-[299px] md:max-w-[540px] justify-between items-center">
                             <Link href={`/@${user_id}`}>
                                 <span className="text-sm font-semibold hover:underline">{user_id ? user_id : ""}</span>
                             </Link>
@@ -355,16 +355,17 @@ export default function Article({ user_id, content, postId, images }: ArticlePro
                             </div>
                         </div>
                         <Link href={`/@${user_id}/post/${postId}`} className="flex flex-col gap-3 overflow-x-hidden">
-                            <span className="min-w-[535px] max-w-[540px] break-words whitespace-pre-wrap">{content}</span>
-                            <div className="flex overflow-x-auto overflow-y-hidden gap-2">
-                                {images &&
-                                    images.map((image: string, index) => {
-                                        return (
+                            <span className="w-[300px] md:min-w-[535px] md:max-w-[540px] break-words whitespace-pre-wrap">{content}</span>
+                            <div className="w-[300px] md:min-w-[545px] flex p-5 overflow-x-auto overflow-y-hidden gap-2">
+                                {images && images.length > 0 && (
+                                    <div className="flex overflow-x-auto overflow-y-hidden w-auto gap-2 pb-2">
+                                        {images.map((image: string, index) => (
                                             <div key={index} className="rounded-lg min-w-[208px] h-52 bg-gray-200 flex-shrink-0">
-                                                <img src={image} alt={`image`} className="object-cover w-full h-full rounded-lg" />
+                                                <img src={image} alt={`image-${index}`} className="object-cover w-full h-full rounded-lg" />
                                             </div>
-                                        )
-                                    })}
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                         </Link>
                     </div>

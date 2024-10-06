@@ -52,10 +52,10 @@ export default function Home() {
               <div className="w-full hidden md:block  h-[80px]">
                   <UploadThread/>
               </div>
-              <div className="w-full md:hidden  h-[80px] ">
+              <div className="w-full md:hidden h-[180px]">
                 <Foryou/>
               </div>
-              <div className="w-full  ">
+              <div className="w-full">
                 {filterPost &&
                   (filterPost.map((post:any, idx:number) => (
                     <Article key={idx} user_id={post.userId} postId={post.postId} content={post.content} images={post.images} />
