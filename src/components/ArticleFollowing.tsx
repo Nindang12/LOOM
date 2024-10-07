@@ -67,7 +67,7 @@ export default function ArticleFollowing(){
             </div>
             {
                 isShow && (
-                    <div className="z-1 fixed top-0 left-0 w-full h-full bg-white ">
+                    <div className="z-10 fixed top-0 left-0 w-full h-full bg-white ">
                         <div className=" h-full flex flex-col items-center ">
                             <div className="py-5 flex flex-row ">
                                 <div onClick={toggleModal} className="w-[120px] pl-[20px]">Huỷ</div>
