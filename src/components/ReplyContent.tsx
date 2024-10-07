@@ -14,7 +14,14 @@ const ReplyContent = ({post, comment}: {post: Post, comment: Comment}) => {
     const [shareCount, setShareCount] = useState(0);
     const [timeAgoRepost, setTimeAgoRepost] = useState<string>('');
 
-    const userAccountId = getUserId()
+    const [userAccountId, setUserAccountId] = useState<string | null>(null);
+
+    useEffect(() => {
+        if(typeof window !== 'undefined'){
+            const userId = getUserId();
+            setUserAccountId(userId as string);
+        }
+    }, [])
 
     const query = { actionLikePost: {} }
     const { data } = db.useQuery(query)

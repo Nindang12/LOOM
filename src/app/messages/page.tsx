@@ -36,7 +36,7 @@ const db = init<Schema>({ appId: APP_ID })
 
 const Messages = () => {
     const router = useRouter()
-    const currentUserId = getUserId() as string;
+    const [currentUserId, setCurrentUserId] = useState<string | null>(null);
     
     useEffect(() => {
         const verifyLogin = async () => {
@@ -46,6 +46,10 @@ const Messages = () => {
             }
         };
         verifyLogin();
+        if(typeof window !== 'undefined'){
+            const userId = getUserId();
+            setCurrentUserId(userId);
+        }
     }, [router]);
 
     return (
@@ -54,7 +58,7 @@ const Messages = () => {
             <div className="flex flex-col w-full h-full">
                 <div className="md:hidden">
                     <h2 className="text-xl font-bold p-4 border-b">Tin nhắn</h2>
-                    <FriendList db={db} currentUserId={currentUserId} />    
+                    <FriendList db={db} currentUserId={currentUserId as string} />    
                 </div>
                 <div className="flex-grow hidden md:block h-full">
                     <LayoutChat>

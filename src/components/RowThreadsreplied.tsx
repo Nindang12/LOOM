@@ -4,7 +4,15 @@ import { useEffect, useState } from "react"
 import { getUserId } from "@/utils/auth";
 
 export default function RowThreadssreplied(){
-    const username = getUserId();
+    const [username, setUsername] = useState<string | null>(null);
+
+    useEffect(() => {
+        if(typeof window !== 'undefined'){
+            const userId = getUserId();
+            setUsername(userId as string);
+        }
+    }, [])
+
     return(
         <div className="flex ">
             <Link  href={`/@${username}`} className="w-1/3 flex justify-center border-solid border-b-[1px]">

@@ -1,6 +1,7 @@
 import FriendList from "./FriendList";
 import { tx,id,init } from "@instantdb/react"
 import { getUserId } from "@/utils/auth";
+import { useEffect, useState } from "react";
 import React, { ReactNode } from "react";
 
 export default function LayoutChat({children}:{children: ReactNode}){
@@ -25,12 +26,20 @@ export default function LayoutChat({children}:{children: ReactNode}){
         username: string
     }
 }
-const currentUserId = getUserId() as string;
+const [currentUserId, setCurrentUserId] = useState<string | null>(null);  
+
+useEffect(() => {
+    if(typeof window !== 'undefined'){
+        const userId = getUserId();
+        setCurrentUserId(userId as string);
+    }
+}, [])
+
 const db = init<Schema>({ appId: APP_ID })
     return(
 
         <div className="flex flex-row overflow-y-auto w-full">
-            <FriendList db={db} currentUserId={currentUserId} /> 
+            <FriendList db={db} currentUserId={currentUserId as string} /> 
             {children}       
         </div>
     )

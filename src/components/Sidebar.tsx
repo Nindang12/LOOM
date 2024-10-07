@@ -7,7 +7,14 @@ import {getUserId } from "@/utils/auth"
 
 export default function Siderbar(){
     const [isShow, setIsShow] = useState<boolean>(false);
-    const userId = getUserId();
+    const [userId, setUserId] = useState<string | null>(null);
+
+    useEffect(() => {
+        if(typeof window !== 'undefined'){
+            const userId = getUserId();
+            setUserId(userId as string);
+        }
+    }, [])
 
     const toggleModal = () => {
         setIsShow((prevState) => !prevState);
