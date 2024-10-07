@@ -39,7 +39,7 @@ export default function ThreadReplied() {
   return (
     data && (
       <ProfileLayout username={data.userDetails[0].userId} fullname={data.userDetails[0].fullname}>
-        <div className="w-max-[630px] h-[80px] t-0">
+        <div className="w-max-[630px] h-[auto] t-0">
           <RowThreadssreplied />
         </div>
         <div className="w-min-[630px] h-full flex t-0 mr-[20px]">

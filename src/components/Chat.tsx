@@ -125,10 +125,11 @@ const Chat = ({ friendId, userId }: { friendId: string, userId?: string }) => {
             <form onSubmit={handleSendMessage} className="p-4 bg-white border-t">
                 <div className="flex">
                     <input
+                        
                         type="text"
                         value={newMessage}
                         onChange={(e) => setNewMessage(e.target.value)}
-                        className="flex-1 border rounded-l-lg p-2"
+                        className="flex-1 border rounded-l-lg p-2 outline-none"
                         placeholder="Type a message..."
                     />
                     <button

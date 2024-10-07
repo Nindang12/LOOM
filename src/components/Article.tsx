@@ -356,8 +356,8 @@ export default function Article({ user_id, content, postId, images }: ArticlePro
                         </div>
                         <Link href={`/@${user_id}/post/${postId}`} className="flex flex-col gap-3 overflow-x-hidden">
                             <span className="w-[300px] md:min-w-[535px] md:max-w-[540px] break-words whitespace-pre-wrap">{content}</span>
-                            <div className="w-[300px] md:min-w-[545px] flex p-5 overflow-x-auto overflow-y-hidden gap-2">
-                                {images && images.length > 0 && (
+                            {images && images.length > 0 && (
+                                <div className="w-[300px] md:min-w-[545px] h-auto flex p-5 overflow-x-auto overflow-y-hidden gap-2">
                                     <div className="flex overflow-x-auto overflow-y-hidden w-auto gap-2 pb-2">
                                         {images.map((image: string, index) => (
                                             <div key={index} className="rounded-lg min-w-[208px] h-52 bg-gray-200 flex-shrink-0">
@@ -365,8 +365,8 @@ export default function Article({ user_id, content, postId, images }: ArticlePro
                                             </div>
                                         ))}
                                     </div>
-                                )}
-                            </div>
+                                </div>
+                            )}
                         </Link>
                     </div>
                 </div>
@@ -439,16 +439,16 @@ export default function Article({ user_id, content, postId, images }: ArticlePro
                                 </div>
                                 {/* body  */}
 
-                                <div className="flex flex-row items-center mt-1">
-                                    <img width={30} className="mr-2 rounded-full w-8 h-8 bg-cover " src="/assets/avt.png" alt="" />
-                                    <div className="w-full">
-                                        <div className="font-semibold text-sm">{userId}</div>
+                                <div className="flex items-start mt-1">
+                                    <img className="w-8 h-8 rounded-full bg-cover mr-3" src="/assets/avt.png" alt="User avatar" />
+                                    <div className="flex-grow">
+                                        <div className="font-semibold text-sm mb-2">{userId}</div>
                                         <LexicalEditor setOnchange={setCommentContent} />
                                         {uploadedImages.length > 0 && (
-                                            <div className="flex overflow-x-auto gap-2 mt-1">
+                                            <div className="grid grid-cols-2 gap-2 mt-3">
                                                 {uploadedImages.map((image, index) => (
-                                                    <div key={index} className="rounded-lg w-52 h-52 bg-gray-200 flex-shrink-0 flex items-center justify-center">
-                                                        <img src={image} alt={`uploaded-${index}`} className="object-cover w-full h-full rounded-lg" />
+                                                    <div key={index} className="aspect-square rounded-lg bg-gray-200 overflow-hidden">
+                                                        <img src={image} alt={`uploaded-${index}`} className="w-full h-full object-cover" />
                                                     </div>
                                                 ))}
                                             </div>

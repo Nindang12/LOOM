@@ -292,45 +292,45 @@ const ReplyContent = ({post, comment}: {post: Post, comment: Comment}) => {
                     You reposted {timeAgoRepost} ago
                 </div>
             )} */}
-            <div className="flex items-start mb-4 ">
+            <div className="flex items-start mb-4">
                 <img src="https://placehold.co/40x40" alt="User profile picture" className="rounded-full w-10 h-10 mr-3"/>
-                <div>
+                <div className="flex-1 overflow-hidden">
                     <div className="flex items-center mb-1">
                         <span className="font-bold mr-2">{post.userId}</span>
                         <span className="text-gray-500 text-sm">{timeAgoRepost}</span>
                     </div>
-                    <p className="mb-3">{post.content}</p>
-                    <div className="flex overflow-x-scroll gap-2 ">
-                        {post.images.map((image:string,index:number) => {
-                            return(
-                                <div key={index} className="rounded-lg w-64 h-64 bg-gray-200 flex items-center justify-center">
-                                    <img src={image} alt={`image`} className="object-cover w-full h-full rounded-lg" />
-                                </div>
-                            )
-                        })}
-                    </div>
-                    <div className="flex mt-5 md:ml-[16px] justify-center md:justify-start items-center text-sm font-thin gap-5 mb-3 ">
-                        <div className="flex gap-1 p-2">
-                            <button onClick={handleLike} className="hover:bg-slate-100 rounded-3xl">
-                                <img
-                                    width={20}
-                                    src={isLiked ? "/assets/redheart.svg" : "/assets/heartonarticle.svg"}
-                                    alt={isLiked ? "redheart" : "heart"}
-                                />
-                            </button>
-                            <small className={`${isLiked ? "text-red-600" : ""}`}>{totalLikes}</small>
+                    <p className="w-[300px] md:min-w-[500px] md:max-w-[501px] break-words whitespace-pre-wrap">{post.content}</p>
+                    {post.images.length > 0 && (
+                        <div className="w-[300px] md:min-w-[500px] h-auto flex p-5 overflow-x-auto overflow-y-hidden gap-2">
+                            <div className="flex overflow-x-auto overflow-y-hidden w-auto gap-2 pb-2">
+                                {post.images.map((image:string, index:number) => (
+                                    <div key={index} className="flex-shrink-0 w-64 h-64">
+                                        <img src={image} alt={`image ${index + 1}`} className="object-cover w-full h-full rounded-lg" />
+                                    </div>
+                                ))}
+                            </div>
                         </div>
-                        <button onClick={()=>setIsShow((prv)=>!prv)} className="flex gap-1 hover:bg-slate-100 p-2 rounded-3xl">
-                            <img width={20} src="/assets/comment.svg" alt="" />
-                            <small>{totalComments}</small>
+                    )}
+                    <div className="flex items-center text-sm gap-4">
+                        <button onClick={handleLike} className="flex items-center gap-1 hover:bg-slate-100 p-2 rounded-full">
+                            <img
+                                width={20}
+                                src={isLiked ? "/assets/redheart.svg" : "/assets/heartonarticle.svg"}
+                                alt={isLiked ? "redheart" : "heart"}
+                            />
+                            <span className={isLiked ? "text-red-600" : ""}>{totalLikes}</span>
                         </button>
-                        <button onClick={handleRepost} className={`flex gap-1 hover:bg-slate-100 p-2 rounded-3xl ${isReposted ? "bg-opacity-50 hover:bg-green-100" : ""}`}>
-                            <img width={20} src={isReposted ? "/assets/replay-green.svg" : "/assets/replay.svg"} alt="" />
-                            <small className={`${isReposted ? "text-green-600" : ""}`}>{totalReposts}</small>
+                        <button onClick={() => setIsShow(prev => !prev)} className="flex items-center gap-1 hover:bg-slate-100 p-2 rounded-full">
+                            <img width={20} src="/assets/comment.svg" alt="comment" />
+                            <span>{totalComments}</span>
                         </button>
-                        <button onClick={handleShare} className="flex gap-1 hover:bg-slate-100 p-1 rounded-3xl">
-                            <img width={30} src="/assets/share.svg" alt="" />
-                            <small>{shareCount}</small>
+                        <button onClick={handleRepost} className={`flex items-center gap-1 hover:bg-slate-100 p-2 rounded-full ${isReposted ? "text-green-600" : ""}`}>
+                            <img width={20} src={isReposted ? "/assets/replay-green.svg" : "/assets/replay.svg"} alt="repost" />
+                            <span>{totalReposts}</span>
+                        </button>
+                        <button onClick={handleShare} className="flex items-center gap-1 hover:bg-slate-100 p-2 rounded-full">
+                            <img width={20} src="/assets/share.svg" alt="share" />
+                            <span>{shareCount}</span>
                         </button>
                     </div>
                 </div>

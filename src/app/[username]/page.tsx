@@ -39,7 +39,7 @@ export default function Home() {
 
   return (
     <ProfileLayout username={data?.userDetails?.[0]?.userId} fullname={data?.userDetails?.[0]?.fullname}>
-      <div className="w-max-[630px] h-[80px] t-0">
+      <div className="w-max-[630px] h-[auto] t-0">
         <RowThreadss />
       </div>
       <div className="w-max-[630px] h-full t-0 ml-[20px] mr-[20px] z-0">

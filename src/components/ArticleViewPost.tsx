@@ -334,7 +334,7 @@ export default function ArticleViewPost({ post }: { post: any }) {
                 {/* body  */}
                 <div className="flex flex-col gap-2 px-6">
                     <div className="text-sm ">
-                        <p>{post.content}</p>
+                        <p className="w-[300px] md:min-w-[535px] md:max-w-[540px] break-words whitespace-pre-wrap">{post.content}</p>
                     </div>
                     <div className="flex overflow-x-scroll gap-2 mt-1">
                         {post.images && 
