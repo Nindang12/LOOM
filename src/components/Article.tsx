@@ -299,7 +299,7 @@ export default function Article({ user_id, content, postId, images }: ArticlePro
 
 
     return (
-        <div className="w-full overflow-x-hidden">
+        <div>
             <div className="border-b border-gray-200 w-full py-2 px-5">
                 {/* <header> */}
                 <div className="flex flex-row gap-3 w-full">
@@ -336,7 +336,7 @@ export default function Article({ user_id, content, postId, images }: ArticlePro
                                 </button>
                                 {
                                     issShow && (
-                                        <div className="absolute top-7 translate-x-[-230px] flex flex-col gap-1 shadow-md p-4 px-2 w-64 h-auto rounded-lg bg-white border border-gray-200">
+                                        <div className="absolute z-50 top-7 translate-x-[-230px] flex flex-col gap-1 shadow-md p-4 px-2 w-64 h-auto rounded-lg bg-white border border-gray-200">
                                             <div className="flex flex-col border-solid border-b-2 ">
                                                 <button className=" flex justify-between hover:bg-slate-200 px-2 py-3 rounded-lg">
                                                     <span className="text-sm font-bold">Lưu</span>
