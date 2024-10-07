@@ -8,8 +8,11 @@ import { db } from "@/utils/contants"
 import { tx, id } from "@instantdb/react"
 import { toast } from "react-toastify";
 
+
 export default function Article({ user_id, content, postId, images }: ArticleProps) {
-    const userId = getUserId();
+    
+    const [userId, setUserId] = useState<string | null>(null);
+
     const [isShow, setIsShow] = useState<boolean>(false);
     const toggleModal = () => {
         setIsShow((prevState) => !prevState);
@@ -26,12 +29,19 @@ export default function Article({ user_id, content, postId, images }: ArticlePro
     const query = { actionLikePost: {} }
     const { isLoading, error, data } = db.useQuery(query)
 
+    useEffect(() => {
+        if(typeof window !== 'undefined') {
+            const userId = getUserId();
+            setUserId(userId);
+        }
+    })
+
     const queryCheckIsLiked = {
         actionLikePost: {
             $: {
                 where: {
+                    userId: userId,
                     postId: postId,
-                    userId: userId
                 }
             }
         }
@@ -47,6 +57,18 @@ export default function Article({ user_id, content, postId, images }: ArticlePro
     const queryPosts = { posts: {} }
     const { data: dataPosts } = db.useQuery(queryPosts)
 
+    const queryReposts = {
+        posts: {
+            $: {
+                where: {
+                    repost: postId,
+                    userId: userId
+                }
+            }
+        }
+    }
+
+    const { data: dataReposts } = db.useQuery(queryReposts)
     const queryFriendships = {
         friendships: {
             $: {
@@ -77,6 +99,8 @@ export default function Article({ user_id, content, postId, images }: ArticlePro
     const totalReposts = dataPosts?.posts.filter(
         (post: any) => post.repost === postId
     ).length || 0;
+
+    
 
     const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const files = event.target.files;
@@ -143,28 +167,13 @@ export default function Article({ user_id, content, postId, images }: ArticlePro
                     images: uploadedImages
                 }
             )]);
-            toast.success('Comment created successfully');
+            // toast.success('Comment created successfully');
             setCommentContent('');
             toggleModal()
         } catch (error) {
             console.error('Error creating comment:', error);
         }
     };
-
-    const checkIsLiked = async () => {
-        if (!userId || !postId) return;
-
-        try {
-            if (dataCheckIsLiked && dataCheckIsLiked.actionLikePost && dataCheckIsLiked.actionLikePost.length > 0) {
-                setIsLiked(true);
-            } else {
-                setIsLiked(false);
-            }
-        } catch (error) {
-            console.error('Error checking if post is liked:', error);
-        }
-    };
-
 
     const handleRepost = async () => {
         if (!userId || !postId || !content) return;
@@ -204,25 +213,6 @@ export default function Article({ user_id, content, postId, images }: ArticlePro
         }
     };
 
-    const checkIsReposted = () => {
-        if (!userId || !postId) return;
-
-        try {
-            // Check if the post is already reposted by the user
-
-            const userRepost = dataPosts?.posts.find(
-                (post: any) => post.repost === postId && post.userId === userId
-            );
-
-            if (userRepost) {
-                setIsReposted(true);
-            } else {
-                setIsReposted(false);
-            }
-        } catch (error) {
-            console.error('Error checking if post is reposted:', error);
-        }
-    };
 
 
     const handleShare = () => {
@@ -261,11 +251,6 @@ export default function Article({ user_id, content, postId, images }: ArticlePro
             console.error('Error sharing post:', error);
         }
     };
-
-    useEffect(() => {
-        checkIsReposted();
-        checkIsLiked();
-    }, [postId, userId]);
     const [isFriendAdded, setIsFriendAdded] = useState(false);
 
     const addFriend = async (userId: string, friendId: string) => {
@@ -288,6 +273,8 @@ export default function Article({ user_id, content, postId, images }: ArticlePro
     };
 
 
+
+
     return (
         <div className="w-full overflow-x-hidden">
             <div className="border-b border-gray-200 w-full py-2 px-5">
@@ -295,10 +282,10 @@ export default function Article({ user_id, content, postId, images }: ArticlePro
                 <div className="flex flex-row gap-3 w-full">
                     <div className="relative flex-row w-8 h-8 justify-center flex-shrink-0">
                         <img className="rounded-full w-8 h-8 bg-cover" src="/assets/avt.png" alt="avatar" />
-                        {userId && user_id && userId !== user_id && !dataFriendships?.friendships.length && (
+                        {!isFriendAdded && userId !== user_id && !dataFriendships?.friendships.length && (
                             <button
                                 onClick={() => {
-                                    addFriend(userId, user_id);
+                                    addFriend(userId as string, user_id as string);
                                     setIsFriendAdded(true);
                                 }}
                                 className="absolute top-5 right-[-1px] bg-white rounded-full shadow-md hover:bg-gray-100 p-1"
@@ -376,19 +363,19 @@ export default function Article({ user_id, content, postId, images }: ArticlePro
                         <button onClick={handleLike} className="hover:bg-slate-100 rounded-3xl">
                             <img
                                 width={20}
-                                src={isLiked ? "/assets/redheart.svg" : "/assets/heartonarticle.svg"}
-                                alt={isLiked ? "redheart" : "heart"}
+                                src={dataCheckIsLiked && dataCheckIsLiked?.actionLikePost?.length > 0 ? "/assets/redheart.svg" : "/assets/heartonarticle.svg"}
+                                alt={dataCheckIsLiked && dataCheckIsLiked?.actionLikePost?.length > 0 ? "redheart" : "heart"}
                             />
                         </button>
-                        <small className={`${isLiked ? "text-red-600" : ""}`}>{totalLikes}</small>
+                        <small className={`${dataCheckIsLiked && dataCheckIsLiked?.actionLikePost?.length > 0 ? "text-red-600" : ""}`}>{totalLikes}</small>
                     </div>
                     <button onClick={() => setIsShow((prv) => !prv)} className="flex gap-1 hover:bg-slate-100 p-2 rounded-3xl">
                         <img width={20} src="/assets/comment.svg" alt="" />
                         <small>{totalComments}</small>
                     </button>
-                    <button onClick={handleRepost} className={`flex gap-1 hover:bg-slate-100 p-2 rounded-3xl ${isReposted ? "bg-opacity-50 hover:bg-green-100" : ""}`}>
-                        <img width={20} src={isReposted ? "/assets/replay-green.svg" : "/assets/replay.svg"} alt="" />
-                        <small className={`${isReposted ? "text-green-600" : ""}`}>{totalReposts}</small>
+                    <button onClick={handleRepost} className={`flex gap-1 hover:bg-slate-100 p-2 rounded-3xl ${dataReposts && dataReposts?.posts?.length > 0 ? "bg-opacity-50 hover:bg-green-100" : ""}`}>
+                        <img width={20} src={dataReposts && dataReposts?.posts?.length > 0 ? "/assets/replay-green.svg" : "/assets/replay.svg"} alt="" />
+                        <small className={`${dataReposts && dataReposts?.posts?.length > 0 ? "text-green-600" : ""}`}>{totalReposts}</small>
                     </button>
                     <button onClick={handleShare} className="flex gap-1 hover:bg-slate-100 p-1 rounded-3xl">
                         <img width={30} src="/assets/share.svg" alt="" />
