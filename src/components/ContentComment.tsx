@@ -22,7 +22,14 @@ export default function ContentComment({
     const [isReposted, setIsReposted] = useState<boolean>(false);
     const [repostCount, setRepostCount] = useState<number>(0);
 
-    const userAccountId = getUserId()
+    const [userAccountId, setUserAccountId] = useState<string | null>(null);
+
+    useEffect(() => {
+        if(typeof window !== 'undefined'){
+            const userId = getUserId();
+            setUserAccountId(userId as string);
+        }
+    }, [])
 
     const toggleModal = () => {
         setIsShow((prevState) => !prevState);

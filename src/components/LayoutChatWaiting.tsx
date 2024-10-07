@@ -1,6 +1,6 @@
 import { tx,id,init } from "@instantdb/react"
 import { getUserId } from "@/utils/auth";
-import React, { ReactNode } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 import FriendWaiting from "./FriendWaiting";
 
 export default function LayoutChatWaiting({children}:{children: ReactNode}){
@@ -25,12 +25,20 @@ export default function LayoutChatWaiting({children}:{children: ReactNode}){
         username: string
     }
 }
-const currentUserId = getUserId() as string;
+const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 const db = init<Schema>({ appId: APP_ID })
+
+useEffect(() => {
+    if(typeof window !== 'undefined'){
+        const userId = getUserId();
+        setCurrentUserId(userId as string);
+    }
+}, [])
+
     return(
 
         <div className="flex flex-row overflow-y-auto w-full">
-            <FriendWaiting db={db} currentUserId={currentUserId} /> 
+            <FriendWaiting db={db} currentUserId={currentUserId as string} /> 
             {children}       
         </div>
     )

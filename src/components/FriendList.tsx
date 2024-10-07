@@ -3,7 +3,6 @@
 import Link from 'next/link'
 import React, { useState, useEffect } from 'react'
 import axios from "axios";
-import { AccountData } from '@/utils/types';
 
 interface FriendListProps {
     db: any

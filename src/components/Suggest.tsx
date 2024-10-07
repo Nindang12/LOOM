@@ -5,7 +5,14 @@ import { getUserId } from "@/utils/auth";
 
 export default function Suggest({data}:{data: AccountData}){
     const [isFollowing, setIsFollowing] = useState<boolean>(false);
-    const userId = getUserId();
+    const [userId, setUserId] = useState<string | null>(null);
+
+    useEffect(() => {
+        if(typeof window !== 'undefined'){
+            const userId = getUserId();
+            setUserId(userId as string);
+        }
+    }, [])
 
 
     const toggleFollow = () => {

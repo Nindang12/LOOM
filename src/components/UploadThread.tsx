@@ -1,5 +1,5 @@
 "use client"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import LexicalEditor from "./LexicalEditor";
 import { getUserId } from "@/utils/auth";
 import {id,tx} from "@instantdb/react"
@@ -14,7 +14,14 @@ export default function UploadThread(){
     const [content, setContent] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [images, setImages] = useState<string[]>([]);
-    const userId = getUserId();
+    const [userId, setUserId] = useState<string | null>(null);
+
+    useEffect(() => {
+        if(typeof window !== 'undefined'){
+            const userId = getUserId();
+            setUserId(userId as string);
+        }
+    }, [])
 
     const handleUploadThread = async () => {
         try {

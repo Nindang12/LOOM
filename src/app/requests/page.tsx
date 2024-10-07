@@ -2,7 +2,7 @@
 
 import Sidebar from "@/components/Sidebar"
 import { init } from "@instantdb/react"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { checkLogin, getUserId } from "@/utils/auth";
 import { useRouter } from "next/navigation"
 import FriendWaiting from "@/components/FriendWaiting"
@@ -35,7 +35,7 @@ const db = init<Schema>({ appId: APP_ID })
 
 const Requests = () => {
     const router = useRouter()
-    const currentUserId = getUserId() as string;
+    const [currentUserId, setCurrentUserId] = useState<string | null>(null);
     
     useEffect(() => {
         const verifyLogin = async () => {
@@ -45,6 +45,10 @@ const Requests = () => {
             }
         };
         verifyLogin();
+        if(typeof window !== 'undefined'){
+            const userId = getUserId();
+            setCurrentUserId(userId as string);
+        }
     }, [router]);
 
     return (
@@ -53,7 +57,7 @@ const Requests = () => {
             <div className="flex flex-col w-full h-full">
                 <div className="md:hidden">
                     <h2 className="text-xl font-bold p-4 border-b">Tin nhắn</h2>
-                    <FriendWaiting db={db} currentUserId={currentUserId} />    
+                    <FriendWaiting db={db} currentUserId={currentUserId as string} />    
                 </div>
                 <div className="flex-grow hidden md:block h-full">
                     <LayoutChatWaiting>

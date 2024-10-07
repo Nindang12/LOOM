@@ -9,7 +9,15 @@ import { tx, id } from "@instantdb/react"
 import { toast } from "react-toastify";
 
 export default function Article({ user_id, content, postId, images }: ArticleProps) {
-    const userId = getUserId();
+    const [userId, setUserId] = useState<string | null>(null);
+
+    useEffect(() => {
+        if(typeof window !== 'undefined'){
+            const userId = getUserId();
+            setUserId(userId as string);
+        }
+    }, [])
+
     const [isShow, setIsShow] = useState<boolean>(false);
     const toggleModal = () => {
         setIsShow((prevState) => !prevState);

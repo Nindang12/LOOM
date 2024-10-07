@@ -6,7 +6,14 @@ import { db } from "@/utils/contants"
 import { tx, id } from "@instantdb/react"
 
 export default function Active() {
-    const currentUserId = getUserId()
+    const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
+    useEffect(() => {
+        if(typeof window !== 'undefined'){
+            const userId = getUserId();
+            setCurrentUserId(userId as string);
+        }
+    }, [])
 
     const query = {
         friendships: {

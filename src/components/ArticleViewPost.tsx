@@ -8,7 +8,7 @@ import { id, tx } from "@instantdb/react";
 import { toast } from "react-toastify";
 
 export default function ArticleViewPost({ post }: { post: any }) {
-    const userId = getUserId();
+    const [userId, setUserId] = useState<string | null>(null);
     const [isShow, setIsShow] = useState<boolean>(false);
     const [image, setImage] = useState<string | null>(null);
     const [issShow, setIssShow] = useState<boolean>(false);
@@ -26,6 +26,12 @@ export default function ArticleViewPost({ post }: { post: any }) {
         setIsShow((prevState) => !prevState);
     }
 
+    useEffect(() => {
+        if(typeof window !== 'undefined'){
+            const userId = getUserId();
+            setUserId(userId as string);
+        }
+    }, [])
 
     useEffect(() => {
         const calculateTimeAgo = () => {
