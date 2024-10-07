@@ -1,5 +1,5 @@
 "use client"
-import Active from "@/components/Active";
+import ListActives from "@/components/ListActives";
 import HeaderActivity from "@/components/HeaderActivity";
 import Option_active from "@/components/OptionActive";
 import Siderbar from "@/components/Sidebar";
@@ -21,7 +21,7 @@ export default function Home() {
               <Option_active/> 
             </div>
             <div className="w-full h-full">
-              <Active/>
+              <ListActives/>
             </div>
           </div>
         </div>
