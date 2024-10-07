@@ -2,13 +2,12 @@
 
 import Sidebar from "@/components/Sidebar"
 import FriendList from "@/components/FriendList"
-import ShowMess from "@/components/ShowMess"
+import AddFriend from "@/components/AddFriend"
 import { init } from "@instantdb/react"
 import { useEffect, useState } from "react"
 import { checkLogin, getUserId } from "@/utils/auth";
 import LayoutChat from "@/components/LayoutChat"
 import { useRouter } from "next/navigation"
-
 // ID for app: NexuSocial
 const APP_ID = '5e07a141-e7d9-4273-9cba-877a820f73dd'
 
@@ -37,10 +36,7 @@ const db = init<Schema>({ appId: APP_ID })
 const Messages = () => {
     const router = useRouter()
     const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-    const [isShowMessage, setisShowMessage] = useState<boolean>(false);
-    const toggleModelMess = () => {
-        setisShowMessage((prevState) => !prevState)
-    }
+    
     useEffect(() => {
         const verifyLogin = async () => {
             const loggedIn = await checkLogin();
@@ -74,19 +70,11 @@ const Messages = () => {
                                 </div>
                                 <h1 className="text-2xl font-semibold mb-4">Tin nhắn của bạn</h1>
                                 <p className="text-gray-600 mb-6">Gửi ảnh và tin nhắn riêng tư cho bạn bè hoặc nhóm</p>
-                                <button onClick={() => setisShowMessage(prev => !prev)} className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg text-lg transition duration-300">Gửi tin nhắn</button>
+                                <button className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg text-lg transition duration-300">Gửi tin nhắn</button>
                             </div>
                         </div>
                     </LayoutChat>
                 </div>
-                {isShowMessage && (
-                <ShowMess
-                    db={db}
-                    currentUserId={currentUserId || ''}
-                    isOpen={isShowMessage}
-                    onClose={() => setisShowMessage(false)}
-                />
-            )}
             </div>
         </div>
     )
