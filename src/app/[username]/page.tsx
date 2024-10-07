@@ -12,7 +12,6 @@ export default function Home() {
   const router = useRouter();
   const pathName = usePathname();
   const username = pathName.replace("/@", "");
-  const [dataAccounts, setDataAccounts] = useState<any>([]);
 
   useEffect(() => {
     const checkAuthStatus = async () => {
@@ -38,7 +37,7 @@ export default function Home() {
   const {data, isLoading} = db.useQuery(query)
 
   return (
-    <ProfileLayout username={data?.userDetails?.[0]?.userId} fullname={data?.userDetails?.[0]?.fullname}>
+    <ProfileLayout username={data?.userDetails?.[0]?.userId} fullname={data?.userDetails?.[0]?.fullname} image={data?.userDetails?.[0]?.avatar}>
       <div className="w-max-[630px] h-[auto] t-0">
         <RowThreadss />
       </div>

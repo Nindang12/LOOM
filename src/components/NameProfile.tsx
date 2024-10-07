@@ -1,4 +1,4 @@
-export default function NameProfile({fullname,username}:Profile){
+export default function NameProfile({fullname,username,image}:Profile){
     return(
         <div className="">
             {/* name */}
@@ -10,7 +10,7 @@ export default function NameProfile({fullname,username}:Profile){
                     <span className="text-sm">{username?username:""}</span>
                 </div>
                 <div className="relative">
-                    <img className="mt-[20px] rounded-full w-[85px] h-[85px] bg-cover" src="/assets/avt.png" alt="" />
+                    <img className="mt-[20px] rounded-full w-[85px] h-[85px] bg-cover" src={image?image:"/assets/avt.png"} alt="" />
                     <input type="file" id="avatarUpload" className="hidden" accept="image/*" />
                     {/* <label htmlFor="avatarUpload" className="absolute bottom-0 right-0 bg-white border border-gray-300 rounded-full p-1 cursor-pointer">
                         <img width={16} src="/assets/upload-icon.svg" alt="upload icon" />
