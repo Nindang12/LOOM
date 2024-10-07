@@ -40,15 +40,13 @@ const ChatPage = () => {
             </div>
             <div className="md:hidden">
                 <div className="flex flex-col h-screen w-screen">
-                    <div className="flex items-center justify-between p-4 border-b">
+                    {/* <div className="flex items-center justify-between p-4 border-b">
                         <Link href="/messages" className="text-blue-500">
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                             </svg>
                         </Link>
-                        <h1 className="text-xl font-semibold">Chat</h1>
-                        <div className="w-6"></div> {/* Placeholder for balance */}
-                    </div>
+                    </div> */}
                     <div className="flex-grow overflow-hidden">
                         <Chat 
                             friendId={friendId} 

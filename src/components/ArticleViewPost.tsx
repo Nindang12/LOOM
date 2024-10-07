@@ -7,21 +7,35 @@ import { db } from "@/utils/contants";
 import { id, tx } from "@instantdb/react";
 import { toast } from "react-toastify";
 
+interface ArticleProps {
+    user_id: string;
+    content: string;
+    postId: string;
+    images: string[];
+}
+
 export default function ArticleViewPost({ post }: { post: any }) {
     const [userId, setUserId] = useState<string | null>(null);
     const [isShow, setIsShow] = useState<boolean>(false);
-    const [image, setImage] = useState<string | null>(null);
     const [issShow, setIssShow] = useState<boolean>(false);
     const [isLiked, setIsLiked] = useState(false);
-    const [likeCount, setLikeCount] = useState(0);
     const [commentContent, setCommentContent] = useState<string>('');
-    const [commentCount, setCommentCount] = useState<number>(0);
     const [timeAgo, setTimeAgo] = useState<string>("");
-    const [images, setImages] = useState([]);
     const [isReposted, setIsReposted] = useState(false);
-    const [repostCount, setRepostCount] = useState(0);
     const [uploadedImages, setUploadedImages] = useState<string[]>([]);
-
+    const [isFriendAdded, setIsFriendAdded] = useState(false);
+    const queryFriendships = {
+        friendships: {
+            $: {
+                where: {
+                    friendId: userId,
+                    isFriend: true,
+                    userId: post.userId
+                },
+            },
+        },
+    }
+    const { data: dataFriendships } = db.useQuery(queryFriendships)
     const toggleModal = () => {
         setIsShow((prevState) => !prevState);
     }
@@ -144,7 +158,6 @@ export default function ArticleViewPost({ post }: { post: any }) {
         }
     };
 
-
     const createComment = async () => {
         if (!post.postId || !userId || !commentContent) return;
 
@@ -181,7 +194,6 @@ export default function ArticleViewPost({ post }: { post: any }) {
             console.error('Error checking if post is liked:', error);
         }
     };
-    
 
     const handleRepost = async () => {
         if (!userId || !post.postId || !post.content) return;
@@ -209,7 +221,7 @@ export default function ArticleViewPost({ post }: { post: any }) {
                             userId: userId,
                             postId: post_id,
                             content: post.content,
-                            images: post.images,  // Change this line
+                            images: post.images,
                             createdAt: new Date().getTime(),
                             repost: post.postId
                         }
@@ -239,7 +251,6 @@ export default function ArticleViewPost({ post }: { post: any }) {
         }
     };
     
-
     const handleShare = () => {
         if (!userId || !post.postId) return;
 
@@ -272,19 +283,43 @@ export default function ArticleViewPost({ post }: { post: any }) {
         checkIsLiked();
     }, [post.postId, userId]);
 
-    
+    const addFriend = async (userId: string, friendId: string) => {
+        if (!userId || !friendId || isFriendAdded) return;
+
+        try {
+            db.transact([tx.friendships[id()].update(
+                {
+                    userId: userId,
+                    friendId: friendId,
+                    isFriend: false,
+                    isPendingRequest: true,
+                    createdAt: Date.now()
+                }
+            )]);
+        } catch (error) {
+            console.error('Error adding friend:', error);
+            alert('Error adding friend');
+        }
+    };
 
     return(
         <div>
-            <div className="">
-                {/* <header> */}
+            <div className="flex flex-col gap-3 ">
                 <div className="flex flex-row items-center justify-between">
                     <div className="flex flex-row justify-center gap-2 mt-2 ml-5 ">
-                        <div>
-                            <img className=" rounded-full w-8 h-8 bg-cover" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQgFPzdgOy4CJfBOVER-gmHRQJjVfNd3LMf-Q&s" alt="" />
-                            <div className=" translate-x-4 translate-y-[-15px]  ">
-                                <img width={20} src="/assets/addfriend.svg" alt="" />
-                            </div>
+                        <div className="relative">
+                            <img className="rounded-full w-8 h-8 bg-cover" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQgFPzdgOy4CJfBOVER-gmHRQJjVfNd3LMf-Q&s" alt="User avatar" />
+                            {!isFriendAdded && userId !== post.userId && !dataFriendships?.friendships.length && (
+                                <button
+                                    onClick={() => {
+                                        addFriend(userId as string, post.userId as string);
+                                        setIsFriendAdded(true);
+                                    }}
+                                    className="absolute bottom-[-4px] right-[-4px] bg-white rounded-full shadow-md hover:bg-gray-100 p-1"
+                                >
+                                    <img width={10} src="/assets/addfriend.svg" alt="Add friend" />
+                                </button>
+                            )}
                         </div>
                         
                         <div className="flex gap-2 mt-2 ">
