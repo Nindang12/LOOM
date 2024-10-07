@@ -19,12 +19,18 @@ export default function ContentComment({
     const [timeAgo, setTimeAgo] = useState<string>('');
     const [isReposted, setIsReposted] = useState<boolean>(false);
     const [repostCount, setRepostCount] = useState<number>(0);
-
-    const userAccountId = getUserId()
+    const [userAccountId, setUserAccountId] = useState<string | null>(null);
 
     const toggleModal = () => {
         setIsShow((prevState) => !prevState);
     }
+
+    useEffect(() => {
+        if(typeof window !== 'undefined'){
+            const userId = getUserId();
+            setUserAccountId(userId as string);
+        }
+    }, [])
 
     useEffect(() => {
         const calculateTimeAgo = () => {

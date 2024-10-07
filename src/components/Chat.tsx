@@ -79,7 +79,7 @@ const Chat = ({ friendId, userId }: { friendId: string, userId?: string }) => {
     if (error) return <div>Error loading chat</div>
 
     return (
-        <div className="w-full h-full flex flex-col overflow-hidden z-0">
+        <div className="w-full h-full flex flex-col overflow-hidden">
             <div className="flex items-center p-4 bg-gray-100 border-b">
                 <img
                     src={`https://api.dicebear.com/6.x/initials/svg?seed=${friendId}`}

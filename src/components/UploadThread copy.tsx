@@ -1,5 +1,5 @@
 "use client"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { getUserId } from "@/utils/auth";
 
 export default function UploadThread(){
@@ -9,7 +9,14 @@ export default function UploadThread(){
     }
     const [content, setContent] = useState("");
     const [isLoading, setIsLoading] = useState(false);
-    const userId = getUserId();
+    const [userId, setUserId] = useState<string | null>(null);
+
+    useEffect(() => {
+        if(typeof window !== 'undefined'){
+            const userId = getUserId();
+            setUserId(userId as string);
+        }
+    }, [])
 
 
     const handleUploadThread = async () => {

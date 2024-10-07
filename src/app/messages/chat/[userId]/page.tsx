@@ -1,5 +1,5 @@
 "use client"
-
+import { useEffect, useState } from "react"
 import Sidebar from "@/components/Sidebar"
 import Chat from "@/components/Chat"
 import { usePathname } from "next/navigation"
@@ -10,7 +10,14 @@ import Link from "next/link"
 const ChatPage = () => {
     const pathName = usePathname();
     const friendId = pathName.replace("/messages/chat/", "")
-    const currentUserId = getUserId() as string;
+    const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
+    useEffect(() => {
+        if(typeof window !== 'undefined'){
+            const userId = getUserId();
+            setCurrentUserId(userId as string);
+        }
+    }, [])
 
     return (
         <div>
@@ -23,7 +30,7 @@ const ChatPage = () => {
                                 <div className="flex-grow h-full overflow-y-auto">
                                     <Chat 
                                         friendId={friendId} 
-                                        userId={currentUserId} 
+                                        userId={currentUserId as string} 
                                     />
                                 </div>
                             </div>
@@ -45,7 +52,7 @@ const ChatPage = () => {
                     <div className="flex-grow overflow-hidden">
                         <Chat 
                             friendId={friendId} 
-                            userId={currentUserId} 
+                            userId={currentUserId as string} 
                         />
                     </div>
                     <div className="md:hidden">
