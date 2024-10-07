@@ -1,8 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import React, { useState } from 'react'
-import ShowMess from './ShowMess';
+import React, { useState, useEffect } from 'react'
+import axios from "axios";
 
 interface FriendListProps {
     db: any
@@ -12,10 +12,61 @@ interface FriendListProps {
 const FriendList: React.FC<FriendListProps> = ({ db, currentUserId }) => {
     const [isShow, setIsShow] = useState<boolean>(false);
     const [isShowMessage, setisShowMessage] = useState<boolean>(false);
+    const [accountData, setAccountData] = useState<AccountData[]>([]);
+    const [searchTerm, setSearchTerm] = useState<string>('');
+    const [selectedFriends, setSelectedFriends] = useState<string[]>([]);
 
     const toggleModal = () => {
         setIsShow((prevState) => !prevState);
     }
+
+    const toggleModelMess = () => {
+        setisShowMessage((prevState) => !prevState)
+    }
+
+    const searchFriend = async (user_id: string) => {
+        if (user_id === "") {
+            setAccountData([]);
+        } else {
+            if (user_id.length > 0) {
+                try {
+                    const response = await axios.get(`/api/account?userId=${user_id}`);
+                    if (!response) {
+                        return null;
+                    }
+                    const accountData = await response.data;
+                    setAccountData(accountData);
+                } catch (error) {
+                    console.error('Failed to fetch account:', error);
+                }
+            }
+        }
+    };
+
+    useEffect(() => {
+        const delayDebounceFn = setTimeout(() => {
+            if (searchTerm) {
+                searchFriend(searchTerm);
+            }
+        }, 300)
+
+        return () => clearTimeout(delayDebounceFn)
+    }, [searchTerm]);
+
+    const handleFriendSelection = (friendId: string) => {
+        setSelectedFriends(prev => 
+            prev.includes(friendId) 
+                ? prev.filter(id => id !== friendId) 
+                : [...prev, friendId]
+        );
+    };
+
+    const startChat = () => {
+        // Logic to start a chat with selected friends
+        console.log("Starting chat with:", selectedFriends);
+        // Here you would typically navigate to a chat room or open a chat interface
+        toggleModelMess();
+    };
 
     const query = {
         friendships: {
@@ -30,20 +81,7 @@ const FriendList: React.FC<FriendListProps> = ({ db, currentUserId }) => {
         },
     }
     const { isLoading, error, data } = db.useQuery(query)
-    const getTimeSinceLastOnline = (lastOnlineTimestamp: number): string => {
-        const now = Date.now();
-        const diffInSeconds = Math.floor((now - lastOnlineTimestamp) / 1000);
-        
-        if (diffInSeconds < 60) {
-            return `${diffInSeconds}s ago`;
-        } else if (diffInSeconds < 3600) {
-            return `${Math.floor(diffInSeconds / 60)}m ago`;
-        } else if (diffInSeconds < 86400) {
-            return `${Math.floor(diffInSeconds / 3600)}h ago`;
-        } else {
-            return `${Math.floor(diffInSeconds / 86400)}d ago`;
-        }
-    };
+
     if (isLoading) return <div>Loading friends...</div>
     if (error) return <div>Error loading friends: {error.message}</div>
 
@@ -66,33 +104,19 @@ const FriendList: React.FC<FriendListProps> = ({ db, currentUserId }) => {
 
             {/* Friend List */}
             <div className="flex-grow overflow-y-auto">
-                <div className="flex flex-col">
+                <div className="grid grid-cols-1 gap-2 p-4">
                     {data?.friendships?.map((friendship: any) => (
                         <Link
                             key={friendship.id}
                             href={`/messages/chat/${friendship.friendId}`}
-                            className="p-4 hover:bg-gray-100 flex items-center border-b"   
+                            className="p-4 rounded-lg cursor-pointer hover:bg-gray-100 flex items-center"   
                         >
                             <img
                                 src={`https://api.dicebear.com/6.x/initials/svg?seed=${friendship.friendId}`}
                                 alt="Friend Avatar"
-                                className="w-12 h-12 rounded-full mr-4"
+                                className="w-10 h-10 rounded-full mr-3"
                             />
-                            <div className="flex-grow">
-                                <div className="flex justify-between items-center">
-                                    <span className="font-semibold">{friendship.friendId}</span>
-                                    <span className="text-xs text-gray-500">
-                                        {friendship.isOnline ? (
-                                            <span className="bg-green-500 text-white px-2 py-1 rounded-full">Online</span>
-                                        ) : (
-                                            friendship.lastOnline ? getTimeSinceLastOnline(friendship.lastOnline) : 'Offline'
-                                        )}
-                                    </span>
-                                </div>
-                                <div className="text-sm text-gray-500 truncate mt-1">
-                                    {friendship.lastMessage ? friendship.lastMessage.content : 'No messages yet'}
-                                </div>
-                            </div>
+                            <span>{friendship.friendId}</span>
                         </Link>
                     ))}
                 </div>
@@ -128,12 +152,7 @@ const FriendList: React.FC<FriendListProps> = ({ db, currentUserId }) => {
                 </div>
             )}
             {isShowMessage && (
-                <ShowMess
-                    db={db}
-                    currentUserId={currentUserId}
-                    isOpen={isShowMessage}
-                    onClose={() => setisShowMessage(false)}
-                />
+                <div></div>
             )}
         </div>
     )
