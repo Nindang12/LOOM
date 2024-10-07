@@ -22,22 +22,32 @@ export default function Active() {
     }
     const { data } = db.useQuery(query)
     
-    const addFriend = async (userId: string, friendId: string) => {
+    const acceptFriend = async (userId: string, friendId: string,idRequest: string) => {
         if (!userId || !friendId) return;
 
         try {
-            db.transact([tx.friendships[id()].update(
-                { 
+            await db.transact([
+                tx.friendships[id()].update({
+                    userId: friendId,
+                    friendId: userId,
+                    isFriend: true,
+                    isPendingRequest: false,
+                    createdAt: Date.now()
+                })
+            ]);
+            await db.transact([
+                tx.friendships[idRequest].update({
                     userId: userId,
                     friendId: friendId,
                     isFriend: true,
                     isPendingRequest: false,
                     createdAt: Date.now()
-                }
-            )]);
+                })
+            ]);
+            console.log('Friend request accepted successfully');
         } catch (error) {
-            console.error('Error adding friend:', error);
-            alert('Error adding friend');
+            console.error('Error accepting friend request:', error);
+            alert('Error accepting friend request. Please try again.');
         }
     };
 
@@ -57,7 +67,7 @@ export default function Active() {
                                 <span className="text-sm text-gray-400">wants to add you as a friend</span>
                             </div>
                             <div className="flex gap-2 mt-2">
-                                <button className="bg-black text-white px-4 py-2 rounded-full text-sm" onClick={() => addFriend(currentUserId as string, request.userId as string)}>Accept</button>
+                                <button className="bg-black text-white px-4 py-2 rounded-full text-sm" onClick={() => acceptFriend(currentUserId as string, request.userId as string,request.id as string)}>Accept</button>
                                 <button className="bg-gray-200 text-black px-4 py-2 rounded-full text-sm">Decline</button>
                             </div>
                         </div>

@@ -18,8 +18,6 @@ export default function Article({ user_id, content,postId,images }: ArticleProps
     const [isLiked, setIsLiked] = useState(false);
     const [commentContent, setCommentContent] = useState<string>('');
     const [isReposted, setIsReposted] = useState<boolean>(false);
-    const [repostCount, setRepostCount] = useState<number>(0);
-    const [image, setImage] = useState<string|null>(null);
     const [shareCount, setShareCount] = useState<number>(0);
     const [uploadedImages, setUploadedImages] = useState<string[]>([]);
 
@@ -58,6 +56,7 @@ export default function Article({ user_id, content,postId,images }: ArticleProps
     }
 
     const { data: dataFriendships } = db.useQuery(queryFriendships)
+
 
     //console.log(dataFriendships)
     const totalLikes = data?.actionLikePost.filter(
@@ -269,19 +268,22 @@ export default function Article({ user_id, content,postId,images }: ArticleProps
     const addFriend = async (userId: string, friendId: string) => {
         if (!userId || !friendId || isFriendAdded) return;
 
+
         try {
-            db.transact([tx.friendships[id()].update(
-                { 
+            await db.transact([
+                tx.friendships[id()].update({
                     userId: userId,
                     friendId: friendId,
                     isFriend: false,
                     isPendingRequest: true,
                     createdAt: Date.now()
-                }
-            )]);
+                })
+            ]);
+            setIsFriendAdded(true);
+            console.log('Friend request sent successfully');
         } catch (error) {
             console.error('Error adding friend:', error);
-            alert('Error adding friend');
+            alert('Error sending friend request. Please try again.');
         }
     };
     
