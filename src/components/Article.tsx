@@ -36,6 +36,29 @@ export default function Article({ user_id, content, postId, images }: ArticlePro
         }
     })
 
+    const queryUserDetails = {
+        userDetails: {
+            $: {
+                where: {
+                    userId: user_id
+                }
+            }
+        }
+    }
+    const { data: dataUserDetails } = db.useQuery(queryUserDetails)
+    const queryIsFollowing = {
+        friendships: {
+            $: {
+                where: {
+                    userId: userId,
+                    isFollowing: true,
+                    friendId: user_id
+                }
+            }
+        }
+    }
+    const { data: dataIsFollowing } = db.useQuery(queryIsFollowing)
+
     const queryCheckIsLiked = {
         actionLikePost: {
             $: {
@@ -263,6 +286,7 @@ export default function Article({ user_id, content, postId, images }: ArticlePro
                     friendId: friendId,
                     isFriend: false,
                     isPendingRequest: true,
+                    isFollowing: true,
                     createdAt: Date.now()
                 }
             )]);
@@ -274,15 +298,22 @@ export default function Article({ user_id, content, postId, images }: ArticlePro
 
 
 
-
     return (
         <div className="w-full overflow-x-hidden">
             <div className="border-b border-gray-200 w-full py-2 px-5">
                 {/* <header> */}
                 <div className="flex flex-row gap-3 w-full">
                     <div className="relative flex-row w-8 h-8 justify-center flex-shrink-0">
-                        <img className="rounded-full w-8 h-8 bg-cover" src="/assets/avt.png" alt="avatar" />
-                        {!isFriendAdded && userId !== user_id && !dataFriendships?.friendships.length && (
+                        {
+                            dataUserDetails && dataUserDetails?.userDetails?.[0]?.avatar ? (
+                                <img className="rounded-full w-8 h-8 bg-cover" src={dataUserDetails?.userDetails?.[0]?.avatar} alt="avatar" />
+                            ) : (
+                                <img className="rounded-full w-8 h-8 bg-cover" src="/assets/avt.png" alt="avatar" />
+                            )
+                        }
+                        {!isFriendAdded && userId !== user_id && 
+                            !dataFriendships?.friendships.length && 
+                            !dataIsFollowing?.friendships?.length && (
                             <button
                                 onClick={() => {
                                     addFriend(userId as string, user_id as string);

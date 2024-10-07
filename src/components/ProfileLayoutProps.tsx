@@ -9,10 +9,11 @@ import React from "react";
 interface ProfileLayoutProps {
   username: string;
   fullname: string;
-  children: React.ReactNode; // Nội dung khác nhau sẽ được truyền qua đây
+  children: React.ReactNode;
+  image: string;
 }
 
-const ProfileLayout: React.FC<ProfileLayoutProps> = ({ username, fullname, children }) => {
+const ProfileLayout: React.FC<ProfileLayoutProps> = ({ username, fullname, children,image }) => {
   return (
     <div className="flex md:flex-row flex-col-reverse w-full overflow-hidden h-screen">
       <Siderbar />
@@ -21,7 +22,7 @@ const ProfileLayout: React.FC<ProfileLayoutProps> = ({ username, fullname, child
           <HeaderProfile />
           <div className="flex flex-col border border-gray-300 w-full rounded-xl mt-10 h-[90vh] overflow-y-scroll">
             <div className="w-max-[630px] h-[80px] ml-[15px] mr-[15px]">
-              <NameProfile username={username} fullname={fullname} />
+              <NameProfile username={username} fullname={fullname} image={image} />
             </div>
             <div className="w-max-[630px] h-[80px] ml-[15px] mr-[20px]">
               <Follower />

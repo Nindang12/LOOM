@@ -1,6 +1,7 @@
 interface Profile{
     username?: string,
-    fullname?: string
+    fullname?: string,
+    image?: string
 }
 interface Post {
     id: string;
