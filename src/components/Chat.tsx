@@ -89,35 +89,44 @@ const Chat = ({ friendId, userId }: { friendId: string, userId?: string }) => {
                 <h2 className="text-xl font-semibold">{friendId}</h2>
             </div>
             <div className="flex-1 overflow-y-auto p-4">
-                {Array.isArray(data?.messages) && data?.messages.map((message: Message) => (
-                    <div
-                        key={message.id}
-                        className={`mb-4 flex ${
-                            message.senderId === userId ? 'justify-end' : 'justify-start'
-                        }`}
-                    >
-                        <div className={`flex flex-col ${message.senderId === userId ? 'items-end' : 'items-start'}`}>
-                            {/* Hiển thị ngày tháng nếu tin nhắn được chọn */}
-                            {selectedMessageId === message.id && (
-                                <div className="text-xs text-gray-500 mb-1">
-                                    {new Date(message.createdAt).toLocaleString('en-US')}
+                {Array.isArray(data?.messages) && data?.messages.map((message: Message, index: number) => {
+                    const currentMessageTime = new Date(message.createdAt);
+                    const previousMessage = index > 0 ? data.messages[index - 1] : null;
+                    const previousMessageTime = previousMessage ? new Date(previousMessage.createdAt) : null;
+                    const timeDifference = previousMessageTime ? (currentMessageTime.getTime() - previousMessageTime.getTime()) / (1000 * 60) : Infinity;
+
+                    const showTimestamp = !previousMessage || timeDifference > 10;
+
+                    return (
+                        <div key={message.id}>
+                            {showTimestamp && (
+                                <div className="text-xs w-full flex justify-center text-gray-500 mb-1">
+                                    {currentMessageTime.toLocaleString('en-US')}
                                 </div>
                             )}
-
-                            {/* Nội dung tin nhắn */}
                             <div
-                                className={`inline-block p-3 rounded-lg max-w-xs cursor-pointer ${
-                                    message.senderId === userId
-                                        ? 'bg-blue-500 text-white'
-                                        : 'bg-gray-200 text-black'
+                                className={`mb-4 flex ${
+                                    message.senderId === userId ? 'justify-end' : 'justify-start'
                                 }`}
-                                onClick={() => handleSelectMessage(message.id)}
                             >
-                                {message.content}
+                                <div className={`flex flex-col ${message.senderId === userId ? 'items-end' : 'items-start'}`}>
+                                    <div
+                                        className={`inline-block p-3 rounded-lg max-w-xs ${
+                                            message.senderId === userId
+                                                ? 'bg-blue-500 text-white'
+                                                : 'bg-gray-200 text-black'
+                                        }`}
+                                    >
+                                        <div>{message.content}</div>
+                                        <div className="text-xs mt-1 text-right">
+                                            {new Date(message.createdAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                ))}
+                    );
+                })}
                 <div ref={chatEndRef} />
             </div>
 

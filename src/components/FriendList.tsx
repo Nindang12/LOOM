@@ -86,7 +86,7 @@ const FriendList: React.FC<FriendListProps> = ({ db, currentUserId }) => {
     if (error) return <div>Error loading friends: {error.message}</div>
 
     return (
-        <div className="w-full md:w-1/4 border-r h-screen flex flex-col">
+        <div className="w-full md:w-[397px] border-r h-screen flex flex-col">
             {/* Header */}
             <div className='flex justify-between items-center p-4 border-b'>
                 <div onClick={() => setIsShow(prev => !prev)} className='flex items-center cursor-pointer'>
