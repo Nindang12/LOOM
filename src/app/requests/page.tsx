@@ -4,7 +4,6 @@ import Sidebar from "@/components/Sidebar"
 import { init } from "@instantdb/react"
 import { useEffect, useState } from "react"
 import { getUserId } from "@/utils/auth";
-import { checkLogin } from "@/utils/utils";
 import { useRouter } from "next/navigation"
 import FriendWaiting from "@/components/FriendWaiting"
 import LayoutChatWaiting from "@/components/LayoutChatWaiting"
@@ -39,13 +38,6 @@ const Requests = () => {
     const [currentUserId, setCurrentUserId] = useState<string | null>(null);
     
     useEffect(() => {
-        const verifyLogin = async () => {
-            const loggedIn = await checkLogin();
-            if (!loggedIn) {
-                router.push('/login');
-            }
-        };
-        verifyLogin();
         if(typeof window !== 'undefined'){
             const userId = getUserId();
             setCurrentUserId(userId as string);

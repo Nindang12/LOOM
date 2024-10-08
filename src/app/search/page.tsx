@@ -14,7 +14,15 @@ export default function SearchPage() {
   const router = useRouter()
   const [accountData, setAccountData] = useState<AccountData[]>([]);
   const [search, setSearch] = useState<string>("")
-  const userId = getUserId();
+  const [userId, setUserId] = useState<string>("")
+
+  useEffect(() => {
+    if(typeof window !== "undefined"){
+      const userId = getUserId();
+      setUserId(userId as string)
+    }
+  }, [])
+
   const query = {
     userDetails: {}
   }
@@ -30,7 +38,7 @@ export default function SearchPage() {
     if (!userId) {
       router.push('/login');
     }
-  }, []);
+  }, [userId]);
   
   // console.log({filteredData})
 
