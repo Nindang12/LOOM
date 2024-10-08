@@ -14,7 +14,7 @@ export default function SearchPage() {
   const router = useRouter()
   const [accountData, setAccountData] = useState<AccountData[]>([]);
   const [search, setSearch] = useState<string>("")
-
+  const userId = getUserId();
   const query = {
     userDetails: {}
   }
@@ -22,12 +22,11 @@ export default function SearchPage() {
   const { data } = db.useQuery(query)
 
   const filteredData = useMemo(() => {
-    return data?.userDetails.filter((item: any) => item.userId.includes(search));
+    return data?.userDetails.filter((item: any) => item.userId.includes(search)&&item.userId !== userId);
   }, [data, search]);
   
 
   useEffect(() => {
-    const userId = getUserId();
     if (!userId) {
       router.push('/login');
     }

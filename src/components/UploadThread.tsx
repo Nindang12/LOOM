@@ -88,7 +88,7 @@ export default function UploadThread(){
             </div>
             {
                 iesShow && (
-                    <div className="z-20 fixed top-0 left-0 w-full h-full bg-black bg-opacity-60" onClick={toggleModal}>
+                    <div className="z-50 fixed top-0 left-0 w-full h-full bg-black bg-opacity-60" onClick={toggleModal}>
                         <div className="absolute left-16 right-0 h-full flex flex-col items-center justify-center">
                             <span className="py-5 text-white font-bold">Thread mới</span>
                             <div onClick={(e) => e.stopPropagation()} className=" bg-white p-3 rounded-lg shadow-lg w-[600px]">
