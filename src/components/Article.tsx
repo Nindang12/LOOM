@@ -300,7 +300,7 @@ export default function Article({ user_id, content, postId, images }: ArticlePro
 
     return (
         <div>
-            <div className="border-b border-gray-200 w-full py-2 px-2">
+            <div className="border-b border-gray-200 w-full py-2 md:px-5 px-2">
                 {/* <header> */}
                 <div className="flex flex-row gap-3 w-full">
                     <div className="relative flex-row w-8 h-8 justify-center flex-shrink-0">
@@ -378,8 +378,8 @@ export default function Article({ user_id, content, postId, images }: ArticlePro
                                 <div className="w-[300px] md:min-w-[545px] h-auto flex overflow-x-auto overflow-y-hidden gap-2">
                                     <div className="flex overflow-x-auto overflow-y-hidden w-auto gap-2 pb-2">
                                         {images.map((image: string, index) => (
-                                            <div key={index} className="rounded-lg min-w-[208px] h-52 bg-gray-200 flex-shrink-0">
-                                                <img src={image} alt={`image-${index}`} className="object-cover w-full h-full rounded-lg" />
+                                            <div key={index} className="rounded-lg w-auto h-72 md:h-96 bg-gray-200 flex-shrink-0">
+                                                <img src={image} alt={`image-${index}`} className="object-cover w-content h-full rounded-lg" />
                                             </div>
                                         ))}
                                     </div>

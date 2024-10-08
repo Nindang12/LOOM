@@ -113,7 +113,7 @@ export default function Suggest({data}:{data: any}){
                 <div>
                     <p className="text-sm font-normal px-[40px] py-2">{dataFollowedOfUser?.friendships?.length} người theo dõi</p>
                 </div>
-                <div className="w-[568px] h-[1px] bg-gray-300 ml-[40px] mb-5"></div>
+                <div className="w-full h-[1px] bg-gray-300 mb-5"></div>
             </div>
 
         </div>

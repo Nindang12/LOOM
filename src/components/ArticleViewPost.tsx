@@ -373,20 +373,19 @@ export default function ArticleViewPost({ post }: { post: any }) {
                     </div>
                 </div>
                 {/* body  */}
-                <div className="flex flex-col gap-2 px-6">
-                    <div className="text-sm ">
-                        <p className="w-[300px] md:min-w-[535px] md:max-w-[540px] break-words whitespace-pre-wrap">{post.content}</p>
+                <div className="flex flex-col w-full md:max-w-[545px] gap-2 px-6">
+                    <div className="text-sm">
+                        <p className="w-full md:max-w-[540px] break-words whitespace-pre-wrap">{post.content}</p>
                     </div>
-                    <div className="flex overflow-x-scroll gap-2 mt-1">
-                        {post.images && 
-                            post.images.map((image:string,index:number) => {
-                            return(
-                                <div key={index} className="rounded-lg w-52 h-52 bg-gray-200 flex items-center justify-center">
-                                    <img src={image} alt={`image`} className="object-cover w-full h-full rounded-lg" />
+                    {post.images && post.images.length > 0 && (
+                        <div className="flex overflow-x-auto gap-2 mt-1">
+                            {post.images.map((image: string, index: number) => (
+                                <div key={index} className="flex-shrink-0 rounded-lg w-auto h-52 bg-gray-200 flex items-center justify-center">
+                                    <img src={image} alt={`Post image ${index + 1}`} className="object-cover w-full h-full rounded-lg" />
                                 </div>
-                            )
-                        })}
-                    </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
                 {/* footer */}
                 <div className="flex mt-5 md:ml-[16px] justify-center md:justify-start items-center text-sm font-thin gap-5 mb-3 ">
@@ -443,17 +442,17 @@ export default function ArticleViewPost({ post }: { post: any }) {
                                     </div>
                                 </div>
                                 {/* body  */}
-                                <div className="flex flex-col gap-3 overflow-x-hidden">
-                                    <span className="w-full md:max-w-[540px] break-words whitespace-pre-wrap">{post.content}</span>
+                                <div className="flex flex-col w-full md:max-w-[545px] gap-2 px-6">
+                                    <div className="text-sm">
+                                        <p className="w-full md:max-w-[540px] break-words whitespace-pre-wrap">{post.content}</p>
+                                    </div>
                                     {post.images && post.images.length > 0 && (
-                                        <div className="w-full md:max-w-[545px] overflow-x-auto">
-                                            <div className="flex gap-2 pb-2">
-                                                {post.images.map((image: string, index: number) => (
-                                                    <div key={index} className="rounded-lg w-52 h-52 bg-gray-200 flex-shrink-0">
-                                                        <img src={image} alt={`image-${index}`} className="object-cover w-full h-full rounded-lg" />
-                                                    </div>
-                                                ))}
-                                            </div>
+                                        <div className="flex overflow-x-auto gap-2 mt-1">
+                                            {post.images.map((image: string, index: number) => (
+                                                <div key={index} className="flex-shrink-0 rounded-lg w-auto h-52 bg-gray-200 flex items-center justify-center">
+                                                    <img src={image} alt={`Post image ${index + 1}`} className="object-cover w-full h-full rounded-lg" />
+                                                </div>
+                                            ))}
                                         </div>
                                     )}
                                 </div>

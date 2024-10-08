@@ -108,7 +108,7 @@ export default function Home() {
               </div>
             </div>
           </div>
-          <div className="flex flex-col bg-white border md:border md:border-gray-300 w-full rounded-2xl md:mt-2 h-[490px] md:h-[calc(100vh-60px)]">
+          <div className="flex flex-col bg-white border md:border md:border-gray-300 w-full rounded-2xl md:mt-2 h-[calc(100vh-190px)] md:h-[calc(100vh-60px)] overflow-hidden">
             <div className="w-full hidden md:block sticky top-0 z-20">
               <UploadThread/>
             </div>
