@@ -3,7 +3,8 @@
 import Sidebar from "@/components/Sidebar"
 import { init } from "@instantdb/react"
 import { useEffect, useState } from "react"
-import { checkLogin, getUserId } from "@/utils/auth";
+import { getUserId } from "@/utils/auth";
+import { checkLogin } from "@/utils/utils";
 import { useRouter } from "next/navigation"
 import FriendWaiting from "@/components/FriendWaiting"
 import LayoutChatWaiting from "@/components/LayoutChatWaiting"

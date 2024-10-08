@@ -2,10 +2,40 @@
 import { useCallback, useEffect, useState } from "react"
 import Link from "next/link"
 import { getUserId } from "@/utils/auth";
+import { db } from "@/utils/contants";
+import { tx, id } from "@instantdb/react";
 
-export default function Suggest({data}:{data: AccountData}){
+export default function Suggest({data}:{data: any}){
     const [isFollowing, setIsFollowing] = useState<boolean>(false);
     const [userId, setUserId] = useState<string | null>(null);
+    const [isFriendAdded, setIsFriendAdded] = useState(false);
+
+
+    const queryIsFollowing = {
+        friendships: {
+            $: {
+                where: {
+                    userId: userId,
+                    isFollowing: true,
+                    friendId: data.userId
+                }
+            }
+        }
+    }
+    const { data: dataIsFollowing } = db.useQuery(queryIsFollowing)
+
+    const queryFollowedOfUser = {
+        friendships: {
+            $: {
+                where: {
+                    userId: data.userId,
+                    isFollowing: true,
+                }
+            }
+        }
+    }
+    const { data: dataFollowedOfUser } = db.useQuery(queryFollowedOfUser)
+    //console.log(dataFollowedOfUser)
 
     useEffect(() => {
         if(typeof window !== 'undefined'){
@@ -21,77 +51,49 @@ export default function Suggest({data}:{data: AccountData}){
             return;
         }
         setIsFollowing(!isFollowing);
-        following(data.user_id, userId);
+        addFriend(userId, data.userId)
     };
 
-    const following = async (user_id: string, userId: string) => {
+    const addFriend = async (userId: string, friendId: string) => {
+        if (!userId || !friendId || isFriendAdded) return;
+
         try {
-            const response = await fetch('/api/account/following', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ user_id: userId, following_id: user_id }),
-            });
-
-            if (!response) {
-                return null;
-            }
-
-            const result = await response.json();
-            console.log('Follow/unfollow action successful:', result);
+            db.transact([tx.friendships[id()].update(
+                {
+                    userId: userId,
+                    friendId: friendId,
+                    isFriend: false,
+                    isPendingRequest: true,
+                    isFollowing: true,
+                    createdAt: Date.now()
+                }
+            )]);
         } catch (error) {
-            console.error('Error in follow/unfollow action:', error);
+            console.error('Error adding friend:', error);
+            alert('Error adding friend');
         }
     };
-    // console.log(data.user_id)
-
-    const checkUserIds = useCallback(async () => {
-        if(data.user_id === userId){
-            setIsFollowing(true)
-        }
-            if(userId){
-                try {
-                const response = await fetch(`/api/account/following?userId=${userId}&followingId=${data.user_id}`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                });
-    
-                if (!response) {
-                    return null;
-                }
-    
-                const result = await response.json();
-                //console.log(result)
-                setIsFollowing(result.isFollowing);
-            } catch (error) {
-                console.error('Error checking user IDs:', error);
-                return false;
-            }
-        }
-    }, [data.user_id, userId]);
-
-    useEffect(() => {
-        checkUserIds();
-    }, [checkUserIds]);
 
     return(
         <div className="ml-5 cursor-pointer">
-            <div className="mb-5 hidden md:bolck" >
-                <span className="text-sm font-bold text-gray-400">Gợi ý theo dõi</span>
-            </div>
             <div className="">
                 {/* header */}
                 <div className="flex flex-row justify-between items-center ">
                     <div className="flex flex-row gap-2 items-center ">
-                        <div>
-                            <img className=" rounded-full z-0 w-8 h-8 bg-cover" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQgFPzdgOy4CJfBOVER-gmHRQJjVfNd3LMf-Q&s" alt=""></img>           
-                        </div>
+                        {
+                            data.avatar ? (
+                                <div>
+                                    <img className=" rounded-full z-0 w-8 h-8 bg-cover" src={data.avatar} alt=""></img>           
+                                </div>
+                            ) : (
+                                <div>
+                                    <img className=" rounded-full z-0 w-8 h-8 bg-cover" src="/assets/avt.png" alt=""></img>           
+                                </div>
+                            )
+                        } 
                         <div className="flex flex-col ">
-                            <Link href={`/@${data.user_id}`} className="font-bold text-sm">
-                                <span className="">{data.user_id}</span>
+                            <Link href={`/@${data.userId}`} className="font-semibold hover:underline text-sm">
+                                <span className="">{data.userId}</span>
                             </Link>
                             <div className="text-sm text-gray-400">
                                 <p>{data.fullname}</p>
@@ -99,9 +101,9 @@ export default function Suggest({data}:{data: AccountData}){
                         </div>
                     </div>
                     {
-                        userId === data.user_id ? null : (
-                            <button onClick={toggleFollow} className="flex mr-5 items-center justify-center w-auto h-[35px] border border-gray-400 rounded-xl">
-                                <span className={`text-base p-5 font-medium ${isFollowing ? 'text-gray-400' : 'text-black'}`}>{isFollowing ? 'Đang theo dõi' : 'Theo dõi'}</span>
+                        userId === data.userId &&!dataIsFollowing?.friendships?.length ? null : (
+                            <button disabled={isFollowing || !dataIsFollowing?.friendships?.length} onClick={toggleFollow} className="flex mr-5 items-center justify-center w-auto h-[35px] border border-gray-400 rounded-xl">
+                                <span className={`text-base p-5 font-medium ${isFollowing || dataIsFollowing?.friendships?.length ? 'text-gray-400' : 'text-black'}`}>{isFollowing || dataIsFollowing?.friendships?.length ? 'Đang theo dõi' : 'Theo dõi'}</span>
                             </button>
                         )
                     }
@@ -109,7 +111,7 @@ export default function Suggest({data}:{data: AccountData}){
                 
                 {/* body */}
                 <div>
-                    <p className="text-sm font-normal px-[40px] py-2">0 nguoi theo doi</p>
+                    <p className="text-sm font-normal px-[40px] py-2">{dataFollowedOfUser?.friendships?.length} người theo dõi</p>
                 </div>
                 <div className="w-[568px] h-[1px] bg-gray-300 ml-[40px] mb-5"></div>
             </div>

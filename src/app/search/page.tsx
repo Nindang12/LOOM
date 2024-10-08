@@ -4,34 +4,36 @@ import HeaderSearch from "@/components/HeaderSearch";
 import Siderbar from "@/components/Sidebar"
 import Search from "@/components/Search";
 import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Suggest from "@/components/Suggest";
 import axios from "axios";
+import { db } from "@/utils/contants";
+import { getUserId } from "@/utils/auth";
 
 export default function SearchPage() {
   const router = useRouter()
   const [accountData, setAccountData] = useState<AccountData[]>([]);
-  
-  const searchAccount = async (user_id: string) => {
-    if(user_id === ""){
-      setAccountData([])
-    }else{
-      if(user_id.length > 0){
-        try {
-          const response = await axios.get(`/api/account?userId=${user_id}`);
-          if (!response) {
-            return null;
-          }
-          const accountData = await response.data;
-          setAccountData(accountData);
-        } catch (error) {
-          console.error('Failed to fetch account:', error);
-        }
-      }
-    }
-  };
+  const [search, setSearch] = useState<string>("")
 
-  //console.log(accountData)
+  const query = {
+    userDetails: {}
+  }
+
+  const { data } = db.useQuery(query)
+
+  const filteredData = useMemo(() => {
+    return data?.userDetails.filter((item: any) => item.userId.includes(search));
+  }, [data, search]);
+  
+
+  useEffect(() => {
+    const userId = getUserId();
+    if (!userId) {
+      router.push('/login');
+    }
+  }, []);
+  
+  // console.log({filteredData})
 
   return (
     <div className="flex md:flex-row flex-col-reverse w-full overflow-hidden h-screen">
@@ -41,12 +43,13 @@ export default function SearchPage() {
           <HeaderSearch/>
           <div className="flex flex-col border border-gray-300 w-full rounded-xl mt-10 h-screen overflow-y-scroll">
               <div className="w-full h-[80px]">
-                  <Search searchAccount={searchAccount}/>
+                  <Search searchAccount={setSearch}/>
               </div>
-              <div className="w-full h-full mt-10 md:mt-0">
+              <div className="w-full h-full mt-10 md:mt-0 flex flex-col">
+                <span className="text-sm font-bold text-gray-400 ml-5 mb-5">Gợi ý theo dõi</span>
                 {
-                  accountData.length > 0 &&accountData.map((item)=>{
-                    return <Suggest key={item.user_id} data={item}/>
+                  filteredData && filteredData.length > 0 && filteredData.map((item: any)=>{
+                    return <Suggest key={item.userId} data={item}/>
                   })
                 }
               </div>

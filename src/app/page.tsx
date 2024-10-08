@@ -7,11 +7,11 @@ import Article from "@/components/Article";
 import React, { useEffect, useState } from "react";
 import Foryou from "@/components/Foryou";
 import { useRouter } from "next/navigation";
-import axios from "axios";
 import { checkLogin } from "@/utils/auth";
 import { db } from "@/utils/contants";
 
 export default function Home() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
   const router = useRouter()
 
   const query = {
@@ -27,19 +27,26 @@ export default function Home() {
 
   const filterPost = data?.posts.filter((post:any) => !post?.repost)
 
-
   useEffect(() => {
-      const verifyLogin = async () => {
-          const loggedIn = await checkLogin();
-          if (!loggedIn) {
-              router.push('/login');
-          }
-      };
-      verifyLogin();
-  }, [router]);
+    const checkAuth = async () => {
+      const loggedIn = await checkLogin()
+      setIsLoggedIn(loggedIn)
+      if(!loggedIn){
+        router.push('/login')
+      }
+    }
+    checkAuth()
+  }, [router])
 
+  const handleLogout = () => {
+    setIsLoggedIn(false)
+    router.push('/login')
+  }
 
-  //console.log(data)
+  if (!isLoggedIn) {
+    return null
+  }
+
   return (
     <div className="flex md:flex-row flex-col-reverse w-full overflow-hidden h-screen">
       <div className="">
