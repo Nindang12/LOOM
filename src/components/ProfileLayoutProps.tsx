@@ -4,7 +4,8 @@ import HeaderProfile from "@/components/HeaderProfile";
 import NameProfile from "@/components/NameProfile";
 import Follower from "@/components/FollowerInProfile";
 import EditProfile from "@/components/EditProfile";
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { getUserId } from "@/utils/auth";
 
 interface ProfileLayoutProps {
   username: string;
@@ -14,6 +15,15 @@ interface ProfileLayoutProps {
 }
 
 const ProfileLayout: React.FC<ProfileLayoutProps> = ({ username, fullname, children,image }) => {
+
+  const [currentUserId, setCurrentUserId] = useState<string|null>(null)
+
+  useEffect(() => {
+    if(typeof window !== 'undefined'){
+      setCurrentUserId(getUserId())
+    }
+  }, []);
+
   return (
     <div className="flex md:flex-row flex-col-reverse w-full overflow-hidden h-screen">
       <Siderbar />
@@ -27,11 +37,16 @@ const ProfileLayout: React.FC<ProfileLayoutProps> = ({ username, fullname, child
             <div className="w-max-[630px] h-[80px] ml-[15px] mr-[20px]">
               <Follower />
             </div>
-            <div className="w-max-[630px] h-[90px] t-0">
-              <EditProfile />
-            </div>
+            
+              {
+                currentUserId === username && (
+                  <div className="w-max-[630px] h-[90px] t-0">
+                    <EditProfile />
+                  </div>
+                )
+              }
             {/* Vùng nội dung đặc biệt */}
-            <div className="w-max-[630px] h-full t-0 mr-[20px]">
+            <div className="w-max-[630px] h-full t-0 mr-[20px] mt-5">
               {children}
             </div>
           </div>

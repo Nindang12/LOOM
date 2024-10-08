@@ -40,7 +40,7 @@ export default function ThreadReplied() {
     data && (
       <ProfileLayout username={data.userDetails[0].userId} fullname={data.userDetails[0].fullname} image={data.userDetails[0].avatar} >
         <div className="w-max-[630px] h-[auto] t-0">
-          <RowThreadssreplied />
+          <RowThreadssreplied username={username} />
         </div>
         <div className="w-min-[630px] h-full flex t-0 mr-[20px]">
           <Threadsreplied userId={username} />

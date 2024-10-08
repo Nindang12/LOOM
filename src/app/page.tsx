@@ -3,19 +3,61 @@
 import Siderbar from "@/components/Sidebar";
 import UploadThread from "@/components/UploadThread";
 import Article from "@/components/Article";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Foryou from "@/components/Foryou";
 import { useRouter } from "next/navigation";
-import { checkLogin } from "@/utils/auth";
+import { checkLogin, getUserId } from "@/utils/auth";
 import { db } from "@/utils/contants";
 import Link from "next/link";
+import { tx } from "@instantdb/react";
 export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [currentIndex, setCurrentIndex] = useState<number>(0)
+  const [currentUser, setCurrentUser] = useState<string|null>(null)
   const [isShow, setIsShow] = useState<boolean>(false);
 
   const listButton = ["Dành cho bạn","Đã thích","Đã theo dõi","Đang theo dõi"]
   const router = useRouter()
+
+
+  useEffect(() => {
+    if(typeof window !== 'undefined'){
+      const userId = getUserId()
+      setCurrentUser(userId)
+    }
+  }, [currentUser]);
+
+  const queryUser = {
+    userDetails: {
+      $: {
+        where: { userId: currentUser },
+      }
+    }
+  }
+
+
+  const { data: dataUser } = db.useQuery(queryUser)
+
+  //console.log(dataUser)
+
+  // const updateStatus =useCallback( async (status: 'online' | 'offline') => {
+  //   if (dataUser) {
+  //     try {
+  //       await db.transact([tx.userDetails[dataUser?.userDetails[0].id].update({ 
+  //         status: status
+  //       })]);
+  //       console.log('Status updated to', status);
+  //     } catch (error) {
+  //       console.error('Failed to update status:', error);
+  //     }
+  //   } else {
+  //     console.warn('No user details found to update status');
+  //   }
+  // }, [dataUser]);
+
+  // useEffect(() => {
+  //   updateStatus('online');
+  // }, [updateStatus]);
 
   const query = {
     posts: {

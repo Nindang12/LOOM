@@ -1,8 +1,9 @@
-import { getUserId } from "@/utils/auth";
+import { getUserId, logout } from "@/utils/auth";
 import { db } from "@/utils/contants";
 import { useState, useEffect } from "react";
 import {tx,id} from "@instantdb/react"
 import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 
 export default function EditProfile(){
     const [isEditProfile, setIsEditProfile] = useState<boolean>(false);
@@ -10,10 +11,14 @@ export default function EditProfile(){
     const [image, setImage] = useState<string|null>(null);
     const [bio, setBio] = useState<string|null>(null)
     const [link,setLink] = useState<string|null>(null)
-    const [username, setUsername] = useState<string|null>(null)
-    const [fullname,setFullname] = useState<string|null>(null)
+    const [username, setUsername] = useState<string>("")
+    const [fullname,setFullname] = useState<string>("")
+    const [isEditFullname,setIsEditFullname] = useState<boolean>(false)
+    const [isEditUsername,setIsEditUsername] = useState<boolean>(false)
 
-
+    const router = useRouter()
+    
+    
     useEffect(() => {
         if(typeof window !== 'undefined'){
             const userId = getUserId();
@@ -33,8 +38,21 @@ export default function EditProfile(){
 
     const {data, error} = db.useQuery(queryUserDetails);
 
+    const queryUser = {
+        users:{
+            $:{
+                where:{
+                    userId: userId
+                }
+            }
+        }
+    }
+    const {data:dataUser, error:errorUser} = db.useQuery(queryUser);
+
     const onClose = () => {
         setIsEditProfile(false);
+        setIsEditFullname(false)
+        setIsEditUsername(false)
     }
 
 
@@ -51,11 +69,10 @@ export default function EditProfile(){
 
     const handleEditProfile = () =>{
         try{
-            if(data){
+            if(data&&dataUser){
                 db.transact(
                     [tx.userDetails[data?.userDetails[0]?.id].update(
                         {
-                            userId: username||userId,
                             fullname: fullname || data?.userDetails[0]?.fullname,
                             avatar: image || data?.userDetails[0]?.avatar,
                             bio: bio || data?.userDetails[0]?.bio,
@@ -65,12 +82,19 @@ export default function EditProfile(){
                 );
                 setImage(null);
                 setIsEditProfile(false);
-                toast.success("Cập nhật thành công");
+                setIsEditFullname(false)
+                toast.success("Cập nhật thành công");  
             }
         }catch(err){
             console.log(err)
         }
     }
+
+
+    const handleFullnameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setIsEditFullname(true)
+        setFullname(event.target.value);
+    };
 
     return(
         <div className="relative">
@@ -92,7 +116,13 @@ export default function EditProfile(){
                             <div className="mb-4 flex flex-row items-center justify-between gap-3">
                                 <div className="w-full">
                                     <label htmlFor="name" className="block text-sm font-medium text-gray-700">Họ và Tên</label>
-                                    <input  value={data&&data?.userDetails[0]?.fullname} onChange={(e) => setFullname(e.target.value)} type="text" id="name" className="mt-1 block w-full border-b border-gray-300 py-1 focus:outline-none focus:border-b focus:border-black" />
+                                    <input
+                                        value={fullname?.length >= 0 && isEditFullname ? fullname : data && data?.userDetails[0]?.fullname}
+                                        onChange={handleFullnameChange}
+                                        type="text"
+                                        id="name"
+                                        className="mt-1 block w-full border-b border-gray-300 py-1 focus:outline-none focus:border-b focus:border-black"
+                                    />
                                 </div>
                                 {
                                     image || data?.userDetails[0]?.avatar ? (
@@ -109,7 +139,13 @@ export default function EditProfile(){
                             </div>
                             <div className="mb-4">
                                 <label htmlFor="userId" className="block text-sm font-medium text-gray-700">Tên người dùng</label>
-                                <input  value={userId as string} onChange={(e) => setUsername(e.target.value)} type="text" id="userId" className="mt-1 block w-full border-b border-gray-300 py-1 focus:outline-none focus:border-b focus:border-black" />
+                                <input
+                                    value={data && data?.userDetails[0]?.userId}
+                                    disabled
+                                    type="text"
+                                    id="userId"
+                                    className="mt-1 block w-full border-b border-gray-300 py-1 focus:outline-none focus:border-b focus:border-black"
+                                />
                             </div>
                             <div className="mb-4">
                                 <label className="block text-sm font-medium text-gray-700">Tiểu sử</label>
@@ -121,7 +157,7 @@ export default function EditProfile(){
                             </div>
                             <div className="flex items-center mb-4">
                                 <label className="block text-sm font-medium text-gray-700 mr-2">Ẩn trang cá nhân</label>
-                                <input checked={true} type="checkbox" className="form-checkbox" />
+                                <input type="checkbox" className="form-checkbox" />
                             </div>
                             <button onClick={handleEditProfile} className="w-full bg-black text-white py-2 rounded-md focus:outline-none">Hoàn tất</button>
                         </div>

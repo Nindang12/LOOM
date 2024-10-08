@@ -1,46 +1,25 @@
+import React, { useEffect, useState } from "react";
 import FriendList from "./FriendList";
-import { tx,id,init } from "@instantdb/react"
 import { getUserId } from "@/utils/auth";
-import { useEffect, useState } from "react";
-import React, { ReactNode } from "react";
 
-export default function LayoutChat({children}:{children: ReactNode}){
-    const APP_ID = '5e07a141-e7d9-4273-9cba-877a820f73dd'
+interface LayoutChatProps {
+  children: React.ReactNode;
+}
 
-    type Schema = {
-        messages: {
-            id: string
-            senderId: string
-            receiverId: string
-            content: string
-            createdAt: number
+const LayoutChat = ({ children }: LayoutChatProps) => {
+    const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+    useEffect(() => {
+        if(typeof window !== 'undefined'){
+            const userId = getUserId();
+            setCurrentUserId(userId);
         }
-    friendships: {
-        id: string
-        userId: string
-        friendId: string
-        createdAt: number
-    }
-    users: {
-        id: string
-        username: string
-    }
-}
-const [currentUserId, setCurrentUserId] = useState<string | null>(null);  
-
-useEffect(() => {
-    if(typeof window !== 'undefined'){
-        const userId = getUserId();
-        setCurrentUserId(userId as string);
-    }
-}, [])
-
-const db = init<Schema>({ appId: APP_ID })
-    return(
-
-        <div className="flex flex-row overflow-y-auto w-full">
-            <FriendList db={db} currentUserId={currentUserId as string} /> 
-            {children}       
+    }, []);
+    return (
+        <div className="flex h-screen">
+            <FriendList currentUserId={currentUserId as string} />
+            {children}
         </div>
-    )
-}
+    );
+};
+
+export default LayoutChat;
