@@ -8,13 +8,22 @@ import React, { useEffect, useMemo, useState } from "react";
 import Suggest from "@/components/Suggest";
 import axios from "axios";
 import { db } from "@/utils/contants";
-import { getUserId } from "@/utils/auth";
+import { checkLogin, getUserId } from "@/utils/auth";
 
 export default function SearchPage() {
   const router = useRouter()
   const [accountData, setAccountData] = useState<AccountData[]>([]);
   const [search, setSearch] = useState<string>("")
-  const userId = getUserId();
+  const [userId, setUserId] = useState<string>("")
+
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  useEffect(() => {
+    if(typeof window !== "undefined"){
+      const userId = getUserId();
+      setUserId(userId as string)
+    }
+  }, [])
+
   const query = {
     userDetails: {}
   }
@@ -27,12 +36,21 @@ export default function SearchPage() {
   
 
   useEffect(() => {
-    if (!userId) {
-      router.push('/login');
-    }
-  }, []);
+    const verifyLogin = async () => {
+        const loggedIn = await checkLogin();
+        setIsLoggedIn(loggedIn)
+        if (!loggedIn) {
+            router.push('/login');
+        }
+    };
+    verifyLogin();
+}, [router]);
   
   // console.log({filteredData})
+
+  if (!isLoggedIn) {
+    return null
+  }
 
   return (
     <div className="flex md:flex-row flex-col-reverse w-full overflow-hidden h-screen">
