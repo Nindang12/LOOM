@@ -52,7 +52,7 @@ export default function ThreadReporsts() {
 
   const filterPost = dataReposts?.posts.filter((post:any) => post?.repost)
 
-  console.log(filterPost)
+  //console.log(filterPost)
 
   return (
     <ProfileLayout username={data?.userDetails[0].userId} fullname={data?.userDetails[0].fullname} image={data?.userDetails[0].avatar}>
