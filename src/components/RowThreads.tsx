@@ -3,15 +3,7 @@ import Link from "next/link"
 import { useEffect, useState } from "react"
 import { getUserId } from "@/utils/auth";
 
-export default function RowThreadss(){
-    const [username, setUsername] = useState<string | null>(null);
-
-    useEffect(() => {
-        if(typeof window !== 'undefined'){
-            const userId = getUserId();
-            setUsername(userId as string);
-        }
-    }, [])
+export default function RowThreadss({username}:{username:string}){
 
    return(
       <div className="flex ">

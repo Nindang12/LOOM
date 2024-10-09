@@ -3,13 +3,11 @@
 import Link from 'next/link'
 import React, { useState, useEffect } from 'react'
 import axios from "axios";
+import { db } from "@/utils/contants";
+import Avatar from './Avatar';
+import Friend from './Friend';
 
-interface FriendListProps {
-    db: any
-    currentUserId: string
-}
-
-const FriendList: React.FC<FriendListProps> = ({ db, currentUserId }) => {
+const FriendList = ({currentUserId }: {currentUserId: string}) => {
     const [isShow, setIsShow] = useState<boolean>(false);
     const [isShowMessage, setisShowMessage] = useState<boolean>(false);
     const [accountData, setAccountData] = useState<AccountData[]>([]);
@@ -18,10 +16,6 @@ const FriendList: React.FC<FriendListProps> = ({ db, currentUserId }) => {
 
     const toggleModal = () => {
         setIsShow((prevState) => !prevState);
-    }
-
-    const toggleModelMess = () => {
-        setisShowMessage((prevState) => !prevState)
     }
 
     const searchFriend = async (user_id: string) => {
@@ -53,21 +47,6 @@ const FriendList: React.FC<FriendListProps> = ({ db, currentUserId }) => {
         return () => clearTimeout(delayDebounceFn)
     }, [searchTerm]);
 
-    const handleFriendSelection = (friendId: string) => {
-        setSelectedFriends(prev => 
-            prev.includes(friendId) 
-                ? prev.filter(id => id !== friendId) 
-                : [...prev, friendId]
-        );
-    };
-
-    const startChat = () => {
-        // Logic to start a chat with selected friends
-        console.log("Starting chat with:", selectedFriends);
-        // Here you would typically navigate to a chat room or open a chat interface
-        toggleModelMess();
-    };
-
     const query = {
         friendships: {
             $: {
@@ -82,15 +61,29 @@ const FriendList: React.FC<FriendListProps> = ({ db, currentUserId }) => {
     }
     const { isLoading, error, data } = db.useQuery(query)
 
+
+    const queryUserDetails = {
+        userDetails: {
+            $: {
+                where: {
+                    userId: currentUserId
+                }
+            }
+        }
+    }
+
+    const { data: dataUserDetails } = db.useQuery(queryUserDetails)
+
     if (isLoading) return <div>Loading friends...</div>
     if (error) return <div>Error loading friends: {error.message}</div>
+
 
     return (
         <div className="w-full md:w-[397px] border-r h-screen flex flex-col">
             {/* Header */}
             <div className='flex justify-between items-center p-4 border-b'>
                 <div onClick={() => setIsShow(prev => !prev)} className='flex items-center cursor-pointer'>
-                    <h2 className="text-xl font-bold mr-2">{currentUserId}</h2>
+                    <h2 className="text-xl font-bold mr-2">{dataUserDetails?.userDetails[0].fullname}</h2>
                     <img width={12} src="/assets/arrow-down.svg" alt="arrow" />
                 </div>
                 <img onClick={() => setisShowMessage(prev => !prev)} width={25} src="/assets/PencilSimpleLine.svg" alt="penchat" className="cursor-pointer" />
@@ -106,18 +99,7 @@ const FriendList: React.FC<FriendListProps> = ({ db, currentUserId }) => {
             <div className="flex-grow overflow-y-auto">
                 <div className="grid grid-cols-1 gap-2 p-4">
                     {data?.friendships?.map((friendship: any) => (
-                        <Link
-                            key={friendship.id}
-                            href={`/messages/chat/${friendship.friendId}`}
-                            className="p-4 rounded-lg cursor-pointer hover:bg-gray-100 flex items-center"   
-                        >
-                            <img
-                                src={`https://api.dicebear.com/6.x/initials/svg?seed=${friendship.friendId}`}
-                                alt="Friend Avatar"
-                                className="w-10 h-10 rounded-full mr-3"
-                            />
-                            <span>{friendship.friendId}</span>
-                        </Link>
+                        <Friend key={friendship.id} friendship={friendship} />
                     ))}
                 </div>
             </div>

@@ -2,6 +2,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { init, tx, id } from '@instantdb/react'
 import Link from 'next/link'
+import { db } from "@/utils/contants"
+import Avatar from './Avatar'
 interface Message {
     id: string
     senderId: string
@@ -9,20 +11,6 @@ interface Message {
     content: string
     createdAt: number
 }
-
-const APP_ID = '5e07a141-e7d9-4273-9cba-877a820f73dd'
-
-type Schema = {
-    messages: {
-        id: string
-        senderId: string
-        receiverId: string
-        content: string
-        createdAt: number
-    }
-}
-
-const db = init<Schema>({ appId: APP_ID })
 
 const Chat = ({ friendId, userId }: { friendId: string, userId?: string }) => {
     const [newMessage, setNewMessage] = useState('')
@@ -42,6 +30,17 @@ const Chat = ({ friendId, userId }: { friendId: string, userId?: string }) => {
             },
         }
     }
+
+    const queryfriendDetails = {
+        userDetails: {
+            $: {
+                where: {
+                    userId: friendId
+                }
+            }
+        }
+    }
+    const { data: datafriendDetails } = db.useQuery(queryfriendDetails)
 
     // Sử dụng InstantDB query để lấy dữ liệu
     const { isLoading, error, data } = db.useQuery(query)
@@ -87,12 +86,8 @@ const Chat = ({ friendId, userId }: { friendId: string, userId?: string }) => {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                         </svg>
                     </Link>
-                    <img
-                        src={`https://api.dicebear.com/6.x/initials/svg?seed=${friendId}`}
-                        alt="Friend Avatar"
-                        className="w-10 h-10 rounded-full mr-3"
-                    />
-                    <h2 className="text-xl font-semibold">{friendId}</h2>
+                    <Avatar userId={friendId} altText="Friend Avatar" width={40} height={40} style="rounded-full mr-3" />
+                    <h2 className="text-xl font-semibold">{datafriendDetails?.userDetails[0].fullname}</h2>
                 </div>
                 <div className="flex items-center">
                     <button className="p-2 rounded-full hover:bg-gray-200">
@@ -108,7 +103,7 @@ const Chat = ({ friendId, userId }: { friendId: string, userId?: string }) => {
                 </div>
             </div>
             <div className="flex-1 overflow-y-auto p-4">
-                {Array.isArray(data?.messages) && data?.messages.map((message: Message, index: number) => {
+                {Array.isArray(data?.messages) && data?.messages.map((message: any, index: number) => {
                     const currentMessageTime = new Date(message.createdAt);
                     const previousMessage = index > 0 ? data.messages[index - 1] : null;
                     const previousMessageTime = previousMessage ? new Date(previousMessage.createdAt) : null;

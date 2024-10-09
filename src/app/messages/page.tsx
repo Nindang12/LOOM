@@ -2,36 +2,11 @@
 
 import Sidebar from "@/components/Sidebar"
 import FriendList from "@/components/FriendList"
-import AddFriend from "@/components/AddFriend"
-import { init } from "@instantdb/react"
 import { useEffect, useState } from "react"
 import { checkLogin, getUserId } from "@/utils/auth";
 import LayoutChat from "@/components/LayoutChat"
 import { useRouter } from "next/navigation"
-// ID for app: NexuSocial
-const APP_ID = '5e07a141-e7d9-4273-9cba-877a820f73dd'
-
-type Schema = {
-    messages: {
-        id: string
-        senderId: string
-        receiverId: string
-        content: string
-        createdAt: number
-    }
-    friendships: {
-        id: string
-        userId: string
-        friendId: string
-        createdAt: number
-    }
-    users: {
-        id: string
-        username: string
-    }
-}
-
-const db = init<Schema>({ appId: APP_ID })
+import { db } from "@/utils/contants"
 
 const Messages = () => {
     const router = useRouter()
@@ -57,7 +32,7 @@ const Messages = () => {
             <div className="flex flex-col w-full h-full">
                 <div className="md:hidden">
                     <h2 className="text-xl font-bold p-4 border-b">Tin nhắn</h2>
-                    <FriendList db={db} currentUserId={currentUserId as string} />    
+                    <FriendList currentUserId={currentUserId as string} />    
                 </div>
                 <div className="flex-grow hidden md:block h-full">
                     <LayoutChat>
