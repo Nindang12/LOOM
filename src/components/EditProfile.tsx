@@ -15,6 +15,8 @@ export default function EditProfile(){
     const [fullname,setFullname] = useState<string>("")
     const [isEditFullname,setIsEditFullname] = useState<boolean>(false)
     const [isEditUsername,setIsEditUsername] = useState<boolean>(false)
+    const [isEditBio,setIsEditBio] = useState<boolean>(false)
+    const [isEditLink,setIsEditLink] = useState<boolean>(false)
 
     const router = useRouter()
     
@@ -53,6 +55,8 @@ export default function EditProfile(){
         setIsEditProfile(false);
         setIsEditFullname(false)
         setIsEditUsername(false)
+        setIsEditBio(false)
+        setIsEditLink(false)
     }
 
 
@@ -94,6 +98,16 @@ export default function EditProfile(){
     const handleFullnameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setIsEditFullname(true)
         setFullname(event.target.value);
+    };
+
+    const handleBioChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+        setIsEditBio(true)
+        setBio(event.target.value);
+    };
+
+    const handleLinkChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setIsEditLink(true)
+        setLink(event.target.value);
     };
 
     return(
@@ -149,11 +163,20 @@ export default function EditProfile(){
                             </div>
                             <div className="mb-4">
                                 <label className="block text-sm font-medium text-gray-700">Tiểu sử</label>
-                                <textarea value={bio as string} onChange={(e) => setBio(e.target.value)} className="mt-1 block w-full border-b border-gray-300 focus:outline-none focus:border-b focus:border-black"></textarea>
+                                <textarea
+                                    value={isEditBio ? bio : data && data?.userDetails[0]?.bio}
+                                    onChange={handleBioChange}
+                                    className="mt-1 block w-full border-b border-gray-300 focus:outline-none focus:border-b focus:border-black"
+                                ></textarea>
                             </div>
                             <div className="mb-4">
                                 <label className="block text-sm font-medium text-gray-700">Các liên kết</label>
-                                <input value={link as string} onChange={(e) => setLink(e.target.value)} type="text" className="mt-1 block w-full border-b border-gray-300 focus:outline-none focus:border-b focus:border-black" />
+                                <input
+                                    value={isEditLink ? link : data && data?.userDetails[0]?.link}
+                                    onChange={handleLinkChange}
+                                    type="text"
+                                    className="mt-1 block w-full border-b border-gray-300 focus:outline-none focus:border-b focus:border-black"
+                                />
                             </div>
                             <div className="flex items-center mb-4">
                                 <label className="block text-sm font-medium text-gray-700 mr-2">Ẩn trang cá nhân</label>

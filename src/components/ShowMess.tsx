@@ -15,34 +15,6 @@ const ShowMess: React.FC<ShowMessProps> = ({ db, currentUserId, isOpen, onClose 
     const [searchTerm, setSearchTerm] = useState<string>('');
     const [selectedFriends, setSelectedFriends] = useState<string[]>([]);
 
-    const searchFriend = async (user_id: string) => {
-        if (user_id === "") {
-            setAccountData([]);
-        } else {
-            if (user_id.length > 0) {
-                try {
-                    const response = await axios.get(`/api/account?userId=${user_id}`);
-                    if (!response) {
-                        return null;
-                    }
-                    const accountData = await response.data;
-                    setAccountData(accountData);
-                } catch (error) {
-                    console.error('Failed to fetch account:', error);
-                }
-            }
-        }
-    };
-
-    useEffect(() => {
-        const delayDebounceFn = setTimeout(() => {
-            if (searchTerm) {
-                searchFriend(searchTerm);
-            }
-        }, 300)
-
-        return () => clearTimeout(delayDebounceFn)
-    }, [searchTerm]);
 
     const handleFriendSelection = (friendId: string) => {
         setSelectedFriends(prev => 

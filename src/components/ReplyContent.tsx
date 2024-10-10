@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import ContentCommentReply from "./ContentCommentReply";
 import { getUserId } from "@/utils/auth";
 import { db } from "@/utils/contants";
 import { id, tx } from "@instantdb/react";
 import { toast } from "react-toastify";
+import ContentComment from "./ContentComment";
 
 const ReplyContent = ({post, comment}: {post: Post, comment: Comment}) => {
     const [commentContent, setCommentContent] = useState<string|null>(null);
@@ -344,9 +344,7 @@ const ReplyContent = ({post, comment}: {post: Post, comment: Comment}) => {
             </div>
             <div className="flex flex-col gap-2">
                 {
-                    
-                    <ContentCommentReply  key={comment.commentId} {...comment} postId={post.postId as string}/>
-                    
+                    <ContentComment  key={comment.commentId} {...comment} postId={post.postId as string}/>
                 }
             </div>
         </div>

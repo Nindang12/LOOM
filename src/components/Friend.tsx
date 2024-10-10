@@ -38,15 +38,14 @@ const Friend = ({friendship}: {friendship: any}) => {
         <Link
             key={friendship.id}
             href={`/messages/chat/${friendship.friendId}`}
-            className="p-4 rounded-lg cursor-pointer hover:bg-gray-100 flex items-center"   
+            className="p-4 rounded-lg cursor-pointer hover:bg-gray-100 flex items-center gap-2"   
         >
-            <div className="relative">
-                <Avatar userId={friendship.friendId} altText="Friend Avatar" width={40} height={40} style="rounded-full mr-3" />
-                {/* <span className={`absolute bottom-0 right-0 w-3 h-3 rounded-full ${friendStatus === 'online' ? 'bg-green-500' : 'bg-gray-500'}`}></span> */}
+            <div className="relative w-10 h-10">
+                <Avatar userId={friendship.friendId} altText="Friend Avatar" width={40} height={40} style="rounded-full" />
             </div>
-            <div>
+            <div className="flex flex-col">
                 <span>{datafriendDetails?.userDetails[0].fullname}</span>
-                <p className="text-sm text-gray-500 font-thin">{dataLatestMessage?.messages[0]?.content || "No messages yet"}</p>
+                <p className="text-sm text-gray-500 font-thin">{dataLatestMessage?.messages[0]?.content.slice(0,60)+"..." || "No messages yet"}</p>
             </div>
         </Link>
     )

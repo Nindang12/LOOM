@@ -38,7 +38,13 @@ export default function ThreadReplied() {
   //console.log(data)
   return (
     data && (
-      <ProfileLayout username={data.userDetails[0].userId} fullname={data.userDetails[0].fullname} image={data.userDetails[0].avatar} >
+      <ProfileLayout 
+        username={data.userDetails[0].userId} 
+        fullname={data.userDetails[0].fullname} 
+        image={data.userDetails[0].avatar} 
+        bio={data.userDetails[0].bio} 
+        link={data.userDetails[0].link}
+        >
         <div className="w-max-[630px] h-[auto] t-0">
           <RowThreadssreplied username={username} />
         </div>

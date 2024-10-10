@@ -55,7 +55,13 @@ export default function ThreadReporsts() {
   //console.log(filterPost)
 
   return (
-    <ProfileLayout username={data?.userDetails[0].userId} fullname={data?.userDetails[0].fullname} image={data?.userDetails[0].avatar}>
+    <ProfileLayout 
+      username={data?.userDetails[0].userId} 
+      fullname={data?.userDetails[0].fullname} 
+      image={data?.userDetails[0].avatar} 
+      bio={data?.userDetails[0].bio}
+      link={data?.userDetails[0].link}
+      >
       <RowThreadsreposts username={username} />
       <div className="w-max-[630px] flex justify-center h-auto t-0 ml-[20px] mr-[20px] flex-col gap-2">
         {filterPost?.map((data: any) => (

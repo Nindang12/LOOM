@@ -16,6 +16,10 @@ const Chat = ({ friendId, userId }: { friendId: string, userId?: string }) => {
     const [newMessage, setNewMessage] = useState('')
     const [selectedMessageId, setSelectedMessageId] = useState<string | null>(null)
     const chatEndRef = useRef<HTMLDivElement>(null)
+    const [image, setImage] = useState<File | null>(null)
+    const [imagePreview, setImagePreview] = useState<string | null>(null)
+    const [audio, setAudio] = useState<File | null>(null)
+    const [audioPreview, setAudioPreview] = useState<string | null>(null)
 
     // Cấu hình truy vấn để lấy tin nhắn giữa user và friend
     const query = {
@@ -50,10 +54,40 @@ const Chat = ({ friendId, userId }: { friendId: string, userId?: string }) => {
         chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
     }, [data])
 
+    // Handle image selection and preview
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0] || null
+        setImage(file)
+        if (file) {
+            const reader = new FileReader()
+            reader.onloadend = () => {
+                setImagePreview(reader.result as string)
+            }
+            reader.readAsDataURL(file)
+        } else {
+            setImagePreview(null)
+        }
+    }
+
+    // Handle audio selection and preview
+    const handleAudioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0] || null
+        setAudio(file)
+        if (file) {
+            const reader = new FileReader()
+            reader.onloadend = () => {
+                setAudioPreview(reader.result as string)
+            }
+            reader.readAsDataURL(file)
+        } else {
+            setAudioPreview(null)
+        }
+    }
+
     // Hàm gửi tin nhắn
     const handleSendMessage = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
-        if (!newMessage.trim()) return // Ngăn việc gửi tin nhắn rỗng
+        if (!newMessage.trim() && !image && !audio) return // Ngăn việc gửi tin nhắn rỗng
 
         // Thêm tin nhắn mới vào cơ sở dữ liệu
         await db.transact([
@@ -61,18 +95,20 @@ const Chat = ({ friendId, userId }: { friendId: string, userId?: string }) => {
                 senderId: userId,
                 receiverId: friendId,
                 content: newMessage,
+                imageUrl: imagePreview, // Save image URL if available
+                audioUrl: audioPreview, // Save audio URL if available
                 createdAt: Date.now(),
             }),
         ])
 
-        // Reset ô nhập tin nhắn
+        // Reset ô nhập tin nhắn, hình ảnh và âm thanh
         setNewMessage('')
+        setImage(null)
+        setImagePreview(null)
+        setAudio(null)
+        setAudioPreview(null)
     }
 
-    // Hàm xử lý khi nhấp vào một tin nhắn
-    const handleSelectMessage = (messageId: string) => {
-        setSelectedMessageId(prev => (prev === messageId ? null : messageId)) // Bật/tắt hiển thị ngày tháng
-    }
 
     if (isLoading) return <div>Loading...</div>
     if (error) return <div>Error loading chat</div>
@@ -127,11 +163,20 @@ const Chat = ({ friendId, userId }: { friendId: string, userId?: string }) => {
                                     <div
                                         className={`inline-block p-3 rounded-lg max-w-xs ${
                                             message.senderId === userId
-                                                ? 'bg-blue-500 text-white'
+                                                ? 'bg-blue-500 text-white'   
                                                 : 'bg-gray-200 text-black'
                                         }`}
                                     >
-                                        <div>{message.content}</div>
+                                        {message.content && <div>{message.content}</div>}
+                                        {message.imageUrl && (
+                                            <img src={message.imageUrl} alt="Uploaded" className="mt-2 max-w-full rounded" />
+                                        )}
+                                        {message.audioUrl && (
+                                            <audio controls className="mt-2">
+                                                <source src={message.audioUrl} type="audio/mpeg" />
+                                                Your browser does not support the audio element.
+                                            </audio>
+                                        )}
                                         <div className="text-xs mt-1 text-right">
                                             {new Date(message.createdAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
                                         </div>
@@ -146,21 +191,56 @@ const Chat = ({ friendId, userId }: { friendId: string, userId?: string }) => {
 
             {/* Form để gửi tin nhắn */}
             <form onSubmit={handleSendMessage} className="p-4 bg-white border-t">
-                <div className="flex">
-                    <input
-                        
-                        type="text"
-                        value={newMessage}
-                        onChange={(e) => setNewMessage(e.target.value)}
-                        className="flex-1 border rounded-l-lg p-2 outline-none"
-                        placeholder="Type a message..."
-                    />
-                    <button
-                        type="submit"
-                        className="bg-blue-500 text-white px-4 py-2 rounded-r-lg"
-                    >
-                        Send
-                    </button>
+                <div className="flex flex-col">
+                    {imagePreview && (
+                        <div className="mt-2 w-[400px] max-h-[400px]">
+                            <img src={imagePreview} alt="Preview" className="rounded h-[300px]" />
+                        </div>
+                    )}
+                    {audioPreview && (
+                        <div className="mt-2 w-[200px]">
+                            <audio controls className="rounded">
+                                <source src={audioPreview} type="audio/mpeg" />
+                                Your browser does not support the audio element.
+                            </audio>
+                        </div>
+                    )}
+                    <div className="flex">
+                        <input
+                            type="text"
+                            value={newMessage}
+                            onChange={(e) => setNewMessage(e.target.value)}
+                            className="flex-1 border rounded-l-lg p-2 outline-none break-words"
+                            placeholder="Type a message..."
+                        />
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageChange}
+                            className="hidden"
+                            id="image-upload"
+                        />
+                        <label htmlFor="image-upload" className="bg-gray-200 text-black px-4 py-2 cursor-pointer">
+                            Upload
+                        </label>
+                        <input
+                            type="file"
+                            accept="audio/*"
+                            onChange={handleAudioChange}
+                            className="hidden"
+                            id="audio-upload"
+                        />
+                        <label htmlFor="audio-upload" className="bg-gray-200 text-black px-4 py-2 cursor-pointer">
+                            Upload Audio
+                        </label>
+                        <button
+                            type="submit"
+                            className="bg-blue-500 text-white px-4 py-2 rounded-r-lg"
+                        >
+                            Send
+                        </button>
+                    </div>
+                    
                 </div>
             </form>
         </div>

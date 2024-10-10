@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { Roboto } from "next/font/google";
+import { Baloo_Paaji_2 } from "next/font/google";
 import "./globals.css";
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer } from'react-toastify';
-const roboto = Roboto({ subsets: ["latin"],weight:"500" });
+const roboto = Baloo_Paaji_2({ subsets: ["latin"],weight:"500" });
 
 export const metadata: Metadata = {
   title: "Thread",
