@@ -325,6 +325,20 @@ export default function Article({ user_id, content, postId, images }: ArticlePro
                             </button>
                         )}
                     </div>
+                   {/* profile */}
+                    <div className="relative top-10 right-[-1px] bg-white rounded-2xl shadow-lg p-4 min-w-[300px] ">
+                        <div className="flex items-center">
+                            <img src="https://placehold.co/50x50" alt="Profile picture of Mai Trang" className="w-12 h-12 rounded-full mr-4" />
+                            <div>
+                                <h2 className="font-bold text-lg">Mai Trang</h2>
+                                <p className="text-gray-500">mai.chagnheoo</p>
+                            </div>
+                        </div>
+                        <p className="mt-2">tui la mai trang<span role="img" aria-label="pig">🐷</span></p>
+                        <p className="text-gray-500 mt-1">2.837 người theo dõi</p>
+                        <button className="mt-4 bg-black text-white py-2 px-4 rounded-full w-full">Theo dõi</button>
+                    </div>
+                        {/* end profile */}
                     <div className="flex flex-col">
                         <div className="flex flex-row max-w-[300px] min-w-[299px] md:max-w-[540px] justify-between items-center">
                             <Link href={`/@${user_id}`}>
