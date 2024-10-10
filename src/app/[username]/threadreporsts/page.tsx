@@ -11,7 +11,7 @@ import { db } from "@/utils/contants";
 export default function ThreadReporsts() {
   const router = useRouter();
   const pathName = usePathname();
-  const username = pathName.replace("/@", "").replace("/threadreporsts", "");
+  const username = pathName?.replace("/@", "").replace("/threadreporsts", "");
 
   useEffect(() => {
     const checkAuthStatus = async () => {
@@ -62,7 +62,7 @@ export default function ThreadReporsts() {
       bio={data?.userDetails[0].bio}
       link={data?.userDetails[0].link}
       >
-      <RowThreadsreposts username={username} />
+      <RowThreadsreposts username={username as string} />
       <div className="w-max-[630px] flex justify-center h-auto t-0 ml-[20px] mr-[20px] flex-col gap-2">
         {filterPost?.map((data: any) => (
           <Threadsreporsts

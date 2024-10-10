@@ -26,7 +26,9 @@
     "nookies": "^2.5.2",
     "react": "^18",
     "react-dom": "^18",
-    "react-toastify": "^10.0.5"
+    "react-toastify": "^10.0.5",
+    "socket.io": "^4.5.1",
+    "socket.io-client": "^4.5.1"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
