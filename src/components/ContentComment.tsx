@@ -11,8 +11,9 @@ export default function ContentComment({
     commentId,
     createdAt,
     userId,
-    images
-}: Comment) {
+    images,
+    className
+}: any) {
     const [isShow, setIsShow] = useState<boolean>(false);
     const [commentReply, setCommentReply] = useState<string>('');
     const [issShow, setIssShow] = useState<boolean>(false);
@@ -263,29 +264,6 @@ export default function ContentComment({
         }
     };
     
-    const handleReReplyComment = async () => {
-        if (!userAccountId || !commentId || !content) return;
-
-        try {
-            const repostId = Math.random().toString(36).substring(2, 7) + Math.random().toString(36).substring(2, 7);
-            await db.transact([
-                tx.posts[id()].update({
-                    id: repostId,
-                    userId: userAccountId,
-                    content: content,
-                    images: [],
-                    createdAt: new Date().getTime(),
-                    repost: commentId
-                })
-            ]);
-
-            console.log('Comment successfully reposted');
-            setIsReposted(true);
-            setRepostCount(prevCount => prevCount + 1);
-        } catch (error) {
-            console.error('Error reposting comment:', error);
-        }
-    };
     
     const checkIsReposted = async () => {
         if (!userAccountId || !commentId) return;
@@ -346,23 +324,10 @@ export default function ContentComment({
             console.error('Error creating reply:', error);
         }
     };
-    const formatTimeAgo = (timestamp: number): string => {
-        const now = new Date().getTime();
-        const diff = now - timestamp;
-        
-        const seconds = Math.floor(diff / 1000);
-        const minutes = Math.floor(seconds / 60);
-        const hours = Math.floor(minutes / 60);
-        const days = Math.floor(hours / 24);
-        
-        if (days > 0) return `${days} ngày`;
-        if (hours > 0) return `${hours} giờ`;
-        if (minutes > 0) return `${minutes} phút`;
-        return `${seconds}s`;
-    };
+
     return(
         <div>
-            <div className="border-b border-gray-200">
+            <div className={`${className}`}>
                 {/* <header> */}
                 <div className="flex flex-row items-start justify-between">
                     <div className="h-auto flex flex-row gap-2 mt-2 ml-5 min-h-[97px]">
@@ -452,95 +417,18 @@ export default function ContentComment({
                 </div>
                 {/* reply comment */}
                 {
-                    commentChild?.comments.map((comment)=>(
-                        <div className="pl-5 flex flex-row items-start justify-between">
-                            <div className="h-auto flex flex-row gap-2 mt-2 ml-5 min-h-[97px]">
-                                <div className="flex flex-col h-100% justify-start items-start gap-2">
-                                    <img className="rounded-full w-8 h-8 bg-cover" src="/assets/avt.png" alt="avt" />                       
-                                </div>
-                                <div className="h-full">
-                                    <div className="flex gap-2">
-                                        <Link href={`/@${comment.userId}`} className="font-bold text-sm">
-                                            <span className="">{comment.userId}</span>
-                                        </Link>
-                                        <span className="text-sm text-gray-400">{formatTimeAgo(comment.createdAt)}</span>
-                                    </div>
-                                    <div className="text-sm">
-                                        <p>{comment.content}</p>
-                                    </div>
-                                    <div className="flex justify-center md:justify-start items-center text-sm font-thin gap-3 mb-3">
-                                        <div className="flex gap-1 p-2">
-                                            <button onClick={handleLike} className="hover:bg-slate-100 rounded-3xl">
-                                                <img
-                                                    width={20}
-                                                    src={dataCheckIsLiked && dataCheckIsLiked?.actionLikeComment?.length > 0 ? "/assets/redheart.svg" : "/assets/heartonarticle.svg"}
-                                                    alt={dataCheckIsLiked && dataCheckIsLiked?.actionLikeComment?.length > 0 ? "redheart" : "heart"}
-                                                />
-                                            </button>
-                                            <small className={dataCheckIsLiked && dataCheckIsLiked?.actionLikeComment?.length > 0 ? "text-red-600" : ""}>{totalLikes}</small>
-                                        </div>
-                                        <button onClick={() => setIsShow((prev) => !prev)} className="flex gap-1 hover:bg-slate-100 p-2 rounded-3xl">
-                                            <img width={20} src="/assets/comment.svg" alt="" />
-                                            <small>{totalComments}</small>
-                                        </button>
-                                        <button onClick={handleRepost} className={`flex gap-1 hover:bg-slate-100 p-2 rounded-3xl ${dataReposts && dataReposts?.posts?.length > 0 ? "bg-opacity-50 hover:bg-green-100" : ""}`}>
-                                            <img width={20} src={dataReposts && dataReposts?.posts?.length > 0 ? "/assets/replay-green.svg" : "/assets/replay.svg"} alt="" />
-                                            <small className={dataReposts && dataReposts?.posts?.length > 0 ? "text-green-600" : ""}>{totalReposts}</small>
-                                        </button>
-                                        <button onClick={handleShare} className="flex gap-1 hover:bg-slate-100 p-2 rounded-3xl">
-                                            <img width={20} src="/assets/share.svg" alt="" />
-                                            <small>{totalShares}</small>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                            <div>
-                                <button onClick={()=>setIsShowReply((prv)=>!prv)} className="z-0 mr-5 hover:bg-slate-100  p-3 rounded-full">
-                                    <img width={15} src="/assets/optiononarticle.svg" alt="" />
-                                </button>
-                            
-                                {
-                                    isShowReply&&(
-                                        <div className="fixed translate-x-[-230px] flex flex-col gap-1 shadow-md p-4 px-2 w-64 h-auto rounded-lg bg-white border border-gray-200">
-                                            <div className="flex flex-col border-solid border-b-2 ">
-                                                <button className=" flex justify-between hover:bg-slate-200 px-2 py-3 rounded-lg">
-                                                    <span className="text-sm font-bold">Lưu</span>
-                                                    <img width={30} src="/assets/save.svg" alt="" />
-                                                </button>
-                                                <button className="flex justify-between hover:bg-slate-200 px-2 py-3 rounded-lg">
-                                                    <span className="text-sm font-bold">Không quan tâm</span>
-                                                    <img width={25} src="/assets/eye.svg" alt="" />
-                                                </button>
-                                            </div>
-                                            <div className="flex flex-col border-solid border-b-2 ">
-                                                <button className=" flex justify-between hover:bg-slate-200 px-2 py-3 rounded-lg">
-                                                    <span className="text-sm font-bold">Tắt thông báo</span>
-                                                    <img width={30} src="/assets/bell.svg" alt="" />
-                                                </button>
-                                                <button className="flex justify-between hover:bg-slate-200 px-2 py-3 rounded-lg">
-                                                    <span className="text-sm text-red-600 font-bold">Chặn</span>
-                                                    <img width={25} src="/assets/block.svg" alt="" />
-                                                </button>
-                                                <button className="flex justify-between hover:bg-slate-200 px-2 py-3 rounded-lg">
-                                                    <span className="text-sm font-bold text-red-600">Báo cáo</span>
-                                                    <img width={25} src="/assets/warning.svg" alt="" />
-                                                </button>
-                                            </div>
-                                            <div className="flex flex-col ">
-                                                <button className=" flex justify-between hover:bg-slate-200 px-2 py-3 rounded-lg">
-                                                    <span className="text-sm font-bold">Sao chép liên kết</span>
-                                                    <img width={20} src="/assets/link.svg" alt="" />
-                                                </button>
-                                            </div>
-                                        </div>
-                                    )
-                                }
-                    
-                            </div>
+                    commentChild?.comments.map((comment:any,index:number)=>(
+                        <div className="flex flex-col gap-2 pl-5" key={index}>
+                            <ContentComment 
+                                commentId={comment.commentId} 
+                                userId={comment.userId} 
+                                content={comment.content} 
+                                images={comment.images} 
+                                createdAt={comment.createdAt} 
+                            />
                         </div>
                     ))
                 }
-                {/* footer */}
             </div>
             {
                 isShow && (
@@ -571,7 +459,7 @@ export default function ContentComment({
                                                 </div>
                                                 <div className="flex overflow-x-auto max-w-[500px] gap-2 mt-1">
                                                     {images &&
-                                                        images.map((image: string, index) => {
+                                                        images.map((image: string, index: number) => {
                                                             return (
                                                                 <div key={index} className="rounded-lg w-52 h-52 bg-gray-200 flex-shrink-0 flex items-center justify-center">
                                                                     <img src={image} alt={`image`} className="object-cover w-full h-full rounded-lg" />

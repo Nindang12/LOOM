@@ -59,7 +59,7 @@ export default function ViewPost(){
                             <div className="flex flex-col gap-2">
                                 {
                                     filterComment?.map((comment:any)=>(
-                                        <ContentComment  key={comment.commentId} {...comment} post_id={post_id as string}/>
+                                        <ContentComment  key={comment.commentId} {...comment} post_id={post_id as string} className="border-b border-gray-200"/>
                                     ))
                                 }
                             </div>
