@@ -32,8 +32,12 @@ export default function ViewPost(){
         }
     };
     const { data: commentsData } = db.useQuery(commentsQuery);
+    
+    const filterComment = commentsData?.comments.filter((comment:any)=>!comment.replyTo)
 
-    //console.log(comments)
+    // const commentChild = commentsData?.comments.filter((comment:any)=>comment.replyTo)
+
+    //console.log(commentChild)
     return (
         <div className=" flex md:flex-row flex-col-reverse w-full overflow-hidden h-screen">
             <Siderbar/>
@@ -54,7 +58,7 @@ export default function ViewPost(){
                         </div>
                             <div className="flex flex-col gap-2">
                                 {
-                                    commentsData?.comments.map((comment:any)=>(
+                                    filterComment?.map((comment:any)=>(
                                         <ContentComment  key={comment.commentId} {...comment} post_id={post_id as string}/>
                                     ))
                                 }
