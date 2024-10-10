@@ -12,7 +12,8 @@ export default function ContentComment({
     createdAt,
     userId,
     images,
-    className
+    className,
+    commentParentId
 }: any) {
     const [isShow, setIsShow] = useState<boolean>(false);
     const [commentReply, setCommentReply] = useState<string>('');
@@ -329,6 +330,11 @@ export default function ContentComment({
         <div>
             <div className={`${className}`}>
                 {/* <header> */}
+                {
+                    commentParentId&&(
+                        <span>{userId}-{commentParentId}</span>
+                    )
+                }
                 <div className="flex flex-row items-start justify-between">
                     <div className="h-auto flex flex-row gap-2 mt-2 ml-5 min-h-[97px]">
                         <div className="flex flex-col h-full min-h-3 justify-center items-center gap-2">
@@ -425,6 +431,7 @@ export default function ContentComment({
                                 content={comment.content} 
                                 images={comment.images} 
                                 createdAt={comment.createdAt} 
+                                commentParentId={userId}
                             />
                         </div>
                     ))
