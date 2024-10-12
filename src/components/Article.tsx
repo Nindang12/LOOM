@@ -9,7 +9,7 @@ import { tx, id } from "@instantdb/react"
 import { toast } from "react-toastify";
 
 
-export default function Article({ user_id, content, postId, images }: ArticleProps) {
+export default function Article({ user_id, content, postId, images, fullname }: ArticleProps) {
     
     const [userId, setUserId] = useState<string | null>(null);
 
@@ -25,7 +25,7 @@ export default function Article({ user_id, content, postId, images }: ArticlePro
     const [image, setImage] = useState<string | null>(null);
     const [shareCount, setShareCount] = useState<number>(0);
     const [uploadedImages, setUploadedImages] = useState<string[]>([]);
-
+    const [showProfile, setShowProfile] = useState(false);
     const query = { actionLikePost: {} }
     const { isLoading, error, data } = db.useQuery(query)
 
@@ -325,25 +325,43 @@ export default function Article({ user_id, content, postId, images }: ArticlePro
                             </button>
                         )}
                     </div>
-                   {/* profile */}
-                    <div className="relative top-10 right-[-1px] bg-white rounded-2xl shadow-lg p-4 min-w-[300px] ">
-                        <div className="flex items-center">
-                            <img src="https://placehold.co/50x50" alt="Profile picture of Mai Trang" className="w-12 h-12 rounded-full mr-4" />
-                            <div>
-                                <h2 className="font-bold text-lg">Mai Trang</h2>
-                                <p className="text-gray-500">mai.chagnheoo</p>
-                            </div>
-                        </div>
-                        <p className="mt-2">tui la mai trang<span role="img" aria-label="pig">🐷</span></p>
-                        <p className="text-gray-500 mt-1">2.837 người theo dõi</p>
-                        <button className="mt-4 bg-black text-white py-2 px-4 rounded-full w-full">Theo dõi</button>
-                    </div>
-                        {/* end profile */}
                     <div className="flex flex-col">
                         <div className="flex flex-row max-w-[300px] min-w-[299px] md:max-w-[540px] justify-between items-center">
-                            <Link href={`/@${user_id}`}>
-                                <span className="text-sm font-semibold hover:underline">{user_id ? user_id : ""}</span>
-                            </Link>
+                            <div className="relative">
+                                <Link href={`/@${user_id}`}>
+                                    <span 
+                                    className="text-sm font-semibold hover:underline"
+                                    onMouseEnter={() => setShowProfile(true)}
+                                    onMouseLeave={() => setShowProfile(false)}
+                                    >
+                                        {user_id ? user_id : ""}
+                                    </span>
+                                </Link>
+                                {showProfile && (
+                                    <div 
+                                    onMouseEnter={() => setShowProfile(true)}
+                                    onMouseLeave={() => setShowProfile(false)}
+                                    className="absolute top-6 left-0 z-10 flex flex-col gap-1 shadow-md p-4 px-2 w-64 h-auto rounded-lg bg-white border border-gray-200">
+                                        <div className="flex gap-2 items-center">
+                                            {
+                                                dataUserDetails && dataUserDetails?.userDetails?.[0]?.avatar ? (
+                                                    <img className="rounded-full w-8 h-8 bg-cover" src={dataUserDetails?.userDetails?.[0]?.avatar} alt="avatar" />
+                                                ) : (
+                                                <img className="rounded-full w-8 h-8 bg-cover" src="/assets/avt.png" alt="avatar" />
+                                            )}
+                                            <div className="flex flex-col">
+                                                <h2 className="font-bold text-lg">{dataUserDetails?.userDetails?.[0]?.fullname || fullname}</h2>
+                                                <p className="text-gray-500">{user_id}</p>
+                                            </div>
+                                        </div>
+                                        <p className="mt-2">{dataUserDetails?.userDetails?.[0]?.bio || "No bio available"}</p>
+                                        <p className="text-gray-500 mt-1">{dataUserDetails?.userDetails?.[0]?.followers || 0} người theo dõi</p>
+                                        <button className="mt-4 bg-black text-white py-2 px-4 rounded-full w-full">
+                                            {dataIsFollowing?.friendships?.length ? "Đang theo dõi" : "Theo dõi"}
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
                             <div className="flex relative">
                                 <button onClick={() => setIssShow((prv) => !prv)} className="z-0 hover:bg-slate-100 p-2 rounded-full">
                                     <img width={10} src="/assets/optiononarticle.svg" alt="icon" />
@@ -387,7 +405,7 @@ export default function Article({ user_id, content, postId, images }: ArticlePro
                             </div>
                         </div>
                         <Link href={`/@${user_id}/post/${postId}`} className="flex flex-col gap-3 overflow-x-hidden">
-                            <span className="w-[300px] md:min-w-[535px] md:max-w-[540px] break-words whitespace-pre-wrap">{content}</span>
+                            <span className="w-[300px] md:min-w-[535px] md:max-w-[540px] break-words overflow-hidden">{content}</span>
                             {images && images.length > 0 && (
                                 <div className="w-[300px] md:min-w-[545px] h-auto flex overflow-x-auto overflow-y-hidden gap-2">
                                     <div className="flex overflow-x-auto overflow-y-hidden w-auto gap-2 pb-2">
@@ -401,6 +419,7 @@ export default function Article({ user_id, content, postId, images }: ArticlePro
                             )}
                         </Link>
                     </div>
+                    
                 </div>
                 {/* footer */}
                 <div className="flex mt-5 md:ml-[60px] justify-center md:justify-start items-center text-sm font-thin gap-5 mb-3 ">

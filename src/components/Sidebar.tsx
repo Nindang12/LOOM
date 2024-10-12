@@ -7,7 +7,7 @@ import LexicalEditor from "./LexicalEditor"
 import { id, tx } from "@instantdb/react"
 import { db } from "@/utils/contants"
 import { toast } from "react-toastify"
-
+import ButtonOption from "./ButtonOption"
 export default function Siderbar(user_id: ArticleProps){
     const [isShow, setIsShow] = useState<boolean>(false);
     const toggleModal = () => {
@@ -83,7 +83,8 @@ export default function Siderbar(user_id: ArticleProps){
     const { data: dataUserDetails } = db.useQuery(queryUserDetails)
     return(
         <div className="">
-            <div className="flex justify-center md:w-20 md:h-screen items-center bg-zinc-50 w-screen h-20">
+            <div className="flex flex-col justify-between py-5 md:w-20 md:h-screen items-center bg-zinc-50 w-screen h-20">
+                <img width={40} src="/assets/logowhite.png" alt="logo" />
                 <div className="flex md:flex-col  md:gap-16 gap-5  flex-row ">
                     <Link href={"/"} className="hover:bg-slate-200 p-3 rounded-lg">
                         <img width={22} src="/assets/home.svg" alt="home" />
@@ -103,6 +104,9 @@ export default function Siderbar(user_id: ArticleProps){
                     <Link href={`/@${userId}`} className="hover:bg-slate-200 p-3 rounded-lg">
                         <img width={20} src="/assets/profile.svg" alt="profile" />
                     </Link>
+                </div>
+                <div className="pb-10">
+                    <ButtonOption/>
                 </div>
             </div>
             {
