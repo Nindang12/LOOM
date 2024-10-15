@@ -10,6 +10,7 @@ import { checkLogin, getUserId } from "@/utils/auth";
 import { db } from "@/utils/contants";
 import Link from "next/link";
 import { tx } from "@instantdb/react";
+import ButtonOption from "@/components/ButtonOption";
 export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [currentIndex, setCurrentIndex] = useState<number>(0)
@@ -103,11 +104,14 @@ export default function Home() {
           </div>
           <div className="w-full md:hidden top-0 bg-white z-10">
             <div className="flex flex-col items-center">
+              <div className="flex justify-between">
               <Link href={'/'}>
                 <button className="mt-2 mb-4">
-                  <img width={60} src="/assets/logowhite.png" alt="" />
+                  <img width={60} src="/assets/logowhite.png" alt="logo" />
                 </button>
               </Link>
+              <ButtonOption/>
+              </div>
               <div className="flex w-full border-b border-gray-200">
                 <Link href={'/'} className="w-1/2">
                   <button className="w-full text-sm font-bold py-3 border-b-2 border-black">

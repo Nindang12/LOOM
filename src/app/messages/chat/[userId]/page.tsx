@@ -9,7 +9,7 @@ import Link from "next/link"
 
 const ChatPage = () => {
     const pathName = usePathname();
-    const friendId = pathName.replace("/messages/chat/", "")
+    const friendId = pathName?.replace("/messages/chat/", "")
     const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
     useEffect(() => {
@@ -29,7 +29,7 @@ const ChatPage = () => {
                             <div className="flex items-center justify-center w-full">
                                 <div className="flex-grow h-full overflow-y-auto">
                                     <Chat 
-                                        friendId={friendId} 
+                                        friendId={friendId || ""} 
                                         userId={currentUserId as string} 
                                     />
                                 </div>
@@ -42,7 +42,7 @@ const ChatPage = () => {
                 <div className="flex flex-col h-screen w-screen">
                     <div className="flex-grow overflow-hidden">
                         <Chat 
-                            friendId={friendId} 
+                            friendId={friendId || ""} 
                             userId={currentUserId as string} 
                         />
                     </div>

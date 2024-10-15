@@ -9,7 +9,7 @@ import { tx, id } from "@instantdb/react"
 import { toast } from "react-toastify";
 
 
-export default function Article({ user_id, content, postId, images, fullname }: ArticleProps) {
+export default function Article({ user_id, content, postId, images, fullname, createdAt }: ArticleProps) {
     
     const [userId, setUserId] = useState<string | null>(null);
 
@@ -28,7 +28,7 @@ export default function Article({ user_id, content, postId, images, fullname }: 
     const [showProfile, setShowProfile] = useState(false);
     const query = { actionLikePost: {} }
     const { isLoading, error, data } = db.useQuery(query)
-
+    const [timeAgo, setTimeAgo] = useState<string>('');
     useEffect(() => {
         if(typeof window !== 'undefined') {
             const userId = getUserId();
@@ -58,7 +58,30 @@ export default function Article({ user_id, content, postId, images, fullname }: 
         }
     }
     const { data: dataIsFollowing } = db.useQuery(queryIsFollowing)
+    useEffect(() => {
+        const calculateTimeAgo = () => {
+            const now = new Date().getTime();
+            const diffInSeconds = Math.floor((now - Number(createdAt)) / 1000);
 
+            if (diffInSeconds < 60) {
+                setTimeAgo(`${diffInSeconds} giây`);
+            } else if (diffInSeconds < 3600) {
+                const minutes = Math.floor(diffInSeconds / 60);
+                setTimeAgo(`${minutes} phút`);
+            } else if (diffInSeconds < 86400) {
+                const hours = Math.floor(diffInSeconds / 3600);
+                setTimeAgo(`${hours} giờ`);
+            } else {
+                const days = Math.floor(diffInSeconds / 86400);
+                setTimeAgo(`${days} ngày`);
+            }
+        };
+
+        calculateTimeAgo();
+        const timer = setInterval(calculateTimeAgo, 60000); // Update every minute
+
+        return () => clearInterval(timer);
+    }, [createdAt]);
     const queryCheckIsLiked = {
         actionLikePost: {
             $: {
@@ -295,9 +318,7 @@ export default function Article({ user_id, content, postId, images, fullname }: 
             alert('Error adding friend');
         }
     };
-
-
-
+    
     return (
         <div>
             <div className="border-b border-gray-200 w-full py-2 md:px-5 px-2">
@@ -356,9 +377,11 @@ export default function Article({ user_id, content, postId, images, fullname }: 
                                         </div>
                                         <p className="mt-2">{dataUserDetails?.userDetails?.[0]?.bio || "No bio available"}</p>
                                         <p className="text-gray-500 mt-1">{dataUserDetails?.userDetails?.[0]?.followers || 0} người theo dõi</p>
-                                        <button className="mt-4 bg-black text-white py-2 px-4 rounded-full w-full">
-                                            {dataIsFollowing?.friendships?.length ? "Đang theo dõi" : "Theo dõi"}
-                                        </button>
+                                        {userId !== user_id && (
+                                            <button className="mt-4 bg-black text-white py-2 px-4 rounded-full w-full">
+                                                {dataIsFollowing?.friendships?.length ? "Đang theo dõi" : "Theo dõi"}
+                                            </button>
+                                        )}
                                     </div>
                                 )}
                             </div>
@@ -461,8 +484,20 @@ export default function Article({ user_id, content, postId, images, fullname }: 
                                     <div className="flex flex-row gap-2 mt-2 ml-0 items-start">
                                         <div className="flex h-full">
                                             <div className="w-8 flex-shrink-0">
-                                                <img className="rounded-full z-0 w-8 h-8 bg-cover" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQgFPzdgOy4CJfBOVER-gmHRQJjVfNd3LMf-Q&s" alt="" />
-                                                <div className="h-full w-[2px] bg-slate-500 mx-auto mt-2"></div>
+                                            {dataUserDetails?.userDetails?.[0]?.avatar ? (
+                                                <img 
+                                                    className="rounded-full w-8 h-8 bg-cover" 
+                                                    src={dataUserDetails.userDetails[0].avatar} 
+                                                    alt="User avatar" 
+                                                />
+                                            ) : (
+                                                <img 
+                                                    className="rounded-full w-8 h-8 bg-cover" 
+                                                    src="/assets/avt.png" 
+                                                    alt="Default avatar" 
+                                                />
+                                            )}
+                                                <div className="h-[calc(100%-40px)] w-[2px] bg-slate-500 mx-auto mt-2"></div>
                                             </div>
                                             <div className="flex-grow ml-2">
                                                 <div className="flex flex-row gap-3">
@@ -491,7 +526,11 @@ export default function Article({ user_id, content, postId, images, fullname }: 
                                 {/* body  */}
 
                                 <div className="flex items-start mt-1">
-                                    <img className="w-8 h-8 rounded-full bg-cover mr-3" src="/assets/avt.png" alt="User avatar" />
+                                <img 
+                                    className="rounded-full w-8 h-8 bg-cover" 
+                                    src="/assets/avt.png" 
+                                    alt="User avatar" 
+                                />
                                     <div className="flex-grow">
                                         <div className="font-semibold text-sm mb-2">{userId}</div>
                                         <LexicalEditor setOnchange={setCommentContent} />
