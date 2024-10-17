@@ -9,7 +9,7 @@ import { tx, id } from "@instantdb/react"
 import { toast } from "react-toastify";
 
 
-export default function Article({ user_id, content, postId, images }: ArticleProps) {
+export default function Article({ user_id, content, postId, images, fullname, createdAt }: ArticleProps) {
     
     const [userId, setUserId] = useState<string | null>(null);
 
@@ -25,16 +25,17 @@ export default function Article({ user_id, content, postId, images }: ArticlePro
     const [image, setImage] = useState<string | null>(null);
     const [shareCount, setShareCount] = useState<number>(0);
     const [uploadedImages, setUploadedImages] = useState<string[]>([]);
-
+    const [showProfile, setShowProfile] = useState(false);
     const query = { actionLikePost: {} }
     const { isLoading, error, data } = db.useQuery(query)
-
+    const [timeAgo, setTimeAgo] = useState<string>('');
+    
     useEffect(() => {
         if(typeof window !== 'undefined') {
             const userId = getUserId();
             setUserId(userId);
         }
-    })
+    }, []); // Add an empty dependency array to run only once
 
     const queryUserDetails = {
         userDetails: {
@@ -58,7 +59,30 @@ export default function Article({ user_id, content, postId, images }: ArticlePro
         }
     }
     const { data: dataIsFollowing } = db.useQuery(queryIsFollowing)
+    useEffect(() => {
+        const calculateTimeAgo = () => {
+            const now = new Date().getTime();
+            const diffInSeconds = Math.floor((now - Number(createdAt)) / 1000);
 
+            if (diffInSeconds < 60) {
+                setTimeAgo(`${diffInSeconds} giây`);
+            } else if (diffInSeconds < 3600) {
+                const minutes = Math.floor(diffInSeconds / 60);
+                setTimeAgo(`${minutes} phút`);
+            } else if (diffInSeconds < 86400) {
+                const hours = Math.floor(diffInSeconds / 3600);
+                setTimeAgo(`${hours} giờ`);
+            } else {
+                const days = Math.floor(diffInSeconds / 86400);
+                setTimeAgo(`${days} ngày`);
+            }
+        };
+
+        calculateTimeAgo();
+        const timer = setInterval(calculateTimeAgo, 60000); // Update every minute
+
+        return () => clearInterval(timer);
+    }, [createdAt]); // Correct dependency
     const queryCheckIsLiked = {
         actionLikePost: {
             $: {
@@ -295,9 +319,7 @@ export default function Article({ user_id, content, postId, images }: ArticlePro
             alert('Error adding friend');
         }
     };
-
-
-
+    
     return (
         <div>
             <div className="border-b border-gray-200 w-full py-2 md:px-5 px-2">
@@ -327,9 +349,43 @@ export default function Article({ user_id, content, postId, images }: ArticlePro
                     </div>
                     <div className="flex flex-col">
                         <div className="flex flex-row max-w-[300px] min-w-[299px] md:max-w-[540px] justify-between items-center">
-                            <Link href={`/@${user_id}`}>
-                                <span className="text-sm font-semibold hover:underline">{user_id ? user_id : ""}</span>
-                            </Link>
+                            <div className="relative">
+                                <Link href={`/@${user_id}`}>
+                                    <span 
+                                    className="text-sm font-semibold hover:underline"
+                                    onMouseEnter={() => setShowProfile(true)}
+                                    onMouseLeave={() => setShowProfile(false)}
+                                    >
+                                        {user_id ? user_id : ""}
+                                    </span>
+                                </Link>
+                                {showProfile && (
+                                    <div 
+                                    onMouseEnter={() => setShowProfile(true)}
+                                    onMouseLeave={() => setShowProfile(false)}
+                                    className="absolute top-6 left-0 z-10 flex flex-col gap-1 shadow-md p-4 px-2 w-64 h-auto rounded-lg bg-white border border-gray-200">
+                                        <div className="flex gap-2 items-center">
+                                            {
+                                                dataUserDetails && dataUserDetails?.userDetails?.[0]?.avatar ? (
+                                                    <img className="rounded-full w-8 h-8 bg-cover" src={dataUserDetails?.userDetails?.[0]?.avatar} alt="avatar" />
+                                                ) : (
+                                                <img className="rounded-full w-8 h-8 bg-cover" src="/assets/avt.png" alt="avatar" />
+                                            )}
+                                            <div className="flex flex-col">
+                                                <h2 className="font-bold text-lg">{dataUserDetails?.userDetails?.[0]?.fullname || fullname}</h2>
+                                                <p className="text-gray-500">{user_id}</p>
+                                            </div>
+                                        </div>
+                                        <p className="mt-2">{dataUserDetails?.userDetails?.[0]?.bio || "No bio available"}</p>
+                                        <p className="text-gray-500 mt-1">{dataUserDetails?.userDetails?.[0]?.followers || 0} người theo dõi</p>
+                                        {userId !== user_id && (
+                                            <button className="mt-4 bg-black text-white py-2 px-4 rounded-full w-full">
+                                                {dataIsFollowing?.friendships?.length ? "Đang theo dõi" : "Theo dõi"}
+                                            </button>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
                             <div className="flex relative">
                                 <button onClick={() => setIssShow((prv) => !prv)} className="z-0 hover:bg-slate-100 p-2 rounded-full">
                                     <img width={10} src="/assets/optiononarticle.svg" alt="icon" />
@@ -373,7 +429,7 @@ export default function Article({ user_id, content, postId, images }: ArticlePro
                             </div>
                         </div>
                         <Link href={`/@${user_id}/post/${postId}`} className="flex flex-col gap-3 overflow-x-hidden">
-                            <span className="w-[300px] md:min-w-[535px] md:max-w-[540px] break-words whitespace-pre-wrap">{content}</span>
+                            <span className="w-[300px] md:min-w-[535px] md:max-w-[540px] break-words overflow-hidden">{content}</span>
                             {images && images.length > 0 && (
                                 <div className="w-[300px] md:min-w-[545px] h-auto flex overflow-x-auto overflow-y-hidden gap-2">
                                     <div className="flex overflow-x-auto overflow-y-hidden w-auto gap-2 pb-2">
@@ -387,6 +443,7 @@ export default function Article({ user_id, content, postId, images }: ArticlePro
                             )}
                         </Link>
                     </div>
+                    
                 </div>
                 {/* footer */}
                 <div className="flex mt-5 md:ml-[60px] justify-center md:justify-start items-center text-sm font-thin gap-5 mb-3 ">
@@ -428,8 +485,20 @@ export default function Article({ user_id, content, postId, images }: ArticlePro
                                     <div className="flex flex-row gap-2 mt-2 ml-0 items-start">
                                         <div className="flex h-full">
                                             <div className="w-8 flex-shrink-0">
-                                                <img className="rounded-full z-0 w-8 h-8 bg-cover" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQgFPzdgOy4CJfBOVER-gmHRQJjVfNd3LMf-Q&s" alt="" />
-                                                <div className="h-full w-[2px] bg-slate-500 mx-auto mt-2"></div>
+                                            {dataUserDetails?.userDetails?.[0]?.avatar ? (
+                                                <img 
+                                                    className="rounded-full w-8 h-8 bg-cover" 
+                                                    src={dataUserDetails.userDetails[0].avatar} 
+                                                    alt="User avatar" 
+                                                />
+                                            ) : (
+                                                <img 
+                                                    className="rounded-full w-8 h-8 bg-cover" 
+                                                    src="/assets/avt.png" 
+                                                    alt="Default avatar" 
+                                                />
+                                            )}
+                                                <div className="h-[calc(100%-40px)] w-[2px] bg-slate-500 mx-auto mt-2"></div>
                                             </div>
                                             <div className="flex-grow ml-2">
                                                 <div className="flex flex-row gap-3">
@@ -458,7 +527,11 @@ export default function Article({ user_id, content, postId, images }: ArticlePro
                                 {/* body  */}
 
                                 <div className="flex items-start mt-1">
-                                    <img className="w-8 h-8 rounded-full bg-cover mr-3" src="/assets/avt.png" alt="User avatar" />
+                                <img 
+                                    className="rounded-full w-8 h-8 bg-cover" 
+                                    src="/assets/avt.png" 
+                                    alt="User avatar" 
+                                />
                                     <div className="flex-grow">
                                         <div className="font-semibold text-sm mb-2">{userId}</div>
                                         <LexicalEditor setOnchange={setCommentContent} />

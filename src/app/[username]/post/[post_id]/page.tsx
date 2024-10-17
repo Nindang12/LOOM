@@ -8,8 +8,10 @@ import ContentComment from "@/components/ContentComment";
 import HeaderViewPost from "@/components/HeaderViewPost";
 import { db } from "@/utils/contants";
 
-export default function ViewPost(){  
-    const {post_id,username} = useParams()
+export default function ViewPost() {
+    const params = useParams();
+    const post_id = params?.post_id as string;
+    const username = params?.username as string;
 
     const query = { posts: {
         $:{

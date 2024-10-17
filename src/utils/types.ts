@@ -18,6 +18,8 @@ interface ArticleProps {
     content?: string;
     postId?: string;
     images?: string[];
+    fullname?: string;
+    createdAt?: number;
 }
 
 interface Post {

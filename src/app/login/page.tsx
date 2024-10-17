@@ -45,14 +45,13 @@ export default function Login(){
                 document.cookie = `token=${token}; path=/; max-age=3600`;
                 localStorage.setItem('lastLoginTime', Date.now().toString());
                 setIsLoggedIn(true);
-                toast.success("Login successful");
                 router.push('/');
             } else {
                 toast.error("Invalid username or password");
+                return null;
             }
         } catch (err) {
-            console.error(err);
-            toast.error("An error occurred during login");
+            return null;
         }
     }
 

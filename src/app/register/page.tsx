@@ -37,7 +37,7 @@ export default function Register(){
                 await db.transact(
                     tx.userDetails[id()].update({
                     userId: user.user_id,
-                    fullname: username as string,
+                    fullname: user.user_id,
                     email: email as string,
                     password: password as string,
                     avatar: null,
@@ -63,13 +63,12 @@ export default function Register(){
             setIsEmail(isEmail)
             if(isEmail){
                 try {
+                    const username = (email as string).split('@')[0];
                     await addUserToInstantDB({
-                        user_id: username as string
+                        user_id: username
                     })
-                    toast.success("Registration successful!");
                     router.push("/");
                 } catch (error:any) {
-                    toast.error("Registration error");
                     console.error("Registration error:", error);
                 }
             }
@@ -79,7 +78,7 @@ export default function Register(){
     }
     
     const CheckisEmail = (email:string) => {
-        const re = /^[a-zA-Z0-9._-]+@gmail.[a-zA-Z]{2,6}$/;
+        const re = /^[a-zA-Z0-9._-]+@(std\.ttu\.edu\.vn\.com|gmail\.com)$/;
         return re.test(email);
     }
 
@@ -90,9 +89,6 @@ export default function Register(){
             </span>
             <div className="w-full px-3 flex justify-center">
                 <input onChange={(event)=>setEmail(event.target.value)} className={`md:w-[370px] w-full px-6 py-4 focus outline-none border ${!isEmail?"border-red-500":"border-gray-300"} border-solid  rounded-2xl bg-gray-100 text-sm`} type="text" id=""placeholder="Email" />
-            </div>
-            <div className="w-full px-3 flex justify-center">
-                <input onChange={(event)=>setUsername(event.target.value)} className="md:w-[370px] w-full px-6 py-4 focus outline-none border border-gray-300 border-solid  rounded-2xl bg-gray-100 text-sm" type="text" id=""placeholder="Tên người dùng, số điện thoại hoặc email" />
             </div>
             <div className="w-full px-3 flex justify-center">
                 <input onChange={(event)=>setPassword(event.target.value)} className="md:w-[370px] w-full px-6 py-4 focus outline-none border border-gray-300 border-solid  rounded-2xl bg-gray-100 text-sm" type="password" id=""placeholder="Mật khẩu" />

@@ -325,42 +325,118 @@ export default function ContentComment({
             console.error('Error creating reply:', error);
         }
     };
+    const queryUserDetails = {
+        userDetails: {
+            $: {
+                where: {
+                    userId: userId
+                }
+            }
+        }
+    }
+    const { data: dataUserDetails } = db.useQuery(queryUserDetails)
+    const queryIsFollowing = {
+        friendships: {
+            $: {
+                where: {
+                    userId: userId,
+                    isFollowing: true,
+                    friendId: userId
+                }
+            }
+        }
+    }
+    const { data: dataIsFollowing } = db.useQuery(queryIsFollowing)
+    const queryFriendships = {
+        friendships: {
+            $: {
+                where: {
+                    friendId: userId,
+                    isFriend: true,
+                    userId: userAccountId
+                },
+            },
+        },
+    }
+    const [isFriendAdded, setIsFriendAdded] = useState(false);
 
+    const addFriend = async (userId: string, friendId: string) => {
+        if (!userId || !friendId || isFriendAdded) return;
+
+        try {
+            db.transact([tx.friendships[id()].update(
+                {
+                    userId: userId,
+                    friendId: friendId,
+                    isFriend: false,
+                    isPendingRequest: true,
+                    isFollowing: true,
+                    createdAt: Date.now()
+                }
+            )]);
+        } catch (error) {
+            console.error('Error adding friend:', error);
+            alert('Error adding friend');
+        }
+    };
+
+    const { data: dataFriendships } = db.useQuery(queryFriendships)
     return(
         <div>
             <div className={`${className}`}>
                 {/* <header> */}
-                {
-                    commentParentId&&(
-                        <span>{userId}-{commentParentId}</span>
-                    )
-                }
                 <div className="flex flex-row items-start justify-between">
                     <div className="h-auto flex flex-row gap-2 mt-2 ml-5 min-h-[97px]">
-                        <div className="flex flex-col h-full min-h-3 justify-center items-center gap-2">
-                            <img className="rounded-full w-8 h-8 bg-cover" src="/assets/avt.png" alt="avt" />              
-                            <div className="flex-grow bg-slate-400 w-[1px]"></div>          
+                        <div className="relative flex-row w-8 h-8 justify-center flex-shrink-0">
+                            {
+                                dataUserDetails && dataUserDetails?.userDetails?.[0]?.avatar ? (
+                                    <img className="rounded-full w-8 h-8 bg-cover" src={dataUserDetails?.userDetails?.[0]?.avatar} alt="avatar" />
+                                ) : (
+                                    <img className="rounded-full w-8 h-8 bg-cover" src="/assets/avt.png" alt="avatar" />
+                                )
+                            }
+                            {!isFriendAdded && userAccountId !== userId && 
+                                !dataFriendships?.friendships.length && 
+                                !dataIsFollowing?.friendships?.length && (
+                                <button
+                                    onClick={() => {
+                                        addFriend(userAccountId as string, userId);
+                                        setIsFriendAdded(true);
+                                    }}
+                                    className="absolute top-5 right-[-1px] bg-white rounded-full shadow-md hover:bg-gray-100 p-1"
+                                >
+                                    <img width={12} src="/assets/addfriend.svg" alt="Add friend" />
+                                </button>
+                            )}
                         </div>
                         <div className="h-full">
                             <div className="flex gap-2">
-                                <Link href={`/@${userId}`} className="font-bold text-sm">
+                                <Link href={`/@${userId}`} className="flex flex-row gap-2 font-bold text-sm">
                                     <span className="">{userId}</span>
+                                    {
+                                        commentParentId && (
+                                            <div className="flex flex-row gap-2">
+                                                <img width={10} src="/assets/arrow-right.svg" alt="arrow-right" />
+                                                <span>{commentParentId}</span>
+                                            </div>
+                                        )
+                                    }
                                 </Link>
                                 <span className="text-sm text-gray-400">{timeAgo}</span>
                             </div>
                             <div className="text-sm">
                                 <p>{content}</p>
                             </div>
-                            <div className="flex justify-center md:justify-start items-center text-sm font-thin gap-3 mb-3 ">
-                            <div className="flex gap-1 p-2">
-                                <button onClick={handleLike} className="hover:bg-slate-100 rounded-3xl">
-                                    <img
-                                        width={20}
-                                        src={dataCheckIsLiked && dataCheckIsLiked?.actionLikeComment?.length > 0 ? "/assets/redheart.svg" : "/assets/heartonarticle.svg"}
-                                        alt={dataCheckIsLiked && dataCheckIsLiked?.actionLikeComment?.length > 0 ? "redheart" : "heart"}
-                                    />
-                                </button>
-                                <small className={`${dataCheckIsLiked && dataCheckIsLiked?.actionLikeComment?.length > 0 ? "text-red-600" : ""}`}>{totalLikes}</small>
+                            <div className="flex justify-center md:justify-start items-center text-sm font-thin gap-3   ">
+                                <div className="flex gap-1">
+                                    <button onClick={handleLike} className="hover:bg-slate-100 rounded-3xl">
+                                        <img
+                                            width={20}
+                                            src={dataCheckIsLiked && dataCheckIsLiked?.actionLikeComment?.length > 0 ? "/assets/redheart.svg" : "/assets/heartonarticle.svg"}
+                                            alt={dataCheckIsLiked && dataCheckIsLiked?.actionLikeComment?.length > 0 ? "redheart" : "heart"}
+                                        />
+                                    </button>
+                                    <small className={`${dataCheckIsLiked && dataCheckIsLiked?.actionLikeComment?.length > 0 ? "text-red-600" : ""}`}>{totalLikes}</small>
                                 </div>
                                 <button onClick={() => setIsShow((prv) => !prv)} className="flex gap-1 hover:bg-slate-100 p-2 rounded-3xl">
                                     <img width={20} src="/assets/comment.svg" alt="" />
@@ -375,55 +451,22 @@ export default function ContentComment({
                                     <small>{totalShares}</small>
                                 </button>
                             </div>
-                        </div>
-                    </div>
-                    <div>
-                        <button onClick={()=>setIssShow((prv)=>!prv)} className="z-0 mr-5 hover:bg-slate-100  p-3 rounded-full">
-                            <img width={15} src="/assets/optiononarticle.svg" alt="" />
-                        </button>
-                    
-                        {
-                            issShow&&(
-                                <div className="fixed translate-x-[-230px] flex flex-col gap-1 shadow-md p-4 px-2 w-64 h-auto rounded-lg bg-white border border-gray-200">
-                                    <div className="flex flex-col border-solid border-b-2 ">
-                                        <button className=" flex justify-between hover:bg-slate-200 px-2 py-3 rounded-lg">
-                                            <span className="text-sm font-bold">Lưu</span>
-                                            <img width={30} src="/assets/save.svg" alt="" />
-                                        </button>
-                                        <button className="flex justify-between hover:bg-slate-200 px-2 py-3 rounded-lg">
-                                            <span className="text-sm font-bold">Không quan tâm</span>
-                                            <img width={25} src="/assets/eye.svg" alt="" />
-                                        </button>
-                                    </div>
-                                    <div className="flex flex-col border-solid border-b-2 ">
-                                        <button className=" flex justify-between hover:bg-slate-200 px-2 py-3 rounded-lg">
-                                            <span className="text-sm font-bold">Tắt thông báo</span>
-                                            <img width={30} src="/assets/bell.svg" alt="" />
-                                        </button>
-                                        <button className="flex justify-between hover:bg-slate-200 px-2 py-3 rounded-lg">
-                                            <span className="text-sm text-red-600 font-bold">Chặn</span>
-                                            <img width={25} src="/assets/block.svg" alt="" />
-                                        </button>
-                                        <button className="flex justify-between hover:bg-slate-200 px-2 py-3 rounded-lg">
-                                            <span className="text-sm font-bold text-red-600">Báo cáo</span>
-                                            <img width={25} src="/assets/warning.svg" alt="" />
-                                        </button>
-                                    </div>
-                                    <div className="flex flex-col ">
-                                        <button className=" flex justify-between hover:bg-slate-200 px-2 py-3 rounded-lg">
-                                            <span className="text-sm font-bold">Sao chép liên kết</span>
-                                            <img width={20} src="/assets/link.svg" alt="" />
-                                        </button>
-                                    </div>
+                            {commentChild?.comments && commentChild.comments.length > 0 && (
+                                <div className="mb-2">
+                                    <button 
+                                        onClick={() => setIsShowReply(!isShowReply)}
+                                        className="text-sm hover:underline"
+                                    >
+                                        {isShowReply ? 'Thu gọn' : 'Xem tất cả'}
+                                    </button>
                                 </div>
-                            )
-                        }
-            
+                            )}
+                        </div>
                     </div>
                 </div>
                 {/* reply comment */}
-                {
-                    commentChild?.comments.map((comment:any,index:number)=>(
+                {isShowReply && commentChild?.comments && (
+                    commentChild.comments.map((comment: any, index: number) => (
                         <div className="flex flex-col gap-2 pl-5" key={index}>
                             <ContentComment 
                                 commentId={comment.commentId} 
@@ -435,7 +478,7 @@ export default function ContentComment({
                             />
                         </div>
                     ))
-                }
+                )}
             </div>
             {
                 isShow && (

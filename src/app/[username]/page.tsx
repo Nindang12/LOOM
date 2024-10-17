@@ -11,7 +11,7 @@ import { db } from "@/utils/contants";
 export default function Home() {
   const router = useRouter();
   const pathName = usePathname();
-  const username = pathName.replace("/@", "");
+  const username = pathName?.replace("/@", "");
 
   useEffect(() => {
     const checkAuthStatus = async () => {
@@ -45,10 +45,10 @@ export default function Home() {
       link={data?.userDetails?.[0]?.link}
     >
       <div className="w-max-[630px] h-[auto] t-0">
-        <RowThreadss username={username} />
+        <RowThreadss username={username || ""} />
       </div>
       <div className="w-max-[630px] h-full t-0 ml-[20px] mr-[20px] z-0">
-        <Thread userId={username} />
+        <Thread userId={username || ""} />
       </div>
     </ProfileLayout>
   );

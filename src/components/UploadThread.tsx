@@ -50,6 +50,7 @@ export default function UploadThread(){
             setIsLoading(false);
         }
     };
+   
 
     const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
@@ -69,6 +70,16 @@ export default function UploadThread(){
             });
         }
     };
+    const queryUserDetails = {
+        userDetails: {
+            $: {
+                where: {
+                    userId: userId
+                }
+            }
+        }
+    }
+    const { data: dataUserDetails } = db.useQuery(queryUserDetails)
 
     // End of Selection
     //console.log(JSON.stringify(content));
@@ -77,7 +88,12 @@ export default function UploadThread(){
         <div className="border-b border-gray-200">
             <div className="flex flex-row px-5 h-20 items-center justify-between">
                 <div className="flex flex-row gap-3">
-                    <img width={30} className="rounded-full w-8 h-8 bg-cover" src="/assets/avt.png" alt="" />
+                    {
+                        dataUserDetails && dataUserDetails?.userDetails?.[0]?.avatar ? (
+                            <img className="rounded-full w-8 h-8 bg-cover" src={dataUserDetails?.userDetails?.[0]?.avatar} alt="avatar" />
+                        ) : (
+                            <img className="rounded-full w-8 h-8 bg-cover" src="/assets/avt.png" alt="avatar" />)
+                    }
                     <button onClick={()=>setIsShow((prv)=>!prv)} className="w-[400px] text-gray-500  text-start p-2 cursor-text ">
                         <span  className="font-light text-sm">Bắt đầu thread...</span>
                     </button>
@@ -93,8 +109,13 @@ export default function UploadThread(){
                             <span className="py-5 text-white font-bold">Thread mới</span>
                             <div onClick={(e) => e.stopPropagation()} className=" bg-white p-3 rounded-lg shadow-lg w-[600px]">
                                 <div className="flex items-start mb-4">
-                                    <img src="/assets/avt.png" className="w-10 h-10 rounded-full flex items-start justify-center" alt="" />
-                                        <div className="ml-4 w-full">
+                                {
+                                    dataUserDetails && dataUserDetails?.userDetails?.[0]?.avatar ? (
+                                        <img className="rounded-full w-8 h-8 bg-cover" src={dataUserDetails?.userDetails?.[0]?.avatar} alt="avatar" />
+                                    ) : (
+                                        <img className="rounded-full w-8 h-8 bg-cover" src="/assets/avt.png" alt="avatar" />)
+                                }
+                                                <div className="ml-4 w-full">
                                             <div className="font-semibold">{userId}</div>
                                                 <LexicalEditor setOnchange={setContent}/>
                                                 {images.length > 0 && (

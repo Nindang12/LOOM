@@ -10,10 +10,10 @@ import React, { useEffect, useState } from "react";
 import { db } from "@/utils/contants";
 import { getUserId } from "@/utils/auth";
 
-export default function FollowingPage() {
+export default function LikedPage() {
   const router = useRouter();
   const [userId, setUserId] = useState<string | null>(null);
-  const [followingPosts, setFollowingPosts] = useState<any[]>([]);
+  const [likedPosts, setLikedPosts] = useState<any[]>([]);
 
   useEffect(() => {
     const checkLoginStatus = async () => {
@@ -28,23 +28,23 @@ export default function FollowingPage() {
     checkLoginStatus();
   }, [router]);
 
-  const queryFollowing = {
-    friendships: {
+  const query = {
+    actionLikePost: {
       $: {
         where: {
-          userId: userId,
-          isFollowing: true
+          userId: userId
         }
       }
     }
   };
-  const { data: followingData } = db.useQuery(queryFollowing);
+
+  const { data: likedPostsData } = db.useQuery(query);
 
   const queryPosts = {
     posts: {
       $: {
         where: {
-          userId: followingData?.friendships?.map((friendship: any) => friendship.friendId)
+          postId: likedPostsData?.actionLikePost?.map((like: any) => like.postId)
         }
       }
     }
@@ -52,12 +52,13 @@ export default function FollowingPage() {
   const { data: postsData } = db.useQuery(queryPosts);
 
   useEffect(() => {
-    if (postsData?.posts && followingData?.friendships) {
-      const followingUserIds = new Set(followingData.friendships.map((friendship: any) => friendship.friendId));
-      const filteredPosts = postsData.posts.filter((post: any) => followingUserIds.has(post.userId));
-      setFollowingPosts(filteredPosts);
+    if (postsData?.posts && likedPostsData?.actionLikePost) {
+      const likedPostsWithDetails = postsData.posts.filter((post: any) =>
+        likedPostsData.actionLikePost.some((like: any) => like.postId === post.postId)
+      );
+      setLikedPosts(likedPostsWithDetails);
     }
-  }, [postsData, followingData]);
+  }, [postsData, likedPostsData]);
 
   return ( 
     <div className="flex md:flex-row bg-[rgb(250,250,250)] flex-col-reverse overflow-hidden h-screen">
@@ -70,8 +71,8 @@ export default function FollowingPage() {
             <Header />
           </div>
           <div className="flex flex-col border bg-white border-gray-300 rounded-xl h-[calc(100vh-60px)] overflow-y-auto">
-            <div className="sticky top-0 z-20">
-              <div className="hidden md:block">
+            <div className="sticky top-0">
+              <div className="hidden md:block bg-white z-20">
                 <UploadThread />
               </div>
               <div className="md:hidden">
@@ -79,12 +80,12 @@ export default function FollowingPage() {
               </div>
             </div>
             <div className="overflow-y-auto">
-              {followingPosts.map((post: any) => (
+              {likedPosts.map((post: any) => (
                 <Article
                   key={post.id}
                   user_id={post.userId}
                   content={post.content}
-                  postId={post.id}
+                  postId={post.postId}
                   images={post.images}
                   fullname={post.fullname}
                 />
