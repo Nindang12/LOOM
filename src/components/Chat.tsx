@@ -4,67 +4,25 @@ import { init, tx, id } from '@instantdb/react'
 import Link from 'next/link'
 import { db } from "@/utils/contants"
 import Avatar from './Avatar'
-import io, { Socket } from 'socket.io-client'
+import { ZegoUIKitPrebuilt } from '@zegocloud/zego-uikit-prebuilt';
 
-// Add this type definition
-type SignalingMessage = {
-    type: 'offer' | 'answer' | 'candidate';
-    from?: string;
-    to: string;
-    offer?: RTCSessionDescriptionInit;
-    answer?: RTCSessionDescriptionInit;
-    candidate?: RTCIceCandidateInit;
-};
 
-// Add this function outside of the component
-const createSignalingServer = (userId: string) => {
-    const [socket, setSocket] = useState<Socket | null>(null)
-
-    useEffect(() => {
-        const initSocket = async () => {
-            await fetch('/api/websocket')
-            const newSocket = io()
-
-            newSocket.on('connect', () => {
-                console.log('Connected to WebSocket')
-                newSocket.emit('join-room', userId)
-            })
-
-            newSocket.on('connect_error', (error) => {
-                console.error('Connection error:', error)
-            })
-
-            setSocket(newSocket)
-        }
-
-        initSocket()
-
-        return () => {
-            if (socket) {
-                socket.disconnect()
-            }
-        }
-    }, [userId])
-
-    const send = (message: SignalingMessage) => {
-        if (socket && socket.connected) {
-            socket.emit('send-signal', message)
-        } else {
-            console.error('Socket is not connected')
-        }
-    }
-
-    const onMessage = (callback: (message: SignalingMessage) => void) => {
-        if (socket) {
-            socket.on('receive-signal', (message: SignalingMessage) => {
-                callback(message)
-            })
-        }
-    }
-
-    return { send, onMessage }
-}
-
+const generateToken = (tokenServerUrl: string, appID: number, userID: string) => {
+    // Obtain the token interface provided by the App Server
+    return fetch(tokenServerUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        app_id: appID,
+        user_id: userID,
+      }),
+    }).then(async (res) => {
+      const result = await res.text();
+      return result;
+    });
+  }
 
 const Chat = ({ friendId, userId }: { friendId: string, userId?: string }) => {
     const [newMessage, setNewMessage] = useState('')
@@ -73,9 +31,7 @@ const Chat = ({ friendId, userId }: { friendId: string, userId?: string }) => {
     const [imagePreview, setImagePreview] = useState<string | null>(null)
     const [audio, setAudio] = useState<File | null>(null)
     const [audioPreview, setAudioPreview] = useState<string | null>(null)
-    const [peerConnection, setPeerConnection] = useState<RTCPeerConnection | null>(null);
 
-    const signalingServer = createSignalingServer(userId || '')
 
     // Cấu hình truy vấn để lấy tin nhắn giữa user và friend
     const query = {
@@ -109,6 +65,34 @@ const Chat = ({ friendId, userId }: { friendId: string, userId?: string }) => {
     useEffect(() => {
         chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
     }, [data])
+
+    const callAudioWithFriend = async () => {
+        const token = await generateToken(
+            'https://preview-uikit-server.zegotech.cn/api/token',
+            2013980891,
+            userId as string
+        );
+    
+        const kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(0,'f491cf961e89601de0c58a61f5573fd8','',userId as string,userId as string);
+        // create instance object from token
+        const zp = ZegoUIKitPrebuilt.create(kitToken);
+
+        const targetUser = {
+            userID: friendId,
+            userName: datafriendDetails?.userDetails[0].fullname // Replace with actual friend's name if available
+        };
+    
+        zp?.sendCallInvitation({
+            callees: [targetUser],
+            callType: ZegoUIKitPrebuilt.InvitationTypeVoiceCall, // Use InvitationTypeVoiceCall for audio calls
+            timeout: 60, // Timeout duration (second). 60s by default, range from [1-600s].
+        }).then((res) => {
+            console.log(res);
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+    }
 
     // Handle image selection and preview
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -165,73 +149,6 @@ const Chat = ({ friendId, userId }: { friendId: string, userId?: string }) => {
         setAudioPreview(null)
     }
 
-    // Function to initiate an audio call
-    const initiateAudioCall = async () => {
-        const pc = new RTCPeerConnection({
-            iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
-        });
-
-        setPeerConnection(pc);
-
-        const localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
-
-        pc.onicecandidate = event => {
-            if (event.candidate) {
-                signalingServer.send({ type: 'candidate', candidate: event.candidate, to: friendId });
-            }
-        };
-
-        pc.ontrack = event => {
-            const remoteAudio = new Audio();
-            remoteAudio.srcObject = event.streams[0];
-            remoteAudio.play();
-        };
-
-        const offer = await pc.createOffer();
-        await pc.setLocalDescription(offer);
-
-        signalingServer.send({ type: 'offer', offer, to: friendId });
-    }
-
-    useEffect(() => {
-        const pc = new RTCPeerConnection({
-            iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
-        })
-
-        setPeerConnection(pc)
-
-        pc.onicecandidate = event => {
-            if (event.candidate) {
-                signalingServer.send({ type: 'candidate', candidate: event.candidate, to: friendId })
-            }
-        }
-
-        pc.ontrack = event => {
-            const remoteAudio = new Audio()
-            remoteAudio.srcObject = event.streams[0]
-            remoteAudio.play()
-        }
-
-        signalingServer.onMessage(async (message: SignalingMessage) => {
-            if (message.type === 'offer' && message.from === friendId) {
-                await pc.setRemoteDescription(new RTCSessionDescription(message.offer as RTCSessionDescriptionInit))
-                const localStream = await navigator.mediaDevices.getUserMedia({ audio: true })
-                localStream.getTracks().forEach(track => pc.addTrack(track, localStream))
-
-                const answer = await pc.createAnswer()
-                await pc.setLocalDescription(answer)
-
-                signalingServer.send({ type: 'answer', answer, to: message.from })
-            } else if (message.type === 'candidate' && message.from === friendId) {
-                await pc.addIceCandidate(new RTCIceCandidate(message.candidate))
-            }
-        })
-
-        return () => {
-            pc.close()
-        }
-    }, [friendId, signalingServer])
 
     if (isLoading) return <div>Loading...</div>
     if (error) return <div>Error loading chat</div>
@@ -249,7 +166,7 @@ const Chat = ({ friendId, userId }: { friendId: string, userId?: string }) => {
                     <h2 className="text-xl font-semibold">{datafriendDetails?.userDetails[0].fullname}</h2>
                 </div>
                 <div className="flex items-center">
-                    <button onClick={initiateAudioCall} className="p-2 rounded-full hover:bg-gray-200">
+                    <button onClick={callAudioWithFriend} className="p-2 rounded-full hover:bg-gray-200">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                         </svg>
