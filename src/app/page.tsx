@@ -20,43 +20,11 @@ export default function Home() {
 
 
   useEffect(() => {
-    if(typeof window !== 'undefined'){
-      const userId = getUserId()
-      setCurrentUser(userId)
+    if (typeof window !== 'undefined') {
+      const userId = getUserId();
+      setCurrentUser(userId);
     }
-  }, [currentUser]);
-
-  const queryUser = {
-    userDetails: {
-      $: {
-        where: { userId: currentUser },
-      }
-    }
-  }
-
-
-  const { data: dataUser } = db.useQuery(queryUser)
-
-  //console.log(dataUser)
-
-  // const updateStatus =useCallback( async (status: 'online' | 'offline') => {
-  //   if (dataUser) {
-  //     try {
-  //       await db.transact([tx.userDetails[dataUser?.userDetails[0].id].update({ 
-  //         status: status
-  //       })]);
-  //       console.log('Status updated to', status);
-  //     } catch (error) {
-  //       console.error('Failed to update status:', error);
-  //     }
-  //   } else {
-  //     console.warn('No user details found to update status');
-  //   }
-  // }, [dataUser]);
-
-  // useEffect(() => {
-  //   updateStatus('online');
-  // }, [updateStatus]);
+  }, []); // Removed currentUser from dependencies
 
   const query = {
     posts: {
@@ -82,11 +50,6 @@ export default function Home() {
       verifyLogin();
   }, [router]);
 
-
-  const handleLogout = () => {
-    setIsLoggedIn(false)
-    router.push('/login')
-  }
 
   if (!isLoggedIn) {
     return null

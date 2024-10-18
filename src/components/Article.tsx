@@ -29,12 +29,13 @@ export default function Article({ user_id, content, postId, images, fullname, cr
     const query = { actionLikePost: {} }
     const { isLoading, error, data } = db.useQuery(query)
     const [timeAgo, setTimeAgo] = useState<string>('');
+    
     useEffect(() => {
         if(typeof window !== 'undefined') {
             const userId = getUserId();
             setUserId(userId);
         }
-    })
+    }, []); // Add an empty dependency array to run only once
 
     const queryUserDetails = {
         userDetails: {
@@ -81,7 +82,7 @@ export default function Article({ user_id, content, postId, images, fullname, cr
         const timer = setInterval(calculateTimeAgo, 60000); // Update every minute
 
         return () => clearInterval(timer);
-    }, [createdAt]);
+    }, [createdAt]); // Correct dependency
     const queryCheckIsLiked = {
         actionLikePost: {
             $: {
