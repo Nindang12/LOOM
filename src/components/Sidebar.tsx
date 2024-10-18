@@ -81,10 +81,40 @@ export default function Siderbar(user_id: ArticleProps){
         }
     }
     const { data: dataUserDetails } = db.useQuery(queryUserDetails)
+    const [hasNewMessages, setHasNewMessages] = useState(false);
+    const [hasNewActivity, setHasNewActivity] = useState(false);
+
+    useEffect(() => {
+        const checkNewMessages = async () => {
+            // Fetch new messages count from your backend
+            const response = await fetch('/api/messages/unread');
+            const { count } = await response.json();
+            setHasNewMessages(count > 0);
+        };
+
+        const checkNewActivity = async () => {
+            // Fetch new activity count from your backend
+            const response = await fetch('/api/activity/unread');
+            const { count } = await response.json();
+            setHasNewActivity(count > 0);
+        };
+
+        checkNewMessages();
+        checkNewActivity();
+
+        // Set up interval to check periodically
+        const interval = setInterval(() => {
+            checkNewMessages();
+            checkNewActivity();
+        }, 60000); // Check every minute
+
+        return () => clearInterval(interval);
+    }, []);
+    
     return(
         <div className="">
             <div className="flex flex-col justify-between py-5 md:w-20 md:h-screen items-center bg-zinc-50 w-screen h-20">
-                <img width={40} className="hidden md:block" src="/assets/logowhite.png" alt="logo" />
+                <img width={40} className="hidden md:block" src="/assets/T.png" alt="logo" />
                 <div className="flex md:flex-col  md:gap-16 gap-5  flex-row ">
                     <Link href={"/"} className="hover:bg-slate-200 p-3 rounded-lg">
                         <img width={22} src="/assets/home.svg" alt="home" />
@@ -95,11 +125,17 @@ export default function Siderbar(user_id: ArticleProps){
                     <div onClick={()=>setIsShow((prv)=>!prv)}  className="hover:bg-slate-200 p-3 rounded-lg">
                         <img width={23} src="/assets/write.svg" alt="" />
                     </div>
-                    <Link href={"/messages"}className="hover:bg-slate-200 p-3 rounded-lg">
+                    <Link href={"/messages"} className="hover:bg-slate-200 p-3 rounded-lg relative">
                         <img width={23} src="/assets/chat.svg" alt="chat" />
+                        {hasNewMessages && (
+                            <div className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></div>
+                        )}
                     </Link>
-                    <Link href={"/activity"}className="hover:bg-slate-200 p-3 rounded-lg">
+                    <Link href={"/activity"} className="hover:bg-slate-200 p-3 rounded-lg relative">
                         <img width={22} src="/assets/heart.svg" alt="heart" />
+                        {hasNewActivity && (
+                            <div className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></div>
+                        )}
                     </Link>
                     <Link href={`/@${userId}`} className="hover:bg-slate-200 p-3 rounded-lg">
                         <img width={20} src="/assets/profile.svg" alt="profile" />

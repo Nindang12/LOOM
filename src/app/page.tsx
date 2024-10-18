@@ -102,24 +102,23 @@ export default function Home() {
           <div className="hidden md:block">
               <Header/>
           </div>
-          <div className="w-full md:hidden top-0 bg-white z-10">
+          <div className="w-full md:hidden sticky top-0 bg-white z-10">
             <div className="flex flex-col items-center">
-              <div className="flex justify-between">
-              <Link href={'/'}>
-                <button className="mt-2 mb-4">
-                  <img width={60} src="/assets/logowhite.png" alt="logo" />
-                </button>
-              </Link>
-              <ButtonOption/>
+              <div className="flex flex-row justify-between items-center w-full px-4 py-2">
+                <div></div>
+                <Link href={'/'}>
+                  <img width={40} src="/assets/logot.svg" alt="logoT" className="h-8" />
+                </Link>
+                <ButtonOption />
               </div>
               <div className="flex w-full border-b border-gray-200">
                 <Link href={'/'} className="w-1/2">
-                  <button className="w-full text-sm font-bold py-3 border-b-2 border-black">
+                  <button className="w-full text-sm font-semibold py-3 border-b-2 border-black">
                     Dành cho bạn
                   </button>
                 </Link>
                 <Link href={'/following'} className="w-1/2">
-                  <button className="w-full text-sm font-bold py-3 text-gray-400 border-b-2 border-transparent">
+                  <button className="w-full text-sm font-semibold py-3 text-gray-400 border-b-2 border-transparent">
                     Đang theo dõi
                   </button>
                 </Link>
