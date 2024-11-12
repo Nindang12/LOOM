@@ -231,42 +231,7 @@ export default function Threadsreports({ user_id, content, postId, repostedBy,im
     };
     
 
-    const handleShare = () => {
-        if (!userId || !postId) return;
-
-        try {
-            // Check if the post is already shared by the user
-            const isShared = dataShares?.shares.some(
-                (share: any) => share.postId === postId && share.userId === userId
-            );
-
-            if (isShared) {
-                // If already shared, remove the share
-                const shareToRemove = dataShares?.shares.find(
-                    (share: any) => share.postId === postId && share.userId === userId
-                );
-                if (shareToRemove) {
-                    db.transact([tx.shares[shareToRemove.id].delete()]);
-                    setShareCount(shareCount - 1);
-                    return; // Exit the function early
-                }
-            }
-            else{
-                db.transact(
-                    [tx.shares[id()].update(
-                        { 
-                            userId: userId,
-                            postId: postId,
-                            createdAt: new Date().getTime(),
-                        }
-                    )]
-                );
-                setShareCount(shareCount + 1);
-            }
-        } catch (error) {
-            console.error('Error sharing post:', error);
-        }
-    };
+    
 
     useEffect(() => {
         checkIsReposted();

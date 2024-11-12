@@ -162,7 +162,11 @@ const Chat = ({ friendId, userId }: { friendId: string, userId?: string }) => {
                                                 : 'bg-gray-200 text-black'
                                         }`}
                                     >
-                                        {message.content && <div>{message.content}</div>}
+                                        {message.content && (
+                                            <div style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+                                                {message.content}
+                                            </div>
+                                        )}
                                         {message.imageUrl && (
                                             <img src={message.imageUrl} alt="Uploaded" className="mt-2 max-w-full rounded" />
                                         )}
