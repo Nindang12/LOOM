@@ -93,7 +93,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 👥 Authors
 
-- **Louis** - *Initial work* - [GitHub Profile](https://github.com/yourusername)
+- **Louis** - *Initial work* - [GitHub Profile](https://github.com/louisdevzz)
+- **Nin Dang** - *Initial work* - [GitHub Profile](https://github.com/Nindang12)
 
 ## 🙏 Acknowledgments
 
