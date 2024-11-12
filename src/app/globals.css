@@ -25,11 +25,13 @@ scrollbar-width:thin;
 
 .editor-container {
   padding: 0px;
+  position: relative;
 }
 
 .editor-input {
   outline: none;
-  font-size: 14px;
+  font-size: 16px;
+  position: relative;
 }
 
 /* From Uiverse.io by Yaya12085 */ 
@@ -61,3 +63,18 @@ scrollbar-width:thin;
   transform: scale(1.02);
 }
 
+.editor-placeholder {
+  color: #999;
+  overflow: hidden;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  user-select: none;
+  pointer-events: none;
+  font-size: 16px;
+}
+
+.editor-paragraph {
+  margin: 0 0 15px 0;
+  position: relative;
+}

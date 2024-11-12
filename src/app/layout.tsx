@@ -9,7 +9,7 @@ const roboto = Baloo_Paaji_2({ subsets: ["latin"], weight: "500" });
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_VERCEL_URL || 'https://loom.com'),
   title: {
-    default: "Loom - Connect and Share Your Stories",
+    default: "Loom",
     template: "%s | Loom"
   },
   description: "Join Loom, the social platform that weaves together ideas and stories. Connect with friends, share experiences, and build a vibrant community.",
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
         url: "/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "Loom - Connect and Share Your Stories",
+        alt: "Loom",
       },
     ],
   },
