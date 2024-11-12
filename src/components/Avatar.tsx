@@ -18,7 +18,7 @@ const Avatar = ({ userId, altText, width, height,style }: { userId?: string, alt
 
     return (
         <img 
-            src={data?.userDetails[0].avatar ? data?.userDetails[0].avatar : `https://api.dicebear.com/6.x/initials/svg?seed=${userId}`} 
+            src={!data?.userDetails[0].avatar ? "/assets/avt.png" : data?.userDetails[0].avatar} 
             alt={altText} 
             className={style}
             style={{ width: width, height: height, borderRadius: '50%' }} 

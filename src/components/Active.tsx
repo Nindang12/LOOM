@@ -1,5 +1,7 @@
 import {db} from "@/utils/contants";
 import { tx,id } from "@instantdb/react";
+import Avatar from "./Avatar";
+import Link from "next/link";
 
 const Active = ({request,currentUserId}: {request: any,currentUserId: string}) => {
 
@@ -90,14 +92,14 @@ const Active = ({request,currentUserId}: {request: any,currentUserId: string}) =
         <div key={request.id} className="flex items-center mt-2 ml-5 p-2">
             <div className="flex flex-row gap-2">
                 {
-                    dataUserDetails && dataUserDetails?.userDetails?.[0]?.avatar ? (
+                    dataUserDetails && dataUserDetails?.userDetails?.[0]?.avatar ?
                         <img src={dataUserDetails?.userDetails?.[0]?.avatar} alt="Profile picture of the user" className="w-10 h-10 rounded-full" />
-                    ) : (
-                        <img src="https://placehold.co/40x40" alt="Profile picture of the user" className="w-10 h-10 rounded-full" />
+                    :(
+                        <img src="/assets/avt.png" alt="Profile picture of the user" className="w-10 h-10 rounded-full" />
                     )
                 }
                 <div className="flex flex-col">
-                    <span className="font-bold text-sm">{request.userId}</span>
+                    <Link target="_blank" href={`/@${request.userId}`} className="font-bold text-sm hover:underline">{request.userId}</Link>
                     <span className="text-sm text-gray-400">đã bắt đầu theo dõi bạn. {calculateTimeAgo(request.createdAt)}</span>
                 </div>
             </div>
