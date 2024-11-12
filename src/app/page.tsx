@@ -17,7 +17,7 @@ export default function Home() {
   const [currentUser, setCurrentUser] = useState<string|null>(null)
   const [isShow, setIsShow] = useState<boolean>(false);
   const router = useRouter()
-
+  const [visiblePosts, setVisiblePosts] = useState(10);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -70,7 +70,7 @@ export default function Home() {
               <div className="flex flex-row justify-between items-center w-full px-4 py-2">
                 <div></div>
                 <Link href={'/'}>
-                  <img width={40} src="/assets/logot.svg" alt="logoT" className="h-8" />
+                  <img width={40} src="/loom.png" alt="logoT" className="h-8" />
                 </Link>
                 <ButtonOption />
               </div>
@@ -93,8 +93,30 @@ export default function Home() {
               <UploadThread/>
             </div>
             <div className="w-full overflow-y-auto">
-              {filterPost && filterPost.map((post:any, idx:number) => (
-                <Article key={idx} user_id={post.userId} postId={post.postId} content={post.content} images={post.images} />
+              {filterPost && filterPost.slice(0, visiblePosts).map((post:any, idx:number) => (
+                <div 
+                  key={idx}
+                  ref={idx === filterPost.slice(0, visiblePosts).length - 1 ? (node) => {
+                    if (node) {
+                      const observer = new IntersectionObserver((entries) => {
+                        if (entries[0].isIntersecting && visiblePosts < filterPost.length) {
+                          setTimeout(() => {
+                            setVisiblePosts(prev => prev + 10);
+                          }, 1000); // Delay 1 second before loading more
+                        }
+                      });
+                      observer.observe(node);
+                      return () => observer.disconnect();
+                    }
+                  } : null}
+                >
+                  <Article 
+                    user_id={post.userId} 
+                    postId={post.postId} 
+                    content={post.content} 
+                    images={post.images} 
+                  />
+                </div>
               ))}
             </div>
           </div>

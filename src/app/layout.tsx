@@ -1,10 +1,20 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Baloo_Paaji_2 } from "next/font/google";
 import "./globals.css";
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer } from 'react-toastify';
 
 const roboto = Baloo_Paaji_2({ subsets: ["latin"], weight: "500" });
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#000000" },
+  ],
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_VERCEL_URL || 'https://loom.com'),
@@ -31,7 +41,7 @@ export const metadata: Metadata = {
     description: "Experience a new way to connect and share on Loom. Join today!",
     images: [
       {
-        url: "/og-image.jpg",
+        url: "/loom.png",
         width: 1200,
         height: 630,
         alt: "Loom",
@@ -44,12 +54,7 @@ export const metadata: Metadata = {
     description: "Join the community on Loom and share your stories.",
     site: "@Loom",
     creator: "@Loom",
-    images: ["/twitter-image.jpg"],
-  },
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 1,
+    images: ["/loom.png"],
   },
   robots: {
     index: true,
@@ -62,14 +67,10 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#000000" },
-  ],
   icons: {
     icon: "/favicon.ico",
-    shortcut: "/favicon-16x16.png",
-    apple: "/apple-touch-icon.png",
+    shortcut: "/favicon.png",
+    apple: "/favicon.png",
   },
   manifest: "/site.webmanifest",
   alternates: {

@@ -14,7 +14,7 @@ export default function LikedPage() {
   const router = useRouter();
   const [userId, setUserId] = useState<string | null>(null);
   const [likedPosts, setLikedPosts] = useState<any[]>([]);
-
+  const [visiblePosts, setVisiblePosts] = useState(10);
   useEffect(() => {
     const checkLoginStatus = async () => {
       const token = document.cookie.split('; ').find(row => row.startsWith('token='));
@@ -80,15 +80,30 @@ export default function LikedPage() {
               </div>
             </div>
             <div className="overflow-y-auto">
-              {likedPosts.map((post: any) => (
-                <Article
-                  key={post.id}
-                  user_id={post.userId}
-                  content={post.content}
-                  postId={post.postId}
-                  images={post.images}
-                  fullname={post.fullname}
-                />
+              {likedPosts.slice(0, visiblePosts).map((post:any, idx:number) => (
+                <div 
+                  key={idx}
+                  ref={idx === likedPosts.slice(0, visiblePosts).length - 1 ? (node) => {
+                    if (node) {
+                      const observer = new IntersectionObserver((entries) => {
+                        if (entries[0].isIntersecting && visiblePosts < likedPosts.length) {
+                          setTimeout(() => {
+                            setVisiblePosts(prev => prev + 10);
+                          }, 1000); // Delay 1 second before loading more
+                        }
+                      });
+                      observer.observe(node);
+                      return () => observer.disconnect();
+                    }
+                  } : null}
+                >
+                  <Article 
+                    user_id={post.userId} 
+                    postId={post.postId} 
+                    content={post.content} 
+                    images={post.images} 
+                  />
+                </div>
               ))}
             </div>
           </div>
