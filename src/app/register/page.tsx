@@ -67,13 +67,18 @@ export default function Register(){
                     await addUserToInstantDB({
                         user_id: username
                     })
+                    toast.success("Đăng ký thành công!");
                     router.push("/");
                 } catch (error:any) {
-                    console.error("Registration error:", error);
+                    //console.error("Registration error:", error);
+                    toast.error("Đã có người sử dụng tên này.");
                 }
+            } else {
+                toast.error("Email không hợp lệ.");
             }
         }catch(err){
-            console.log(err)
+            //console.log(err)
+            toast.error("Đã có lỗi xảy ra, vui lòng thử lại sau.");
         }
     }
     

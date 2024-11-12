@@ -10,27 +10,25 @@ import { generateToken } from "@/utils/auth";
 export default function Login(){
     const [username, setUsername] = useState<string>('')
     const [password, setPassword] = useState<string>('')
+    const [isLoading, setIsLoading] = useState(false)
     const router = useRouter()
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
 
     const query = {
         userDetails: {
             $: {
                 where: {
-                    userId: username,
+                    userId: username.includes('@gmail.com') ? username.replace('@gmail.com', '') : username,
                     password: password
                 }
             }
         }
     }
-    const { data } = db.useQuery(query);
+    const { data,isLoading:isLoadingQuery } = db.useQuery(query);
     const user = data?.userDetails?.[0];
-
 
     useEffect(() => {
         const checkLoginStatus = async () => {
             const loggedIn = await checkLogin();
-            setIsLoggedIn(loggedIn);
             if (loggedIn) {
                 router.push('/');
             }
@@ -39,19 +37,27 @@ export default function Login(){
     }, [router]);
 
     const onLogin = async () => {
+        if (!username || !password) {
+            toast.error("Vui lòng nhập đầy đủ thông tin");
+            return;
+        }
+
+        setIsLoading(true);
         try {
-            if (user) {
+            if (user&&!isLoadingQuery) {
+                toast.info("Đang đăng nhập...");
                 const token = await generateToken(user.userId);
                 document.cookie = `token=${token}; path=/; max-age=3600`;
                 localStorage.setItem('lastLoginTime', Date.now().toString());
-                setIsLoggedIn(true);
+                toast.success("Đăng nhập thành công!");
                 router.push('/');
             } else {
-                toast.error("Invalid username or password");
-                return null;
+                toast.error("Tên đăng nhập hoặc mật khẩu không chính xác");
             }
         } catch (err) {
-            return null;
+            toast.error("Đã có lỗi xảy ra, vui lòng thử lại sau");
+        } finally {
+            setIsLoading(false);
         }
     }
 
@@ -85,7 +91,19 @@ export default function Login(){
                 />
             </div>
             <div className="w-full px-3 flex justify-center">
-                <button onClick={onLogin} className="md:w-[370px] w-full px-6 py-4 rounded-2xl bg-black text-white font-bold text-sm">Đăng nhập</button>
+                <button 
+                    onClick={onLogin} 
+                    disabled={isLoading}
+                    className={`md:w-[370px] w-full px-6 py-4 rounded-2xl ${
+                        isLoading ? 'bg-gray-400' : 'bg-black'
+                    } text-white font-bold text-sm flex justify-center items-center`}
+                >
+                    {isLoading ? (
+                        <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"/>
+                    ) : (
+                        'Đăng nhập'
+                    )}
+                </button>
             </div>
             <button className="text-gray-400 text-sm mt-2">Bạn quên mật khẩu ư?</button>
             <Link href={'/register'} className="w-full px-3 flex justify-center">
