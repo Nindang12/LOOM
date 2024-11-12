@@ -84,7 +84,7 @@ export default function Siderbar(user_id: ArticleProps){
     return(
         <div className="">
             <div className="flex flex-col justify-between py-5 md:w-20 md:h-screen items-center bg-zinc-50 w-screen h-20">
-                <img width={40} className="hidden md:block" src="/assets/logowhite.png" alt="logo" />
+                <img width={40} className="hidden md:block" src="/loom.png" alt="logo" />
                 <div className="flex md:flex-col  md:gap-16 gap-5  flex-row ">
                     <Link href={"/"} className="hover:bg-slate-200 p-3 rounded-lg">
                         <img width={22} src="/assets/home.svg" alt="home" />
