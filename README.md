@@ -8,12 +8,89 @@ Loom is a modern social platform that weaves together ideas and stories, creatin
 
 ## 🌟 Features
 
-- **Rich Text Editor**: Share your stories with a powerful Lexical-based editor
-- **Real-time Interactions**: Engage with posts through replies, reposts, and likes
-- **Profile Management**: Customize your profile and manage your digital presence
-- **Verified Accounts**: Special features for verified users
-- **Responsive Design**: Seamless experience across all devices
-- **Dark/Light Mode**: Choose your preferred theme
+### 🧵 Threading System
+- **Thread Creation & Composition**
+  - Multi-media attachments (images, videos, links)
+  - Draft saving and auto-save functionality
+  - Thread preview before posting
+  
+- **Conversation Management**
+  - Nested replies up to 6 levels deep
+  - Thread branching and merging
+  - Context preservation across replies
+  - Quote-threading support
+  
+- **Thread Discovery**
+  - Chronological and algorithmic feeds
+  - Thread bookmarking and collections
+  - Save threads for later reading
+  - Thread history tracking
+
+### 💫 Engagement Features
+- **Interactive Elements**
+  - Reactions with customizable emojis
+  - One-click reposting with optional comments
+  - Share threads externally
+  - Thread metrics and analytics
+  
+- **Real-time Updates**
+  - Live thread notifications
+  - Activity feed with filters
+  - Mention notifications
+  - Thread status updates
+
+### 👤 User Experience
+- **Profile Customization**
+  - Custom bio and profile themes
+  - Portfolio showcase section
+  - Activity highlights
+  - Professional achievements display
+  
+- **Content Management**
+  - Thread organization tools
+  - Content scheduling
+  - Archive functionality
+  - Batch operations
+
+### 🔍 Discovery & Navigation
+- **Search & Explore**
+  - Advanced search filters
+  - Topic-based exploration
+  - Trending threads section
+  - Personalized recommendations
+  
+- **Categories & Topics**
+  - Custom topic creation
+  - Follow specific topics
+  - Topic-based notifications
+  - Community-curated collections
+
+### 🛡️ Privacy & Security
+- **Account Controls**
+  - Granular privacy settings
+  - Two-factor authentication
+  - Login activity monitoring
+  - Device management
+  
+- **Content Filtering**
+  - Custom word filters
+  - User muting and blocking
+  - Content warning system
+  - Report management
+
+
+### 🔧 Technical Features
+- **Performance**
+  - Fast page loads
+  - Optimized image loading
+  - Efficient data caching
+  - Responsive design
+  
+- **Integration**
+  - API access
+  - Webhook support
+  - OAuth authentication
+  - Developer tools
 
 ## 🚀 Getting Started
 
@@ -93,7 +170,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 👥 Authors
 
-- **Louis** - *Initial work* - [GitHub Profile](https://github.com/yourusername)
+- **Louis** - *Initial work* - [GitHub Profile](https://github.com/louisdevzz)
+- **Nin Dang** - *Initial work* - [GitHub Profile](https://github.com/Nindang12)
 
 ## 🙏 Acknowledgments
 

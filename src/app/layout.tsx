@@ -3,6 +3,7 @@ import { Baloo_Paaji_2 } from "next/font/google";
 import "./globals.css";
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer } from 'react-toastify';
+import { Analytics } from '@vercel/analytics/react';
 
 const roboto = Baloo_Paaji_2({ subsets: ["latin"], weight: "500" });
 
@@ -79,19 +80,20 @@ export const metadata: Metadata = {
       'en-US': '/en-US',
       'es-ES': '/es-ES',
     },
-  },
+  }
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: {
+  children: React.ReactNode
+}) {
   return (
     <html lang="en">
       <body className={roboto.className}>
         <ToastContainer />
         {children}
+        <Analytics />
       </body>
     </html>
   );
