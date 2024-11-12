@@ -6,10 +6,11 @@ import { usePathname } from "next/navigation"
 import { getUserId } from "@/utils/auth"
 import LayoutChat from "@/components/LayoutChat"
 import Link from "next/link"
-
+import GroupChat from "@/components/GroupChat"
 const ChatPage = () => {
     const pathName = usePathname();
     const friendId = pathName?.replace("/messages/chat/", "")
+    const groupId = pathName?.replace("/groups/chat/", "")
     const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
     useEffect(() => {
@@ -37,19 +38,6 @@ const ChatPage = () => {
                         </LayoutChat>
                     </div>
                 </div> 
-            </div>
-            <div className="md:hidden">
-                <div className="flex flex-col h-screen w-screen">
-                    <div className="flex-grow overflow-hidden">
-                        <Chat 
-                            friendId={friendId || ""} 
-                            userId={currentUserId as string} 
-                        />
-                    </div>
-                    <div className="md:hidden">
-                        <Sidebar />
-                    </div>
-                </div>
             </div>
         </div>
     )

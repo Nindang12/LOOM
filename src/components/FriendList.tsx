@@ -6,13 +6,22 @@ import axios from "axios";
 import { db } from "@/utils/contants";
 import Avatar from './Avatar';
 import Friend from './Friend';
-
+import GroupCreationModal from './GroupCreationModal';
 const FriendList = ({currentUserId }: {currentUserId: string}) => {
     const [isShow, setIsShow] = useState<boolean>(false);
-    const [isShowMessage, setisShowMessage] = useState<boolean>(false);
-    const [accountData, setAccountData] = useState<AccountData[]>([]);
-    const [searchTerm, setSearchTerm] = useState<string>('');
-    const [selectedFriends, setSelectedFriends] = useState<string[]>([]);
+    const [isShowOptionChat, setisShowOptionChat] = useState<boolean>(false);
+    const [isGroupCreationModalOpen, setIsGroupCreationModalOpen] = useState<boolean>(false);
+    const createNewGroup = async (groupName: string, selectedFriends: string[]) => {
+        try {
+            const response = await axios.post('/api/groups', {
+                name: groupName,
+                members: selectedFriends
+            });
+            console.log('Group created successfully:', response.data);
+        } catch (error) {
+            console.error('Error creating group:', error);
+        }
+    };
 
     const toggleModal = () => {
         setIsShow((prevState) => !prevState);
@@ -58,7 +67,7 @@ const FriendList = ({currentUserId }: {currentUserId: string}) => {
                     <h2 className="text-xl font-bold mr-2">{dataUserDetails?.userDetails[0].fullname}</h2>
                     <img width={12} src="/assets/arrow-down.svg" alt="arrow" />
                 </div>
-                <img onClick={() => setisShowMessage(prev => !prev)} width={25} src="/assets/PencilSimpleLine.svg" alt="penchat" className="cursor-pointer" />
+                <img onClick={() => setisShowOptionChat(prev => !prev)} width={25} src="/assets/PencilSimpleLine.svg" alt="optionchat" className="cursor-pointer" />
             </div>
 
             {/* Navigation */}
@@ -105,11 +114,34 @@ const FriendList = ({currentUserId }: {currentUserId: string}) => {
                     </div>
                 </div>
             )}
-            {isShowMessage && (
-                <div></div>
+            {isShowOptionChat && (
+                <div className="absolute left-[220px] mt-12 w-48 bg-white border rounded-md shadow-lg z-10">
+                    <div className="py-1">
+                        <button
+                            className="flex items-center justify-between w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                            onClick={() => {
+                                setisShowOptionChat(false);
+                                setIsGroupCreationModalOpen(true);
+                            }}
+                        >
+                            Tạo nhóm mới
+                            <img width={15} className='ml-2' src="/assets/addgroub.svg" alt="addgroub" />
+                        </button>
+                    </div>
+                </div>
+            )}
+            {isGroupCreationModalOpen && (
+                <GroupCreationModal
+                    currentUserId={currentUserId}
+                    onClose={() => setIsGroupCreationModalOpen(false)}
+                    onCreateGroup={(groupName, selectedFriends) => {
+                        createNewGroup(groupName, selectedFriends);
+                        setIsGroupCreationModalOpen(false);
+                    }}
+                />
             )}
         </div>
     )
 }
 
-export default FriendList;
+export default FriendList;  
