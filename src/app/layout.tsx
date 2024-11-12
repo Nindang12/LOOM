@@ -79,7 +79,7 @@ export const metadata: Metadata = {
       'en-US': '/en-US',
       'es-ES': '/es-ES',
     },
-  },
+  }
 };
 
 export default function RootLayout({
