@@ -20,19 +20,11 @@ const GroupChatPage = () => {
 
     // Verify login and get user ID
     useEffect(() => {
-        const verifyLogin = async () => {
-            const loggedIn = await checkLogin();
-            if (!loggedIn) {
-                router.push('/login');
-                return;
-            }
-            if (typeof window !== 'undefined') {
-                const userId = getUserId();
-                setCurrentUserId(userId);
-            }
-        };
-        verifyLogin();
-    }, [router]);
+        if (typeof window !== 'undefined') {
+            const userId = getUserId();
+            setCurrentUserId(userId);
+        }
+    }, []);
 
     // Fetch group data
     useEffect(() => {

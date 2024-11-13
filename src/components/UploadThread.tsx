@@ -1,18 +1,16 @@
 "use client"
 import { useState, useEffect } from "react"
 import LexicalEditor from "./LexicalEditor";
-import { getUserId } from "@/utils/auth";
+import { checkLogin, getUserId } from "@/utils/auth";
 import {id,tx} from "@instantdb/react"
 import { db } from "@/utils/contants";
 import { toast } from "react-toastify";
 
 export default function UploadThread(){
     const [iesShow, setIsShow] = useState<boolean>(false);
-    const toggleModal = () => {
-        setIsShow((prevState) => !prevState);
-    }
-    const [content, setContent] = useState("");
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+    const [content, setContent] = useState<string>("");
+    const [isLoading, setIsLoading] = useState<boolean>(false);
     const [images, setImages] = useState<string[]>([]);
     const [userId, setUserId] = useState<string | null>(null);
 
@@ -22,6 +20,18 @@ export default function UploadThread(){
             setUserId(userId as string);
         }
     }, [])
+
+    useEffect(() => {
+        const verifyLogin = async () => {
+            const loggedIn = await checkLogin();
+            setIsLoggedIn(loggedIn)
+        };
+        verifyLogin();
+    }, []);
+
+    const toggleModal = () => {
+        setIsShow((prevState) => !prevState);
+    }
 
     const handleUploadThread = async () => {
         try {
@@ -86,22 +96,26 @@ export default function UploadThread(){
     return(
         // threadupload
         <div className="border-b border-gray-200">
-            <div className="flex flex-row px-5 h-20 items-center justify-between">
-                <div className="flex flex-row gap-3">
-                    {
-                        dataUserDetails && dataUserDetails?.userDetails?.[0]?.avatar ? (
-                            <img className="rounded-full w-8 h-8 bg-cover" src={dataUserDetails?.userDetails?.[0]?.avatar} alt="avatar" />
-                        ) : (
-                            <img className="rounded-full w-8 h-8 bg-cover" src="/assets/avt.png" alt="avatar" />)
-                    }
-                    <button onClick={()=>setIsShow((prv)=>!prv)} className="w-[400px] text-gray-500  text-start p-2 cursor-text ">
-                        <span  className="font-light text-sm">Bắt đầu thread...</span>
-                    </button>
-                </div>
-                <button onClick={()=>setIsShow((prv)=>!prv)} className="w-20 h-8 flex justify-center items-center p-2 border border-gray-300 rounded-lg">
-                    <span className="font-semibold">Đăng</span>
-                </button>
-            </div>
+            {
+                isLoggedIn && (
+                    <div className="flex flex-row px-5 h-20 items-center justify-between">
+                        <div className="flex flex-row gap-3">
+                            {
+                                dataUserDetails && dataUserDetails?.userDetails?.[0]?.avatar ? (
+                                    <img className="rounded-full w-8 h-8 bg-cover" src={dataUserDetails?.userDetails?.[0]?.avatar} alt="avatar" />
+                                ) : (
+                                    <img className="rounded-full w-8 h-8 bg-cover" src="/assets/avt.png" alt="avatar" />)
+                            }
+                            <button onClick={()=>setIsShow((prv)=>!prv)} className="w-[400px] text-gray-500  text-start p-2 cursor-text ">
+                                <span  className="font-light text-sm">Bắt đầu thread...</span>
+                            </button>
+                        </div>
+                        <button onClick={()=>setIsShow((prv)=>!prv)} className="w-20 h-8 flex justify-center items-center p-2 border border-gray-300 rounded-lg">
+                            <span className="font-semibold">Đăng</span>
+                        </button>
+                    </div>
+                )
+            }
             {
                 iesShow && (
                     <div className="z-50 fixed top-0 left-0 w-full h-full bg-black bg-opacity-60" onClick={toggleModal}>

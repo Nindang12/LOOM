@@ -13,17 +13,6 @@ export default function Home() {
   const pathName = usePathname();
   const username = pathName?.replace("/@", "");
 
-  useEffect(() => {
-    const checkAuthStatus = async () => {
-      const loggedInUserId = await checkLogin();
-      if (!loggedInUserId) {
-        router.push("/login");
-      }
-    };
-
-    checkAuthStatus();
-  }, [router]);
-
   const query = {
     userDetails: {
       $:{

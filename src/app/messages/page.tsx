@@ -12,19 +12,6 @@ const Messages = () => {
     const router = useRouter()
     const [currentUserId, setCurrentUserId] = useState<string | null>(null);
     
-    useEffect(() => {
-        const verifyLogin = async () => {
-            const loggedIn = await checkLogin();
-            if (!loggedIn) {
-                router.push('/login');
-            }
-        };
-        verifyLogin();
-        if(typeof window !== 'undefined'){
-            const userId = getUserId();
-            setCurrentUserId(userId);
-        }
-    }, [router]);
 
     return (
         <div className="flex md:flex-row flex-col-reverse w-full h-screen">
