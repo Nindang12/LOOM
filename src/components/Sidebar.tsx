@@ -1,7 +1,6 @@
 "use client"
 import { useEffect, useId, useState } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import { getUserId } from "@/utils/auth"
 import LexicalEditor from "./LexicalEditor"
 import { id, tx } from "@instantdb/react"
