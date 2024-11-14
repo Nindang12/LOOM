@@ -37,7 +37,7 @@ export default function Thread({userId}:{userId:string}){
                         </div>
                         
                         <div className="max-h-[220px] w-full flex items-start overflow-x-scroll overflow-y-hidden gap-2">
-                            <div className="w-[260px] h-full flex flex-col justify-center rounded-xl items-center bg-gray-100">
+                            <div className="w-[260px] h-[220px] flex flex-col justify-center rounded-xl items-center bg-gray-100">
                                 <div className="mt-1 mb-3 flex items-center justify-center rounded-full bg-white w-[50px] h-[50px]">
                                     <img width={25} src="/assets/camera.svg" alt="" />
                                 </div>
@@ -49,7 +49,7 @@ export default function Thread({userId}:{userId:string}){
                                     <span className="text-sm font-bold text-white ">Thêm</span>
                                 </div>
                             </div>
-                            <div className="w-[260px] h-full flex flex-col justify-center rounded-xl items-center bg-gray-100">
+                            <div className="w-[260px] h-[220px] flex flex-col justify-center rounded-xl items-center bg-gray-100">
                                 <div className="mt-1 mb-3 flex items-center justify-center rounded-full bg-white w-[50px] h-[50px]">
                                     <img width={25} src="/assets/pen.svg" alt="" />
                                 </div>
@@ -61,7 +61,7 @@ export default function Thread({userId}:{userId:string}){
                                     <span className="text-sm font-bold text-white ">Thêm</span>
                                 </div>
                             </div>
-                            <div className="w-[260px] h-full flex flex-col justify-center rounded-xl items-center bg-gray-100">
+                            <div className="w-[260px] h-[220px] flex flex-col justify-center rounded-xl items-center bg-gray-100">
                                 <div className="mt-1 mb-3 flex items-center justify-center rounded-full bg-white w-[50px] h-[50px]">
                                     <img width={25} src="/assets/addfriends.svg" alt="" />
                                 </div>
@@ -75,7 +75,7 @@ export default function Thread({userId}:{userId:string}){
                                 </div>
                                 </Link>
                             </div>
-                            <div className="w-[260px] h-full flex flex-col justify-center rounded-xl items-center bg-gray-100">
+                            <div className="w-[260px] h-[220px] flex flex-col justify-center rounded-xl items-center bg-gray-100">
                                 <div className="mt-1 mb-3 flex items-center justify-center rounded-full bg-white w-[50px] h-[50px]">
                                     <img width={25} src="/assets/write.svg" alt="" />
                                 </div>

@@ -3,13 +3,28 @@
 import Siderbar from "@/components/Sidebar";
 import UploadThread from "@/components/UploadThread";
 import Article from "@/components/Article";
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
+import { checkLogin, getUserId } from "@/utils/auth";
 import { db } from "@/utils/contants";
 import Link from "next/link";
+import { tx } from "@instantdb/react";
 import ButtonOption from "@/components/ButtonOption";
 export default function Home() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [currentIndex, setCurrentIndex] = useState<number>(0)
+  const [currentUser, setCurrentUser] = useState<string|null>(null)
+  const [isShow, setIsShow] = useState<boolean>(false);
+  const router = useRouter()
   const [visiblePosts, setVisiblePosts] = useState(10);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const userId = getUserId();
+      setCurrentUser(userId);
+    }
+  }, []); // Removed currentUser from dependencies
 
   const query = {
     posts: {
@@ -24,21 +39,31 @@ export default function Home() {
 
   const filterPost = data?.posts.filter((post:any) => !post?.repost)
 
+  useEffect(() => {
+      const verifyLogin = async () => {
+          const loggedIn = await checkLogin();
+          setIsLoggedIn(loggedIn)
+          if (!loggedIn) {
+              router.push('/login');
+          }
+      };
+      verifyLogin();
+  }, [router]);
+
+
+  if (!isLoggedIn) {
+    return null
+  }
+
+
 
   return (
     <div className="flex md:flex-row flex-col-reverse w-full bg-[rgb(250,250,250)] h-screen overflow-hidden">
         <Siderbar/>
-      <div className="flex flex-row justify-center h-auto w-full overflow-hidden relative">
+      <div className="flex flex-row justify-center h-auto w-full overflow-hidden">
         <div className="max-w-screen-sm w-full h-screen overflow-hidden">
           <div className="hidden md:block">
               <Header/>
-          </div>
-          <div className="absolute top-2 right-5">
-            <Link href={'/login'}>
-              <button className="h-full bg-black p-2 px-4 rounded-lg text-white w-26 text-sm">
-                Đăng Nhập
-              </button>
-            </Link>
           </div>
           <div className="w-full md:hidden sticky top-0 bg-white z-10">
             <div className="flex flex-col items-center">
