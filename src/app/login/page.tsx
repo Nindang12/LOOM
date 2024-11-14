@@ -27,16 +27,15 @@ export default function Login(){
     const user = data?.userDetails?.[0];
 
     useEffect(() => {
-        const checkLoginStatus = async () => {
-            const loggedIn = await checkLogin();
-            if (loggedIn) {
+        const checkLoginStatus = () => {
+            if (checkLogin()) {
                 router.push('/');
             }
         };
         checkLoginStatus();
     }, [router]);
 
-    const onLogin = async () => {
+    const onLogin = () => {
         if (!username || !password) {
             toast.error("Vui lòng nhập đầy đủ thông tin");
             return;
@@ -44,9 +43,9 @@ export default function Login(){
 
         setIsLoading(true);
         try {
-            if (user&&!isLoadingQuery) {
+            if (user && !isLoadingQuery) {
                 toast.info("Đang đăng nhập...");
-                const token = await generateToken(user.userId);
+                const token = generateToken(user.userId);
                 document.cookie = `token=${token}; path=/; max-age=3600`;
                 localStorage.setItem('lastLoginTime', Date.now().toString());
                 toast.success("Đăng nhập thành công!");
@@ -55,6 +54,7 @@ export default function Login(){
                 toast.error("Tên đăng nhập hoặc mật khẩu không chính xác");
             }
         } catch (err) {
+            console.log(err);
             toast.error("Đã có lỗi xảy ra, vui lòng thử lại sau");
         } finally {
             setIsLoading(false);

@@ -1,12 +1,10 @@
 "use client"
 import Link from "next/link"
 import { use, useEffect, useState } from "react";
-import { Buffer } from "buffer"
 import LexicalEditor from "./LexicalEditor";
 import { checkLogin, getUserId } from "@/utils/auth";
 import { db } from "@/utils/contants"
 import { tx, id } from "@instantdb/react"
-import { toast } from "react-toastify";
 import Modal from "./common/Modal";
 
 import { useRouter } from "next/navigation";
@@ -28,7 +26,7 @@ export default function Article({ user_id, content, postId, images, fullname, cr
     const { isLoading, error, data } = db.useQuery(query)
     const [timeAgo, setTimeAgo] = useState<string>('');
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-    const [isLogin, setIsLogin] = useState<boolean>(false);
+    const [isLogin, setIsLogin] = useState<boolean>(true);
 
     useEffect(() => {
         if(typeof window !== 'undefined') {
@@ -38,8 +36,8 @@ export default function Article({ user_id, content, postId, images, fullname, cr
     }, []); // Add an empty dependency array to run only once
 
     useEffect(() => {
-        const verifyLogin = async () => {
-            const loggedIn = await checkLogin()
+        const verifyLogin = () => {
+            const loggedIn = checkLogin()
             setIsLogin(loggedIn)
         };
         verifyLogin();
@@ -449,18 +447,18 @@ export default function Article({ user_id, content, postId, images, fullname, cr
                         </div>
                         <Link href={`/@${user_id}/post/${postId}`} className="flex flex-col gap-3 overflow-x-hidden">
                             <span className="w-[300px] md:min-w-[535px] md:max-w-[540px] break-words overflow-hidden">{content}</span>
-                            {images && images.length > 0 && (
-                                <div className="w-[300px] md:min-w-[545px] h-auto flex overflow-x-auto overflow-y-hidden gap-2">
-                                    <div className="flex overflow-x-auto overflow-y-hidden w-auto gap-2 pb-2">
-                                        {images.map((image: string, index) => (
-                                            <div key={index} className="rounded-lg w-auto h-72 md:h-96 bg-gray-200 flex-shrink-0">
-                                                <img src={image} alt={`image-${index}`} className="object-cover w-content h-full rounded-lg" />
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
                         </Link>
+                        {images && images.length > 0 && (
+                            <div className="w-[300px] md:min-w-[545px] h-auto flex overflow-x-auto overflow-y-hidden gap-2">
+                                <div className="flex overflow-x-auto overflow-y-hidden w-auto gap-2 pb-2">
+                                    {images.map((image: string, index) => (
+                                        <div key={index} className="rounded-lg w-auto h-72 md:h-96 bg-gray-200 flex-shrink-0">
+                                            <img src={image} alt={`image-${index}`} className="object-cover w-content h-full rounded-lg" />
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
                     
                 </div>

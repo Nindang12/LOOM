@@ -7,20 +7,19 @@ import React, { useEffect, useState } from "react";
 import Header from "@/components/Header";
 import { db } from "@/utils/contants";
 import Link from "next/link";
-import ButtonOption from "@/components/ButtonOption";
 import { checkLogin } from "@/utils/auth";
 
 export default function Home() {
   const [visiblePosts, setVisiblePosts] = useState(10);
-  const [isLogin, setIsLogin] = useState<boolean>(false);
+  const [isLogin, setIsLogin] = useState<boolean>(true);
   
   useEffect(() => {
-    const verifyLogin = async () => {
-        const loggedIn = await checkLogin()
-        setIsLogin(loggedIn)
+    const verifyLogin = () => {
+      const loggedIn = checkLogin()
+      setIsLogin(loggedIn)
     };
     verifyLogin();
-}, []);
+  }, []);
 
   const query = {
     posts: {
@@ -31,9 +30,11 @@ export default function Home() {
       }
     }
   }
-  const { data } = db.useQuery(query)
+  const { data,isLoading } = db.useQuery(query)
 
   const filterPost = data?.posts.filter((post:any) => !post?.repost)
+
+
 
 
   return (
