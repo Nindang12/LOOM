@@ -13,16 +13,6 @@ export default function ThreadReporsts() {
   const pathName = usePathname();
   const username = pathName?.replace("/@", "").replace("/threadreporsts", "");
 
-  useEffect(() => {
-    const checkAuthStatus = async () => {
-      const loggedInUserId = await checkLogin();
-      if (!loggedInUserId) {
-        router.push("/login");
-      }
-    };
-
-    checkAuthStatus();
-  }, [router]);
 
   const query = {
     userDetails: {

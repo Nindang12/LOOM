@@ -7,6 +7,7 @@ import ArticleViewPost from "@/components/ArticleViewPost";
 import ContentComment from "@/components/ContentComment";
 import HeaderViewPost from "@/components/HeaderViewPost";
 import { db } from "@/utils/contants";
+import Link from "next/link";
 
 export default function ViewPost() {
     const params = useParams();
@@ -37,15 +38,19 @@ export default function ViewPost() {
     
     const filterComment = commentsData?.comments.filter((comment:any)=>!comment.replyTo)
 
-    // const commentChild = commentsData?.comments.filter((comment:any)=>comment.replyTo)
-
-    //console.log(commentChild)
     return (
         <div className=" flex md:flex-row flex-col-reverse w-full overflow-hidden h-screen">
             <Siderbar/>
-            <div className="flex flex-row justify-center mt-2 w-full ">
+            <div className="flex flex-row justify-center mt-2 w-full relative">
                 <div className="max-w-screen-sm w-full h-screen">
                 <HeaderViewPost/>
+                <div className="absolute top-0 right-5">
+                    <Link href={'/login'}>
+                    <button className="h-full bg-black p-2 px-4 rounded-lg text-white w-26 text-sm">
+                        Đăng Nhập
+                    </button>
+                    </Link>
+                </div>
                 <div className="flex flex-col border border-gray-300 w-[full] rounded-xl mt-10 gap-10 h-[90vh] overflow-y-scroll f">
                     <div className="w-full  ">
                         <div className="mt-5" >

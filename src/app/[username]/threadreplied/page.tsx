@@ -13,17 +13,6 @@ export default function ThreadReplied() {
   const pathName = usePathname();
   const username = pathName ? pathName.replace("/@", "").replace("/threadreplied", "") : "";
 
-  useEffect(() => {
-    const checkAuthStatus = async () => {
-      const loggedInUserId = await checkLogin();
-      if (!loggedInUserId) {
-        router.push("/login");
-      }
-    };
-
-    checkAuthStatus();
-  }, [router]);
-
   const query = {
     userDetails: {
       $:{

@@ -1,21 +1,30 @@
 "use client"
 import { useEffect, useId, useState } from "react"
 import Link from "next/link"
-import { getUserId } from "@/utils/auth"
+import { useRouter } from "next/navigation"
+import { getUserId, checkLogin } from "@/utils/auth"
 import LexicalEditor from "./LexicalEditor"
 import { id, tx } from "@instantdb/react"
 import { db } from "@/utils/contants"
 import { toast } from "react-toastify"
 import ButtonOption from "./ButtonOption"
-export default function Siderbar(user_id: ArticleProps){
+import Modal from "./common/Modal"
+
+
+export default function Sidebar(){
     const [isShow, setIsShow] = useState<boolean>(false);
-    const toggleModal = () => {
-        setIsShow((prevState) => !prevState);
-    }
-    const [content, setContent] = useState("");
+    const [isLogin, setIsLogin] = useState<boolean>(false);
+    const [content, setContent] = useState<string>("");
     const [isLoading, setIsLoading] = useState(false);
     const [images, setImages] = useState<string[]>([]);
     const [userId, setUserId] = useState<string | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+    const router = useRouter()
+
+    const toggleModal = () => {
+        setIsShow((prevState) => !prevState);
+    }
+
 
     useEffect(() => {
         if(typeof window !== 'undefined'){
@@ -23,6 +32,14 @@ export default function Siderbar(user_id: ArticleProps){
             setUserId(userId as string);
         }
     }, [])
+
+    useEffect(() => {
+        const verifyLogin = async () => {
+            const loggedIn = await checkLogin()
+            setIsLogin(loggedIn)
+        };
+        verifyLogin();
+    }, []);
 
     const handleUploadThread = async () => {
         try {
@@ -83,33 +100,7 @@ export default function Siderbar(user_id: ArticleProps){
     const [hasNewMessages, setHasNewMessages] = useState(false);
     const [hasNewActivity, setHasNewActivity] = useState(false);
 
-    useEffect(() => {
-        const checkNewMessages = async () => {
-            // Fetch new messages count from your backend
-            const response = await fetch('/api/messages/unread');
-            const { count } = await response.json();
-            setHasNewMessages(count > 0);
-        };
 
-        const checkNewActivity = async () => {
-            // Fetch new activity count from your backend
-            const response = await fetch('/api/activity/unread');
-            const { count } = await response.json();
-            setHasNewActivity(count > 0);
-        };
-
-        checkNewMessages();
-        checkNewActivity();
-
-        // Set up interval to check periodically
-        const interval = setInterval(() => {
-            checkNewMessages();
-            checkNewActivity();
-        }, 60000); // Check every minute
-
-        return () => clearInterval(interval);
-    }, []);
-    
     return(
         <div className="">
             <div className="flex flex-col justify-between py-5 md:w-20 md:h-screen items-center bg-zinc-50 w-screen h-20">
@@ -121,29 +112,39 @@ export default function Siderbar(user_id: ArticleProps){
                     <Link href={"/search"} className="hover:bg-slate-200 p-3 rounded-lg">
                         <img width={22} src="/assets/search.svg" alt="search" />
                     </Link>
-                    <div onClick={()=>setIsShow((prv)=>!prv)}  className="hover:bg-slate-200 p-3 rounded-lg">
+                    <div onClick={()=>isLogin ? setIsShow((prv)=>!prv) : setIsModalOpen(true)}  className="hover:bg-slate-200 p-3 rounded-lg cursor-pointer">
                         <img width={23} src="/assets/write.svg" alt="" />
                     </div>
-                    <Link href={"/messages"} className="hover:bg-slate-200 p-3 rounded-lg relative">
+                    <div onClick={()=>isLogin ? router.push('/messages') : setIsModalOpen(true)} className="hover:bg-slate-200 p-3 rounded-lg relative cursor-pointer">
                         <img width={23} src="/assets/chat.svg" alt="chat" />
                         {hasNewMessages && (
                             <div className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></div>
                         )}
-                    </Link>
-                    <Link href={"/activity"} className="hover:bg-slate-200 p-3 rounded-lg relative">
+                    </div>
+                    <div onClick={()=>isLogin ? router.push('/activity') : setIsModalOpen(true)} className="hover:bg-slate-200 p-3 rounded-lg relative cursor-pointer">
                         <img width={22} src="/assets/heart.svg" alt="heart" />
                         {hasNewActivity && (
                             <div className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></div>
                         )}
-                    </Link>
-                    <Link href={`/@${userId}`} className="hover:bg-slate-200 p-3 rounded-lg">
-                        <img width={20} src="/assets/profile.svg" alt="profile" />
-                    </Link>
+                    </div>
+                    
+                    {isLogin && (
+                        <Link href={`/@${userId}`} className="hover:bg-slate-200 p-3 rounded-lg">
+                            <img width={20} src="/assets/profile.svg" alt="profile" />
+                        </Link>
+                    )}
                 </div>
                 <div className="pb-10">
                     <ButtonOption/>
                 </div>
             </div>
+            <Modal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                title="Đăng nhập để tiếp tục"
+                message="Vui lòng đăng nhập để tiếp tục"
+                onRedirect={() => router.push('/login')}
+            />
             {
                 isShow && (
                     <div className="z-50 fixed top-0 left-0 w-full h-full bg-black bg-opacity-60" onClick={toggleModal}>

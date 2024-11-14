@@ -3,20 +3,18 @@ import Link from "next/link"
 import { use, useEffect, useState } from "react";
 import { Buffer } from "buffer"
 import LexicalEditor from "./LexicalEditor";
-import { getUserId } from "@/utils/auth";
+import { checkLogin, getUserId } from "@/utils/auth";
 import { db } from "@/utils/contants"
 import { tx, id } from "@instantdb/react"
 import { toast } from "react-toastify";
+import Modal from "./common/Modal";
 
+import { useRouter } from "next/navigation";
 
 export default function Article({ user_id, content, postId, images, fullname, createdAt }: ArticleProps) {
-    
     const [userId, setUserId] = useState<string | null>(null);
-
+    const router = useRouter();
     const [isShow, setIsShow] = useState<boolean>(false);
-    const toggleModal = () => {
-        setIsShow((prevState) => !prevState);
-    }
     const [issShow, setIssShow] = useState<boolean>(false);
     const [isLiked, setIsLiked] = useState(false);
     const [commentContent, setCommentContent] = useState<string>('');
@@ -29,13 +27,27 @@ export default function Article({ user_id, content, postId, images, fullname, cr
     const query = { actionLikePost: {} }
     const { isLoading, error, data } = db.useQuery(query)
     const [timeAgo, setTimeAgo] = useState<string>('');
-    
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+    const [isLogin, setIsLogin] = useState<boolean>(false);
+
     useEffect(() => {
         if(typeof window !== 'undefined') {
             const userId = getUserId();
             setUserId(userId);
         }
     }, []); // Add an empty dependency array to run only once
+
+    useEffect(() => {
+        const verifyLogin = async () => {
+            const loggedIn = await checkLogin()
+            setIsLogin(loggedIn)
+        };
+        verifyLogin();
+    }, []);
+
+    const toggleModal = () => {
+        setIsShow((prevState) => !prevState);
+    }
 
     const queryUserDetails = {
         userDetails: {
@@ -171,6 +183,7 @@ export default function Article({ user_id, content, postId, images, fullname, cr
     };
 
     const handleLike = async () => {
+        if(!isLogin) return setIsModalOpen(true);
         if (!userId) return; // Ensure user is logged in
         // Check if the user has already liked this post
         const isUserLiked = data?.actionLikePost.some(
@@ -200,6 +213,7 @@ export default function Article({ user_id, content, postId, images, fullname, cr
 
 
     const createComment = async () => {
+        if(!isLogin) return setIsModalOpen(true);
         if (!postId || !userId || !commentContent) return;
 
         try {
@@ -223,6 +237,7 @@ export default function Article({ user_id, content, postId, images, fullname, cr
     };
 
     const handleRepost = async () => {
+        if(!isLogin) return setIsModalOpen(true);
         if (!userId || !postId || !content) return;
 
         try {
@@ -263,6 +278,7 @@ export default function Article({ user_id, content, postId, images, fullname, cr
 
 
     const handleShare = () => {
+        if(!isLogin) return setIsModalOpen(true);
         if (!userId || !postId) return;
 
         try {
@@ -320,6 +336,12 @@ export default function Article({ user_id, content, postId, images, fullname, cr
         }
     };
     
+    const handleAddFriend = (userId: string, friendId: string) => {
+        if(!isLogin) return setIsModalOpen(true);
+        addFriend(userId, friendId);
+        setIsFriendAdded(true);
+    }
+
     return (
         <div>
             <div className="border-b border-gray-200 w-full py-2 md:px-5 px-2">
@@ -337,10 +359,7 @@ export default function Article({ user_id, content, postId, images, fullname, cr
                             !dataFriendships?.friendships.length && 
                             !dataIsFollowing?.friendships?.length && (
                             <button
-                                onClick={() => {
-                                    addFriend(userId as string, user_id as string);
-                                    setIsFriendAdded(true);
-                                }}
+                                onClick={() => handleAddFriend(userId as string, user_id as string)}
                                 className="absolute top-5 right-[-1px] bg-white rounded-full shadow-md hover:bg-gray-100 p-1"
                             >
                                 <img width={12} src="/assets/addfriend.svg" alt="Add friend" />
@@ -457,7 +476,7 @@ export default function Article({ user_id, content, postId, images, fullname, cr
                         </button>
                         <small className={`${dataCheckIsLiked && dataCheckIsLiked?.actionLikePost?.length > 0 ? "text-red-600" : ""}`}>{totalLikes}</small>
                     </div>
-                    <button onClick={() => setIsShow((prv) => !prv)} className="flex gap-1 hover:bg-slate-100 p-2 rounded-3xl">
+                    <button onClick={() => isLogin ? setIsShow((prv) => !prv) : setIsModalOpen(true)} className="flex gap-1 hover:bg-slate-100 p-2 rounded-3xl">
                         <img width={20} src="/assets/comment.svg" alt="" />
                         <small>{totalComments}</small>
                     </button>
@@ -594,6 +613,13 @@ export default function Article({ user_id, content, postId, images, fullname, cr
                     </div>
                 )
             }
+            <Modal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                title="Đăng nhập để tiếp tục"
+                message="Vui lòng đăng nhập để tiếp tục"
+                onRedirect={() => router.push('/login')}
+            />  
         </div>
     )
 }

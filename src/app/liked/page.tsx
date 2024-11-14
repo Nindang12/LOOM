@@ -15,18 +15,7 @@ export default function LikedPage() {
   const [userId, setUserId] = useState<string | null>(null);
   const [likedPosts, setLikedPosts] = useState<any[]>([]);
   const [visiblePosts, setVisiblePosts] = useState(10);
-  useEffect(() => {
-    const checkLoginStatus = async () => {
-      const token = document.cookie.split('; ').find(row => row.startsWith('token='));
-      if (!token) {
-        router.push('/login');
-      } else {
-        const currentUserId = getUserId();
-        setUserId(currentUserId);
-      }
-    };
-    checkLoginStatus();
-  }, [router]);
+
 
   const query = {
     actionLikePost: {

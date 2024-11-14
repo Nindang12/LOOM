@@ -11,12 +11,9 @@ import { db } from "@/utils/contants";
 import { checkLogin, getUserId } from "@/utils/auth";
 
 export default function SearchPage() {
-  const router = useRouter()
-  const [accountData, setAccountData] = useState<AccountData[]>([]);
   const [search, setSearch] = useState<string>("")
   const [userId, setUserId] = useState<string>("")
 
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
   useEffect(() => {
     if(typeof window !== "undefined"){
       const userId = getUserId();
@@ -34,23 +31,6 @@ export default function SearchPage() {
     return data?.userDetails.filter((item: any) => item.userId.includes(search)&&item.userId !== userId);
   }, [data, search]);
   
-
-  useEffect(() => {
-    const verifyLogin = async () => {
-        const loggedIn = await checkLogin();
-        setIsLoggedIn(loggedIn)
-        if (!loggedIn) {
-            router.push('/login');
-        }
-    };
-    verifyLogin();
-}, [router]);
-  
-  // console.log({filteredData})
-
-  if (!isLoggedIn) {
-    return null
-  }
 
   return (
     <div className="flex md:flex-row flex-col-reverse w-full overflow-hidden h-screen">
