@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation";
 
 
 
-export default function ArticleViewPost({ post }: { post: any }) {
+export default function ArticleViewPost({ post,user_id }: { post: any,user_id:ArticleProps }) {
     const [userId, setUserId] = useState<string | null>(null);
     const [isShow, setIsShow] = useState<boolean>(false);
     const [issShow, setIssShow] = useState<boolean>(false);
@@ -24,7 +24,14 @@ export default function ArticleViewPost({ post }: { post: any }) {
     const [isLogin, setIsLogin] = useState<boolean>(false);
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const router = useRouter();
+    const [userAccountId, setUserAccountId] = useState<string | null>(null);
 
+    useEffect(() => {
+        if(typeof window !== 'undefined'){
+            const userId = getUserId();
+            setUserId(userId as string);
+        }
+    }, [])
     const queryFriendships = {
         friendships: {
             $: {
@@ -320,20 +327,53 @@ export default function ArticleViewPost({ post }: { post: any }) {
         addFriend(userId, friendId);
         setIsFriendAdded(true);
     }
-
+    const queryUserDetails = {
+        userDetails: {
+            $: {
+                where: {
+                    userId: post.userId
+                }
+            }
+        }
+    }
+    const { data: dataUserDetails } = db.useQuery(queryUserDetails)
+    const queryIsFollowing = {
+        friendships: {
+            $: {
+                where: {
+                    userId: user_id,
+                    isFollowing: true,
+                    friendId: userId
+                }
+            }
+        }
+    }
+    const { data: dataIsFollowing } = db.useQuery(queryIsFollowing)
     return(
         <div>
             <div className="flex flex-col gap-3 ">
                 <div className="flex flex-row items-center justify-between">
                     <div className="flex flex-row justify-center gap-2 mt-2 ml-5 ">
                         <div className="relative">
-                            <img className="rounded-full w-8 h-8 bg-cover" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQgFPzdgOy4CJfBOVER-gmHRQJjVfNd3LMf-Q&s" alt="User avatar" />
-                            {!isFriendAdded && userId !== post.userId && !dataFriendships?.friendships.length && (
+                        {
+                                dataUserDetails && dataUserDetails?.userDetails?.[0]?.avatar ? (
+                                    <img className="rounded-full w-8 h-8 bg-cover" src={dataUserDetails?.userDetails?.[0]?.avatar} alt="avatar" />
+                                ) : (
+                                    <img className="rounded-full w-8 h-8 bg-cover" src="/assets/avt.png" alt="avatar" />
+                                )
+                            }
+                            {!isFriendAdded && userAccountId !== userId && 
+                                !dataFriendships?.friendships.length && 
+                                !dataIsFollowing?.friendships?.length && (
                                 <button
-                                    onClick={() => handleAddFriend(userId as string, post.userId as string)}
-                                    className="absolute bottom-[-4px] right-[-4px] bg-white rounded-full shadow-md hover:bg-gray-100 p-1"
+                                onClick={() => {
+                                    if (!userAccountId) return;
+                                    addFriend(userAccountId, userId as string);
+                                    setIsFriendAdded(true);
+                                }}  
+                                className="absolute top-5 right-[-1px] bg-white rounded-full shadow-md hover:bg-gray-100 p-1"
                                 >
-                                    <img width={10} src="/assets/addfriend.svg" alt="Add friend" />
+                                    <img width={12} src="/assets/addfriend.svg" alt="Add friend" />
                                 </button>
                             )}
                         </div>
@@ -445,7 +485,11 @@ export default function ArticleViewPost({ post }: { post: any }) {
                                 <div className="flex flex-row items-center justify-between">
                                     <div className="flex flex-row gap-2 mt-2 ml-0 ">
                                         <div>
-                                            <img className=" rounded-full z-0 w-8 h-8 bg-cover" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQgFPzdgOy4CJfBOVER-gmHRQJjVfNd3LMf-Q&s" alt="" />                                                
+                                            {dataUserDetails && dataUserDetails?.userDetails?.[0]?.avatar ? (
+                                                <img className="rounded-full w-8 h-8 bg-cover" src={dataUserDetails?.userDetails?.[0]?.avatar} alt="avatar" />
+                                            ) : (
+                                                <img className="rounded-full w-8 h-8 bg-cover" src="/assets/avt.png" alt="avatar" />
+                                            )}
                                         </div>
                                         <div>
                                             <div className="flex flex-row gap-3">

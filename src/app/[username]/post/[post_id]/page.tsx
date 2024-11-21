@@ -1,7 +1,7 @@
 "use client"
 
 import Siderbar from "@/components/Sidebar";
-import React, { useEffect,useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import ArticleViewPost from "@/components/ArticleViewPost";
 import ContentComment from "@/components/ContentComment";
@@ -20,7 +20,7 @@ export default function ViewPost() {
                 postId: post_id
             }
         }
-    } }
+        } }
     const { data } = db.useQuery(query)
 
     const post = data?.posts[0]
@@ -55,8 +55,8 @@ export default function ViewPost() {
                     <div className="w-full  ">
                         <div className="mt-5" >
                             {
-                                post&&(
-                                    <ArticleViewPost post={post}/>
+                                post && (
+                                    <ArticleViewPost post={post} user_id={username as ArticleProps}/>
                                 )
                             }
                         </div>

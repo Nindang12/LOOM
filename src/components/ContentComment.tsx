@@ -379,6 +379,12 @@ export default function ContentComment({
             alert('Error adding friend');
         }
     };
+    
+    const handleAddFriend = (userId: string, friendId: string) => {
+        if (!userId || !friendId || isFriendAdded) return;
+        addFriend(userId, friendId);
+        setIsFriendAdded(true);
+    }
 
     const { data: dataFriendships } = db.useQuery(queryFriendships)
     return(
@@ -387,28 +393,25 @@ export default function ContentComment({
                 {/* <header> */}
                 <div className="flex flex-row items-start justify-between">
                     <div className="h-auto flex flex-row gap-2 mt-2 ml-5 min-h-[97px]">
-                        <div className="relative flex-row w-8 h-8 justify-center flex-shrink-0">
-                            {
-                                dataUserDetails && dataUserDetails?.userDetails?.[0]?.avatar ? (
-                                    <img className="rounded-full w-8 h-8 bg-cover" src={dataUserDetails?.userDetails?.[0]?.avatar} alt="avatar" />
-                                ) : (
-                                    <img className="rounded-full w-8 h-8 bg-cover" src="/assets/avt.png" alt="avatar" />
-                                )
-                            }
-                            {!isFriendAdded && userAccountId !== userId && 
-                                !dataFriendships?.friendships.length && 
-                                !dataIsFollowing?.friendships?.length && (
-                                <button
-                                    onClick={() => {
-                                        addFriend(userAccountId as string, userId);
-                                        setIsFriendAdded(true);
-                                    }}
-                                    className="absolute top-5 right-[-1px] bg-white rounded-full shadow-md hover:bg-gray-100 p-1"
-                                >
-                                    <img width={12} src="/assets/addfriend.svg" alt="Add friend" />
-                                </button>
-                            )}
-                        </div>
+                    <div className="relative flex-row w-8 h-8 justify-center flex-shrink-0">
+                        {
+                            dataUserDetails && dataUserDetails?.userDetails?.[0]?.avatar ? (
+                                <img className="rounded-full w-8 h-8 bg-cover" src={dataUserDetails?.userDetails?.[0]?.avatar} alt="avatar" />
+                            ) : (
+                                <img className="rounded-full w-8 h-8 bg-cover" src="/assets/avt.png" alt="avatar" />
+                            )
+                        }
+                        {!isFriendAdded && userId !== userId && 
+                            !dataFriendships?.friendships.length && 
+                            !dataIsFollowing?.friendships?.length && (
+                            <button
+                                onClick={() => handleAddFriend(userId as string, userId as string)}
+                                className="absolute top-5 right-[-1px] bg-white rounded-full shadow-md hover:bg-gray-100 p-1"
+                            >
+                                <img width={12} src="/assets/addfriend.svg" alt="Add friend" />
+                            </button>
+                        )}
+                    </div>
                         <div className="h-full">
                             <div className="flex gap-2">
                                 <Link href={`/@${userId}`} className="flex flex-row gap-2 font-bold text-sm">
