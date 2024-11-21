@@ -1,8 +1,7 @@
 "use client"
-import axios from "axios"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-hot-toast';
 import { init,tx,id } from "@instantdb/react"
 
 type Schema = {
