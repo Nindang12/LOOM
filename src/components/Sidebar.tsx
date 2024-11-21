@@ -97,8 +97,8 @@ export default function Sidebar(){
         }
     }
     const { data: dataUserDetails } = db.useQuery(queryUserDetails)
-    const [hasNewMessages, setHasNewMessages] = useState(false);
-    const [hasNewActivity, setHasNewActivity] = useState(false);
+        const [hasNewMessages, setHasNewMessages] = useState(false);
+        const [hasNewActivity, setHasNewActivity] = useState(false);
 
 
     return(

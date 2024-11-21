@@ -362,13 +362,13 @@ export default function ArticleViewPost({ post,user_id }: { post: any,user_id:Ar
                                     <img className="rounded-full w-8 h-8 bg-cover" src="/assets/avt.png" alt="avatar" />
                                 )
                             }
-                            {!isFriendAdded && userAccountId !== userId && 
+                            {!isFriendAdded && userId !== post.userId && 
                                 !dataFriendships?.friendships.length && 
                                 !dataIsFollowing?.friendships?.length && (
                                 <button
                                 onClick={() => {
-                                    if (!userAccountId) return;
-                                    addFriend(userAccountId, userId as string);
+                                    if (!userId) return;
+                                    addFriend(userId, post.userId);
                                     setIsFriendAdded(true);
                                 }}  
                                 className="absolute top-5 right-[-1px] bg-white rounded-full shadow-md hover:bg-gray-100 p-1"
