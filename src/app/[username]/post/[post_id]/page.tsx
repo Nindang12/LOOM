@@ -8,11 +8,22 @@ import ContentComment from "@/components/ContentComment";
 import HeaderViewPost from "@/components/HeaderViewPost";
 import { db } from "@/utils/contants";
 import Link from "next/link";
+import { checkLogin } from "@/utils/auth";
 
 export default function ViewPost() {
     const params = useParams();
     const post_id = params?.post_id as string;
     const username = params?.username as string;
+
+    const [isLogin, setIsLogin] = useState<boolean>(true);
+  
+    useEffect(() => {
+        const verifyLogin = () => {
+            const loggedIn = checkLogin()
+            setIsLogin(loggedIn)
+        };
+        verifyLogin();
+    }, []);
 
     const query = { posts: {
         $:{
@@ -45,11 +56,15 @@ export default function ViewPost() {
                 <div className="max-w-screen-sm w-full h-screen">
                 <HeaderViewPost/>
                 <div className="absolute top-0 right-5">
-                    <Link href={'/login'}>
-                    <button className="h-full bg-black p-2 px-4 rounded-lg text-white w-26 text-sm">
-                        Đăng Nhập
-                    </button>
-                    </Link>
+                    {
+                        !isLogin && (
+                            <Link href={'/login'}>
+                                <button className="h-full bg-black p-2 px-4 rounded-lg text-white w-26 text-sm">
+                                    Đăng Nhập
+                                </button>
+                            </Link>
+                        )
+                    }
                 </div>
                 <div className="flex flex-col border border-gray-300 w-[full] rounded-xl mt-10 gap-10 h-[90vh] overflow-y-scroll f">
                     <div className="w-full  ">

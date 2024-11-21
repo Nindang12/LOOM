@@ -1,7 +1,7 @@
 "use client"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
-import { ToastContainer, toast } from 'react-toastify';
+import { toast, Toaster } from 'react-hot-toast';
 import Link from "next/link";
 import { checkLogin } from "@/utils/auth";
 import { db } from "@/utils/contants"; 
@@ -44,11 +44,10 @@ export default function Login(){
         setIsLoading(true);
         try {
             if (user && !isLoadingQuery) {
-                toast.info("Đang đăng nhập...");
+                toast.success("Đăng nhập thành công!");
                 const token = generateToken(user.userId);
                 document.cookie = `token=${token}; path=/; max-age=3600`;
                 localStorage.setItem('lastLoginTime', Date.now().toString());
-                toast.success("Đăng nhập thành công!");
                 router.push('/');
             } else {
                 toast.error("Tên đăng nhập hoặc mật khẩu không chính xác");
@@ -69,7 +68,7 @@ export default function Login(){
 
     return(
         <div className="flex flex-col justify-center items-center h-screen gap-2">
-            <ToastContainer/>
+            <Toaster position="top-center"/>
             <span className="mb-1 font-bold">
                 Đăng nhập
             </span>

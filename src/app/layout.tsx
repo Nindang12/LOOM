@@ -1,8 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Baloo_Paaji_2 } from "next/font/google";
 import "./globals.css";
-import 'react-toastify/dist/ReactToastify.css';
-import { ToastContainer } from 'react-toastify';
+import { Toaster } from 'react-hot-toast';
 import { Analytics } from '@vercel/analytics/react';
 
 const roboto = Baloo_Paaji_2({ subsets: ["latin"], weight: "500" });
@@ -91,7 +90,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={roboto.className}>
-        <ToastContainer />
+        <Toaster position="top-center"/>
         {children}
         <Analytics />
       </body>

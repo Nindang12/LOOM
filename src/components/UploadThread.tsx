@@ -4,7 +4,7 @@ import LexicalEditor from "./LexicalEditor";
 import { checkLogin, getUserId } from "@/utils/auth";
 import {id,tx} from "@instantdb/react"
 import { db } from "@/utils/contants";
-import { toast } from "react-toastify";
+import toast from 'react-hot-toast';
 
 export default function UploadThread(){
     const [iesShow, setIsShow] = useState<boolean>(false);
@@ -32,6 +32,10 @@ export default function UploadThread(){
 
     const handleUploadThread = async () => {
         try {
+            if(content.length === 0){
+                toast.error('Vui lòng nhập nội dung thread!');
+                return;
+            }
             if (!userId) {
                 toast.error('User ID not found in SessionStorage');
             }
@@ -50,9 +54,9 @@ export default function UploadThread(){
             setContent("");
             setImages([]);  // Reset images after posting
             toggleModal();
-            toast.success("Thread created successfully!");
+            toast.success("Tạo thread thành công!");
         } catch (error) {
-            console.error('Error uploading thread:', error);
+            console.error('Lỗi tạo thread:', error);
         } finally {
             setIsLoading(false);
         }
@@ -86,10 +90,9 @@ export default function UploadThread(){
             }
         }
     }
-    const { data: dataUserDetails } = db.useQuery(queryUserDetails)
+    const { data: dataUserDetails,isLoading: isLoadingUserDetails } = db.useQuery(queryUserDetails)
 
-    // End of Selection
-    //console.log(JSON.stringify(content));
+
     return(
         // threadupload
         <div className="border-b border-gray-200">
