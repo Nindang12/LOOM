@@ -9,7 +9,6 @@ import Header from "@/components/Header";
 import { checkLogin, getUserId } from "@/utils/auth";
 import { db } from "@/utils/contants";
 import Link from "next/link";
-import { tx } from "@instantdb/react";
 import ButtonOption from "@/components/ButtonOption";
 export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -19,12 +18,23 @@ export default function Home() {
   const router = useRouter()
   const [visiblePosts, setVisiblePosts] = useState(10);
 
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const userId = getUserId();
       setCurrentUser(userId);
     }
   }, []); // Removed currentUser from dependencies
+
+  const [isLogin, setIsLogin] = useState<boolean>(true);
+  
+  useEffect(() => {
+    const verifyLogin = () => {
+      const loggedIn = checkLogin()
+      setIsLogin(loggedIn)
+    };
+    verifyLogin();
+  }, []);
 
   const query = {
     posts: {
@@ -35,7 +45,7 @@ export default function Home() {
       }
     }
   }
-  const { data } = db.useQuery(query)
+  const { data,isLoading } = db.useQuery(query)
 
   const filterPost = data?.posts.filter((post:any) => !post?.repost)
 
@@ -54,6 +64,8 @@ export default function Home() {
   if (!isLoggedIn) {
     return null
   }
+
+
 
 
 

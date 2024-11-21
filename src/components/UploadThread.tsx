@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 
 export default function UploadThread(){
     const [iesShow, setIsShow] = useState<boolean>(false);
-    const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+    const [isLoggedIn, setIsLoggedIn] = useState<boolean>(true);
     const [content, setContent] = useState<string>("");
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [images, setImages] = useState<string[]>([]);
@@ -19,15 +19,12 @@ export default function UploadThread(){
             const userId = getUserId();
             setUserId(userId as string);
         }
-    }, [])
-
-    useEffect(() => {
-        const verifyLogin = async () => {
-            const loggedIn = await checkLogin();
+        const verifyLogin = () => {
+            const loggedIn = checkLogin();
             setIsLoggedIn(loggedIn)
         };
         verifyLogin();
-    }, []);
+    }, [])
 
     const toggleModal = () => {
         setIsShow((prevState) => !prevState);
