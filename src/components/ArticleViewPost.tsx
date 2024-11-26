@@ -199,19 +199,18 @@ export default function ArticleViewPost({ post,user_id }: { post: any,user_id:Ar
         }
     };
 
-    const checkIsLiked = async () => {
+    useEffect(() => {
         if (!userId || !post.postId) return;
     
         try {
-            if (dataCheckIsLiked && dataCheckIsLiked.actionLikePost && dataCheckIsLiked.actionLikePost.length > 0) {
-                setIsLiked(true);
-            } else {
-                setIsLiked(false);
-            }
+            const isLiked = data?.actionLikePost?.some(
+                (like: any) => like.postId === post.postId && like.userId === userId
+            );
+            setIsLiked(!!isLiked);
         } catch (error) {
             console.error('Error checking if post is liked:', error);
         }
-    };
+    }, [userId, post.postId, data?.actionLikePost]);
 
     const handleRepost = async () => {
         if(!isLogin) return setIsModalOpen(true);
@@ -300,7 +299,6 @@ export default function ArticleViewPost({ post,user_id }: { post: any,user_id:Ar
 
     useEffect(() => {
         checkIsReposted();
-        checkIsLiked();
     }, [post.postId, userId]);
 
     const addFriend = async (userId: string, friendId: string) => {
@@ -349,6 +347,17 @@ export default function ArticleViewPost({ post,user_id }: { post: any,user_id:Ar
         }
     }
     const { data: dataIsFollowing } = db.useQuery(queryIsFollowing)
+
+    const queryCurrentUserDetails = {
+        userDetails: {
+            $: {
+                where: {
+                    userId: userId
+                }
+            }
+        }
+    }
+    const { data: dataCurrentUserDetails } = db.useQuery(queryCurrentUserDetails)
     return(
         <div>
             <div className="flex flex-col gap-3 ">
@@ -519,7 +528,13 @@ export default function ArticleViewPost({ post,user_id }: { post: any,user_id:Ar
                                 
                                 <div className="flex flex-col mt-3">
                                     <div className="flex items-start mb-4">
-                                        <img src="/assets/avt.png" className="w-8 h-8 rounded-full flex items-start justify-center" alt="" />
+                                    <div>
+                                            {dataCurrentUserDetails && dataCurrentUserDetails?.userDetails?.[0]?.avatar ? (
+                                                <img className="rounded-full w-8 h-8 bg-cover" src={dataCurrentUserDetails?.userDetails?.[0]?.avatar} alt="avatar" />
+                                            ) : (
+                                                <img className="rounded-full w-8 h-8 bg-cover" src="/assets/avt.png" alt="avatar" />
+                                            )}
+                                        </div>
                                         <div className="ml-2 w-full flex flex-col">
                                             <div className="font-semibold text-sm">{userId}</div>
                                                 <LexicalEditor setOnchange={setCommentContent}/>

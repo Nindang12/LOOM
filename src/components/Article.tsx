@@ -57,6 +57,18 @@ export default function Article({ user_id, content, postId, images, fullname, cr
         }
     }
     const { data: dataUserDetails } = db.useQuery(queryUserDetails)
+
+    const queryCurrentUserDetails = {
+        userDetails: {
+            $: {
+                where: {
+                    userId: userId
+                }
+            }
+        }
+    }
+    const { data: dataCurrentUserDetails } = db.useQuery(queryCurrentUserDetails)
+
     const queryIsFollowing = {
         friendships: {
             $: {
@@ -384,7 +396,7 @@ export default function Article({ user_id, content, postId, images, fullname, cr
                                         <div className="flex gap-2 items-center">
                                             {
                                                 dataUserDetails && dataUserDetails?.userDetails?.[0]?.avatar ? (
-                                                    <img className="rounded-full w-8 h-8 bg-cover" src={dataUserDetails?.userDetails?.[0]?.avatar} alt="avatar" />
+                                                    <img className="rounded-full w-8 h-8 bg-cover" src={dataUserDetails.userDetails[0].avatar} alt="avatar" />
                                                 ) : (
                                                 <img className="rounded-full w-8 h-8 bg-cover" src="/assets/avt.png" alt="avatar" />
                                             )}
@@ -544,11 +556,19 @@ export default function Article({ user_id, content, postId, images, fullname, cr
                                 {/* body  */}
 
                                 <div className="flex items-start mt-1">
-                                <img 
-                                    className="rounded-full w-8 h-8 bg-cover" 
-                                    src="/assets/avt.png" 
-                                    alt="User avatar" 
-                                />
+                                    {dataCurrentUserDetails?.userDetails?.[0]?.avatar ? (
+                                        <img 
+                                            className="rounded-full w-8 h-8 bg-cover" 
+                                            src={dataCurrentUserDetails.userDetails[0].avatar} 
+                                            alt="User avatar" 
+                                        />
+                                    ) : (
+                                        <img 
+                                            className="rounded-full w-8 h-8 bg-cover" 
+                                            src="/assets/avt.png" 
+                                            alt="Default avatar" 
+                                        />
+                                    )}
                                     <div className="flex-grow">
                                         <div className="font-semibold text-sm mb-2">{userId}</div>
                                         <LexicalEditor setOnchange={setCommentContent} />
@@ -590,7 +610,19 @@ export default function Article({ user_id, content, postId, images, fullname, cr
                                 </div>
                                 <div className="flex flex-row">
                                     <div className="px-2">
-                                        <img width={30} className="rounded-full w-4 h-4  bg-cover" src="/assets/avt.png" alt="" />
+                                        {dataCurrentUserDetails?.userDetails?.[0]?.avatar ? (
+                                            <img 
+                                                className="rounded-full w-4 h-4 bg-cover" 
+                                                src={dataCurrentUserDetails.userDetails[0].avatar} 
+                                                alt="User avatar" 
+                                            />
+                                        ) : (
+                                            <img 
+                                                className="rounded-full w-4 h-4 bg-cover" 
+                                                src="/assets/avt.png" 
+                                                alt="Default avatar" 
+                                            />
+                                        )}
                                     </div>
                                     <div className="text-slate-500 text-sm font-light">
                                         <button>Thêm vào threads</button>

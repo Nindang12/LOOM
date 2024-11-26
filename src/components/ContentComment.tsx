@@ -335,6 +335,18 @@ export default function ContentComment({
         }
     }
     const { data: dataUserDetails } = db.useQuery(queryUserDetails)
+
+    const queryCurrentUserDetails = {
+        userDetails: {
+            $: {
+                where: {
+                    userId: userAccountId
+                }
+            }
+        }
+    }
+    const { data: dataCurrentUserDetails } = db.useQuery(queryCurrentUserDetails)
+
     const queryIsFollowing = {
         friendships: {
             $: {
@@ -415,7 +427,7 @@ export default function ContentComment({
                         <div className="h-full">
                             <div className="flex gap-2">
                                 <Link href={`/@${userId}`} className="flex flex-row gap-2 font-bold text-sm">
-                                    <span className="">{userId}</span>
+                                    <span>{userId}</span>
                                     {
                                         commentParentId && (
                                             <div className="flex flex-row gap-2">
@@ -497,15 +509,20 @@ export default function ContentComment({
                                     <div className="flex flex-row gap-2 mt-2 ml-0 items-start">
                                         <div className="flex h-full">
                                             <div className="w-8 flex-shrink-0">
-                                                <img className="rounded-full z-0 w-8 h-8 bg-cover" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQgFPzdgOy4CJfBOVER-gmHRQJjVfNd3LMf-Q&s" alt="" />
-                                                <div className="h-full w-[2px] bg-slate-500 mx-auto mt-2"></div>
+                                                {
+                                                    dataUserDetails && dataUserDetails?.userDetails?.[0]?.avatar ? (
+                                                        <img className="rounded-full w-8 h-8 bg-cover" src={dataUserDetails?.userDetails?.[0]?.avatar} alt="avatar" />
+                                                    ) : (
+                                                        <img className="rounded-full w-8 h-8 bg-cover" src="/assets/avt.png" alt="avatar" />
+                                                    )
+                                                }
                                             </div>
                                             <div className="flex-grow ml-2">
                                                 <div className="flex flex-row gap-3">
-                                                    <Link href={`/${userAccountId}`} className="font-bold text-sm">
-                                                        <span>{userAccountId}</span>
+                                                    <Link href={`/${userId}`} className="font-bold text-sm">
+                                                        <span>{userId}</span>
                                                     </Link>
-                                                    <span className="text-sm text-gray-400">20 giờ</span>
+                                                    <span className="text-sm text-gray-400">{timeAgo}</span>
                                                 </div>
                                                 <div className="text-sm">
                                                     <pre className="max-w-[480px] break-words font-bold whitespace-pre-wrap">{content}</pre>
@@ -526,10 +543,15 @@ export default function ContentComment({
                                 </div>
                                 {/* body  */}
 
-                                <div className="flex items-start mt-1">
-                                    <img className="w-8 h-8 rounded-full bg-cover mr-3" src="/assets/avt.png" alt="User avatar" />
+                                <div className="flex items-start mt-1 gap-2">
+                                {
+                                    dataCurrentUserDetails && dataCurrentUserDetails?.userDetails?.[0]?.avatar ? (
+                                        <img className="rounded-full w-8 h-8 bg-cover" src={dataCurrentUserDetails?.userDetails?.[0]?.avatar} alt="avatar" />
+                                    ) : (
+                                        <img className="rounded-full w-8 h-8 bg-cover" src="/assets/avt.png" alt="avatar" />
+                                    )}
                                     <div className="flex-grow">
-                                        <div className="font-semibold text-sm mb-2">{userId}</div>
+                                        <div className="font-semibold text-sm mb-2">{userAccountId}</div>
                                         <LexicalEditor setOnchange={setCommentReply} />
                                         {uploadedImages.length > 0 && (
                                             <div className="grid grid-cols-2 gap-2 mt-3">
@@ -542,8 +564,8 @@ export default function ContentComment({
                                         )}
                                     </div>
                                 </div>
-                                <div className="flex flex-row">
-                                    <div className="h-[25px] w-[2px] bg-slate-500 mx-4"></div>
+                                    <div className="flex flex-row">
+                                    <div className="h-[50px] w-[2px] bg-slate-500 mx-4"></div>
                                     <div className="flex flex-row items-center mb-2">
                                         <input
                                             type="file"
@@ -553,23 +575,29 @@ export default function ContentComment({
                                             style={{ display: 'none' }}
                                             id="image-upload"
                                         />
-                                        <label htmlFor="image-upload" className="px-2 cursor-pointer">
+                                        <label htmlFor="image-upload" className="p-2 hover:bg-gray-100 rounded-full cursor-pointer">
                                             <img width={20} src="/assets/album.svg" className="" alt="icon" />
                                         </label>
-                                        <button className="px-2">
+                                        <button className="p-2 hover:bg-gray-100 rounded-full">
                                             <img width={15} src="/assets/gif.svg" alt="" />
                                         </button>
-                                        <button className="px-2">
+                                        <button className="p-2 hover:bg-gray-100 rounded-full">
                                             <img width={15} src="/assets/number.svg" alt="" />
                                         </button>
-                                        <button className="px-2">
+                                        <button className="p-2 hover:bg-gray-100 rounded-full">
                                             <img width={20} src="/assets/bargraph.svg" alt="" />
                                         </button>
                                     </div>
                                 </div>
                                 <div className="flex flex-row">
                                     <div className="px-2">
-                                        <img width={30} className="rounded-full w-4 h-4  bg-cover" src="/assets/avt.png" alt="" />
+                                        {
+                                            dataCurrentUserDetails && dataCurrentUserDetails?.userDetails?.[0]?.avatar ? (
+                                                <img className="rounded-full w-4 h-4 bg-cover" src={dataCurrentUserDetails?.userDetails?.[0]?.avatar} alt="avatar" />
+                                            ) : (
+                                                <img className="rounded-full w-4 h-4 bg-cover" src="/assets/avt.png" alt="avatar" />
+                                            )
+                                        }
                                     </div>
                                     <div className="text-slate-500 text-sm font-light">
                                         <button>Thêm vào threads</button>
